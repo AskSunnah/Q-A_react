@@ -1,6 +1,5 @@
-import React from "react";
 import LibraryMain from "../../Components/library/LibraryMain";
-
+import Navbar from '../../Components/Navbar';
 
 export default function LibraryAr() {
   return (
@@ -8,7 +7,7 @@ export default function LibraryAr() {
       <header>
         <h1>المكتبة</h1>
       </header>
-      {/* Navbar component goes here if you have one */}
+      <Navbar />
       <LibraryMain
         heading="مرحبًا بكم في المكتبة، يا طلاب العلم!"
         firstButtonLabel="الكتب العربية"

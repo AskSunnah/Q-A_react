@@ -1,4 +1,4 @@
-import React from "react";
+import Navbar from '../../Components/Navbar';
 import LibraryMain from "../../Components/library/LibraryMain";
 // Import the CSS here!
 
@@ -8,7 +8,7 @@ export default function Library() {
       <header>
         <h1>Library</h1>
       </header>
-      {/* Add your <Navbar /> here if needed */}
+      <Navbar />
       <LibraryMain
         heading="Welcome to the Library, Students of Knowledge!"
         firstButtonLabel="English Books"

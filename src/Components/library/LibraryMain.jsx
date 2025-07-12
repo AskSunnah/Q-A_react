@@ -26,12 +26,12 @@ const LibraryMain = ({
         background-position: center;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: start;
         color: white;
-        min-height: max-content;
+        min-height: 100vh;
       }
       main {
-        max-width: 1000px;
+        max-width:fit-content;
         padding: 4rem;
         margin: 2rem auto;
         background-color: rgba(0, 0, 0, 0.5);
