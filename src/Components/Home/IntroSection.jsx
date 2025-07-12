@@ -1,35 +1,32 @@
 import React from 'react';
 import '../../styles/homepage.css'; // Shared CSS file
 
-const IntroSection = ({ onOpenModal }) => {
+const IntroSection = ({ heading, description, buttonLabel, buttonLangLink, onOpenModal, lang = 'ltr' }) => {
   return (
-    <section aria-labelledby="ask-question">
-      <h2 id="ask-question">Ask a Question!</h2>
-      <p>
-        Have a question about Islam? Submit it and get a response directly from
-        Dr. Sheikh Falah Kurkully, based on one clear opinion from trusted scholars.
-      </p>
+    <section aria-labelledby="ask-question" dir={lang === 'rtl' ? 'rtl' : 'ltr'}>
+      <h2 id="ask-question">{heading}</h2>
+      <p>{description}</p>
       <a
         href="#"
         className="btn"
         id="openModalBtn"
-        aria-label="Submit your question"
+        aria-label={buttonLabel}
         onClick={(e) => {
           e.preventDefault();
-          onOpenModal(); // triggers modal open from parent
+          onOpenModal();
         }}
       >
-        Submit Your Question
+        {buttonLabel}
       </a>
       <a
-        href="/ar/"
+        href={buttonLangLink}
         style={{
-          marginLeft: '1rem',
+          margin: lang === 'rtl' ? '0 1rem 0 0' : '0 0 0 1rem',
           textDecoration: 'underline',
           color: 'inherit',
         }}
       >
-        العربية
+        {lang === 'rtl' ? 'English' : 'العربية'}
       </a>
     </section>
   );

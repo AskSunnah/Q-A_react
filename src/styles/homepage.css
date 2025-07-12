@@ -93,6 +93,7 @@
   display: block;
 }
 
+
  .modal-content {
    background-color: var(--card-bg);
    margin: 10% auto;
@@ -132,15 +133,31 @@
    background-color: var(--secondary-color);
  }
 
- .close {
-   color: #aaa;
-   float: right;
-   font-size: 1.5rem;
-   font-weight: bold;
-   cursor: pointer;
- }
 
 
+ /* Existing rule for .close */
+.close {
+  color: #aaa;
+  float: right; /* Default for LTR */
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* RTL adjustment for .close */
+[dir="rtl"] .close {
+  float: left; /* Move close button to the left in RTL */
+}
+
+/* Ensure modal-content respects RTL */
+[dir="rtl"] .modal-content {
+  text-align: right; /* Align text to the right for RTL */
+}
+
+/* Ensure h3 title is right-aligned in RTL */
+[dir="rtl"] .modal-content h3 {
+  text-align: right; /* Align title to the right in RTL */
+}
 
  @media (max-width: 768px) {
    header h1 {

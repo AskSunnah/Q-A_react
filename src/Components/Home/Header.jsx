@@ -1,14 +1,14 @@
-import React from 'react';
+
 import '../../styles/homepage.css';
 
-
-const Header = () => {
+const Header = ({ title, subtitle, dir = 'ltr' }) => {
   return (
-    <header>
-      <h1>Ask Sunnah</h1>
-      <p>Authentic answers from Dr. Sheikh Falah Kurkully – grounded in Qur’an and Sunnah</p>
+    <header dir={dir}>
+      <h1>{title}</h1>
+      <p>{subtitle}</p>
     </header>
   );
 };
 
 export default Header;
+

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import QuestionItem from './QuestionItem';
 import Pagination from './Pagination';
-import { fetchAllFatwas } from '../../api/fatwa';
 import '../../styles/homepage.css';
 
-
-const RecentAnswers = () => {
+const RecentAnswers = ({
+  fetchFatwas,            // API fetcher: fetchAllFatwas or fetchAllFatwasArabic
+  sectionTitle = 'Recent Answers',
+  searchPlaceholder = 'Search...',
+  questionLabel = 'Q',
+  direction = 'ltr',      // NEW: direction prop for RTL/LTR layout
+}) => {
   const [fatwas, setFatwas] = useState([]);
   const [filteredFatwas, setFilteredFatwas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,7 +18,7 @@ const RecentAnswers = () => {
   useEffect(() => {
     const loadFatwas = async () => {
       try {
-        const data = await fetchAllFatwas();
+        const data = await fetchFatwas();
         const reversed = data.slice().reverse();
         setFatwas(reversed);
         setFilteredFatwas(reversed);
@@ -26,7 +30,7 @@ const RecentAnswers = () => {
     };
 
     loadFatwas();
-  }, []);
+  }, [fetchFatwas]);
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
@@ -40,12 +44,17 @@ const RecentAnswers = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedFatwas = filteredFatwas.slice(startIndex, startIndex + itemsPerPage);
 
+  const isRTL = direction === 'rtl';
+
   return (
-    <section aria-labelledby="recent-answers">
-      <div>
-        <h3 id="recent-answers" style={{ margin: 0 }}>Recent Answers</h3>
-        <span id="answerCount" style={{ fontSize: '0.95rem', display: 'block', marginTop: '0.5rem' }}>
-          Total Answers: {filteredFatwas.length}
+    <section aria-labelledby="recent-answers" dir={direction}>
+      <div style={{ textAlign: isRTL ? 'right' : 'left' }}>
+        <h3 id="recent-answers" style={{ margin: 0 }}>{sectionTitle}</h3>
+        <span
+          id="answerCount"
+          style={{ fontSize: '0.95rem', display: 'block', marginTop: '0.5rem' }}
+        >
+          {isRTL ? 'عدد الإجابات:' : 'Total Answers:'} {filteredFatwas.length}
         </span>
       </div>
 
@@ -53,7 +62,7 @@ const RecentAnswers = () => {
         <input
           type="text"
           id="fatwaSearch"
-          placeholder="Search..."
+          placeholder={searchPlaceholder}
           onChange={handleSearch}
           style={{
             width: '100%',
@@ -61,6 +70,8 @@ const RecentAnswers = () => {
             border: '1px solid #ccc',
             borderRadius: '6px',
             fontSize: '1rem',
+            direction: direction,
+            textAlign: isRTL ? 'right' : 'left',
           }}
         />
       </div>
@@ -68,10 +79,18 @@ const RecentAnswers = () => {
       <div id="fatwaList">
         {paginatedFatwas.length > 0 ? (
           paginatedFatwas.map((item, index) => (
-            <QuestionItem key={index} index={startIndex + index} item={item} />
+            <QuestionItem
+              key={index}
+              index={startIndex + index}
+              item={item}
+              labelPrefix={questionLabel}
+              direction={direction} // ✅ Pass direction to each item
+            />
           ))
         ) : (
-          <p style={{ color: 'red' }}>❌ No questions found.</p>
+          <p style={{ color: 'red', textAlign: isRTL ? 'right' : 'left' }}>
+            {isRTL ? '❌ لم يتم العثور على أسئلة.' : '❌ No questions found.'}
+          </p>
         )}
       </div>
 
