@@ -1,12 +1,28 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import './App.css'
+
+import Home from './Pages/Home';
+import Footer from './Components/Footer';
+import Navbar from './Components/Navbar';
+// import AboutUs from './pages/AboutUs';
+// import Library from './pages/Library';
+
+import './App.css';
 
 function App() {
   return (
-    <div>
-      <h1>AskSunnah React Frontend</h1>
-      <p>Let's build something great!</p>
-    </div>
+    <Router>
+      <div>
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {/* <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/library" element={<Library />} /> */}
+          {/* Add more routes as needed */}
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
