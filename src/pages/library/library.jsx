@@ -12,9 +12,9 @@ export default function Library() {
       <LibraryMain
         heading="Welcome to the Library, Students of Knowledge!"
         firstButtonLabel="English Books"
-        firstButtonLink="/library/library_eng/englishBooks.html"
+        firstButtonLink="/library/engbooks"
         secondButtonLabel="Arabic Books"
-        secondButtonLink="/library/library_eng/arabicBooks.html"
+        secondButtonLink="/library/arabicbook"
         dir="ltr"
       />
     </div>

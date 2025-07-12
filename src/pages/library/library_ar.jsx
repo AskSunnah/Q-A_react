@@ -12,9 +12,9 @@ export default function LibraryAr() {
       <LibraryMain
         heading="مرحبًا بكم في المكتبة، يا طلاب العلم!"
         firstButtonLabel="الكتب العربية"
-        firstButtonLink="/library/library_ar/arabicBooks.html"
+        firstButtonLink="/library/arabicbooks"
         secondButtonLabel="الكتب الإنجليزية"
-        secondButtonLink="/library/library_ar/englishBooks.html"
+        secondButtonLink="/library/engbooks"
         dir="rtl"
       />
     </div>
