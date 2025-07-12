@@ -1,5 +1,5 @@
 import React from "react";
-import LibraryMain from "../../components/library/LibraryMain";
+import LibraryMain from "../../Components/library/LibraryMain";
 import "../../styles/library.css";
 
 export default function LibraryAr() {
