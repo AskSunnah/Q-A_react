@@ -14,7 +14,7 @@ export default function Library() {
         firstButtonLabel="English Books"
         firstButtonLink="/library/engbooks"
         secondButtonLabel="Arabic Books"
-        secondButtonLink="/library/arabicbook"
+        secondButtonLink="/library/arabicbooks"
         dir="ltr"
       />
     </div>
