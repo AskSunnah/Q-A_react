@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dark, setDark] = useState(false);
 
@@ -21,7 +21,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar" aria-label="Main Navigation">
+    <nav className="navbar" aria-label="Main Navigation" dir={dir}>
       <button
         className="nav-toggle"
         aria-label="Toggle Navigation"
@@ -31,23 +31,29 @@ const Navbar = () => {
         ☰
       </button>
       <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
-        <ul>
-          <li><Link to="/" className="nav-link">Home</Link></li>
-          <li><Link to="/library" className="nav-link">Library</Link></li>
-          <li><Link to="/about-us" className="nav-link">About Us</Link></li>
-          <li>
-            <a href="https://forms.gle/e5jGuDBJhZAyCP448" className="nav-link" target="_blank" rel="noopener">
-              Feedback
-            </a>
-          </li>
-          <li>
-            <a href="https://www.paypal.me/asksunnah" className="nav-link" target="_blank" rel="noopener">
-              Contribute
-            </a>
-          </li>
+        <ul style={{ direction: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>
+          {navItems.map((item, index) =>
+            item.internal ? (
+              <li key={index}>
+                <Link to={item.href} className="nav-link">{item.label}</Link>
+              </li>
+            ) : (
+              <li key={index}>
+                <a href={item.href} className="nav-link" target="_blank" rel="noopener">
+                  {item.label}
+                </a>
+              </li>
+            )
+          )}
+          {languageSwitcher && (
+            <li>
+              <a href={languageSwitcher.href} className="nav-link">
+                {languageSwitcher.label}
+              </a>
+            </li>
+          )}
           <li className="nav-darkmode" style={{ marginTop: '10px' }}>
             <i
-              id="toggleDarkMode"
               className={`dark-toggle-icon fa-solid ${dark ? 'fa-sun' : 'fa-moon'}`}
               title="Toggle dark mode"
               tabIndex={0}
