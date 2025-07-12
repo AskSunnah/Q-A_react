@@ -66,7 +66,7 @@ export default function BookLibrary({ lang = "en" }) {
     body {
       margin: 0;
       font-family: var(--font-family);
-      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/src/assets/library-bg.webp");
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/library-bg.webp");
       background-size: cover;
       background-position: center;
       color: white;
