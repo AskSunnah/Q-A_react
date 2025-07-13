@@ -31,7 +31,6 @@ export default function ReadBook() {
       bookData.pages = flatPages; 
       setBook(bookData);
       setCurrentPage(0);
-      console.log("BOOK DATA after flattening:", bookData); 
     })
     .catch(() => setBook(null));
 }, [lang, slug]);
@@ -39,7 +38,6 @@ export default function ReadBook() {
   if (!book) return <div></div>;
 
   const page = book.pages?.[currentPage] || { blocks: [] };
-  console.log("Rendering page:", currentPage, book.pages?.[currentPage]);
 
   // Handle direction for Arabic
   const dir = lang === "ar" ? "rtl" : "ltr";
