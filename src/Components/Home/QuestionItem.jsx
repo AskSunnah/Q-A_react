@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import '../../styles/homepage.css';
 
 
 const QuestionItem = ({ item, index, labelPrefix = 'Q', direction = 'ltr' }) => {

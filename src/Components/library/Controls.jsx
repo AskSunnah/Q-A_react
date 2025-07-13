@@ -1,5 +1,4 @@
 // src/components/ReadBook/Controls.jsx
-import React from "react";
 
 export default function Controls({ currentPage, totalPages, setCurrentPage,  setFontSize }) {
   return (

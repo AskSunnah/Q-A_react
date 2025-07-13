@@ -1,6 +1,4 @@
 import React from 'react';
-import '../../styles/homepage.css';
-
 
 const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);

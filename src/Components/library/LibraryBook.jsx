@@ -191,7 +191,6 @@ export default function BookLibrary({ lang = "en" }) {
         <div className="book-grid">
           {displayBooks.length === 0 ? (
             <p>
-              {lang === "ar" ? "لا توجد كتب مطابقة." : "No books found."}
             </p>
           ) : (
             displayBooks.map((book) => (

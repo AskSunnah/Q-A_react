@@ -9,7 +9,6 @@ import RecentAnswers from '../Components/Home/RecentAnswers';
 import AskQuestionModal from '../Components/Home/AskQuestionModal';
 import { fetchAllFatwasArabic } from "../api/fatwa";
 
-// import '../styles/homepage.css'; // Shared CSS file
 
 function Home() {
     const [isModalOpen, setIsModalOpen] = useState(false);

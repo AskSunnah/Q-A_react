@@ -1,5 +1,4 @@
 import React from 'react';
-import '../../styles/homepage.css'; // Shared CSS file
 
 const IntroSection = ({ heading, description, buttonLabel, onOpenModal, lang = 'ltr' }) => {
   return (
