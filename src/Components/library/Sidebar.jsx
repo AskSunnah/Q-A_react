@@ -1,6 +1,6 @@
-export default function Sidebar({ chapters, setCurrentPage, currentPage, pages, tocLabel }) {
+export default function Sidebar({ open,chapters, setCurrentPage, currentPage, pages, tocLabel }) {
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${open ? " open" : ""}`}>
       <h2>{tocLabel}</h2>
       {chapters.map((chapter, idx) => {
         // find the first page index for this chapter

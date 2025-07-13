@@ -15,6 +15,7 @@ export default function ReadBook() {
   const [book, setBook] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [fontSize, setFontSize] = useState(1.1);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
  useEffect(() => {
@@ -305,7 +306,19 @@ export default function ReadBook() {
         </ul>
       </nav>
       <div className="layout">
+        <button
+  className="sidebar-toggle"
+  onClick={() => setSidebarOpen(open => !open)}
+  aria-label="Toggle sidebar"
+>
+  <img
+    src="https://img.icons8.com/?size=100&id=42763&format=png&color=000000"
+    alt="قائمة"
+    width="30px"
+  />
+</button>
         <Sidebar
+          open={sidebarOpen}
           chapters={book.chapters}
           setCurrentPage={setCurrentPage}
           currentPage={currentPage}
