@@ -1,4 +1,4 @@
-//Fetch books by language
+//// api call for eng or arabic books
 export async function fetchBooks(lang = "en") {
   const endpoint =
     lang === "ar"

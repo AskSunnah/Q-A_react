@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchBooks } from "../../api/book.js";
+import { fetchBooks } from "../../api/books.js";
 
 const CATEGORY_OPTIONS = {
   en: [
@@ -48,9 +48,7 @@ export default function BookLibrary({ lang = "en" }) {
 
   // Proper link for each language
   const getBookLink = (slug) =>
-    lang === "ar"
-      ? `/library/library_ar/read.html?slug=${slug}`
-      : `/library/library_eng/read.html?slug=${slug}`;
+  `/library/read/${lang}/${slug}`
 
   return (
     <div
