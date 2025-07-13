@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../styles/homepage.css'; // Shared CSS file
 
-const IntroSection = ({ heading, description, buttonLabel, buttonLangLink, onOpenModal, lang = 'ltr' }) => {
+const IntroSection = ({ heading, description, buttonLabel, onOpenModal, lang = 'ltr' }) => {
   return (
     <section aria-labelledby="ask-question" dir={lang === 'rtl' ? 'rtl' : 'ltr'}>
       <h2 id="ask-question">{heading}</h2>
@@ -18,16 +18,7 @@ const IntroSection = ({ heading, description, buttonLabel, buttonLangLink, onOpe
       >
         {buttonLabel}
       </a>
-      <a
-        href={buttonLangLink}
-        style={{
-          margin: lang === 'rtl' ? '0 1rem 0 0' : '0 0 0 1rem',
-          textDecoration: 'underline',
-          color: 'inherit',
-        }}
-      >
-        {lang === 'rtl' ? 'English' : 'العربية'}
-      </a>
+      
     </section>
   );
 };

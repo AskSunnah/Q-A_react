@@ -60,8 +60,8 @@ export default function BookDetails() {
     <div dir={labels.dir} style={{ background: "#f9f9f9", minHeight: "100vh", color: "#1e293b" }}>
       <style>{`
         :root {
-          --primary-color: #1f6f3e;
-          --secondary-color: #2e8b57;
+          --primary: #1f6f3e;
+          --secondary: #2e8b57;
         }
         body {
           font-family: 'Segoe UI', sans-serif;
@@ -95,7 +95,7 @@ export default function BookDetails() {
           gap: 1.5rem;
         }
         nav .nav-link {
-          color: var(--primary-color);
+          color: var(--primary);
           text-decoration: none;
           font-weight: 500;
           padding: 0.5rem 1rem;
@@ -103,7 +103,7 @@ export default function BookDetails() {
           transition: background 0.2s;
         }
         nav .nav-link:hover {
-          background-color: var(--secondary-color);
+          background-color: var(--secondary);
           color: #fff;
         }
         .container {

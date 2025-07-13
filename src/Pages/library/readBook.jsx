@@ -44,8 +44,8 @@ export default function ReadBook() {
     <div className="root" dir={dir}>
       <style>{`
       :root {
-      --primary-color: #1f6f3e;
-      --secondary-color: #2e8b57;
+      --primary: #1f6f3e;
+      --secondary: #2e8b57;
       --background: #f7f7f7;
       --card-bg: #ffffff;
       --accent-bg: #f0f4fa;
@@ -97,7 +97,7 @@ export default function ReadBook() {
     .sidebar a {
       display: block;
       text-decoration: none;
-      color: var(--primary-color);
+      color: var(--primary);
       padding: 0.4rem 0;
       font-size: 0.95rem;
       overflow: auto;
@@ -114,7 +114,7 @@ export default function ReadBook() {
       cursor: pointer;
       text-align: right;
       margin: 6px;
-      color: var(--primary-color);
+      color: var(--primary);
     }
     .content {
       min-height: 50vh;
@@ -149,7 +149,7 @@ export default function ReadBook() {
       border: 1px solid #ccc;
       border-radius: 4px;
       color: white;
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       cursor: pointer;
       font-family: inherit;
     }
@@ -187,7 +187,7 @@ export default function ReadBook() {
     }
 
     .nav-link {
-      color: var(--primary-color);
+      color: var(--primary);
       text-decoration: none;
       font-weight: 500;
       padding: 0.5rem 1rem;
@@ -198,7 +198,7 @@ export default function ReadBook() {
 
     .nav-link:hover,
     .nav-link:focus {
-      background: var(--secondary-color);
+      background: var(--secondary);
       color: #fff;
     }
 
@@ -209,9 +209,9 @@ export default function ReadBook() {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--primary-color);
+      color: var(--primary);
       position: absolute;
-      top: 0.6rem;
+      top: 9px;
       right: 1rem;
       z-index: 11;
     }

@@ -3,12 +3,15 @@ import Library from './Pages/library/library';
 import LibraryAr from './Pages/library/library_ar';
 import EngBooksPage from "./Pages/library/libraryBooks";
 import ArabicBooksPage from "./Pages/library/libraryBooks_ar";
-import QuestionPage from './Components/Home/QuestionPage';
 import Home from './Pages/Home';
 import HomeArabic from './Pages/HomeArabic';
 import ReadBookPage from "./Pages/library/readBook";
 import BookDetails from './Components/library/BookDetails';
-import { fetchFatwaBySlug } from './api/fatwa';
+import QuestionPageArabic from './Pages/QuestionPageArabic';
+import QuestionPageEnglish from './Pages/QuestionPageEnglish';
+import AboutArabic from './Pages/About/AboutArabic';
+import AboutEnglish from './Pages/About/AboutEnglish';
+
 
 import './App.css';
 
@@ -26,32 +29,13 @@ function App() {
           <Route path="/library/arabicbooks" element={<ArabicBooksPage />} />
           <Route path="/library/read/:lang/:slug" element={<ReadBookPage />} />
           <Route path="/books/:lang/:slug" element={<BookDetails />} />
-          <Route
-            path="/questions/:slug"
-            element={<QuestionPage fetchQuestionBySlug={(slug) => fetchFatwaBySlug(slug)} />}
-          />
 
-          <Route
-            path="/ar/questions/:slug"
-            element={
-              <QuestionPage
-                fetchQuestionBySlug={(slug) => fetchFatwaBySlug(slug, 'ar')}
-                direction="rtl"
-                language="ar"
-                labels={{
-                  question: "السؤال:",
-                  answer: "الجواب:",
-                  conclusion: "الخلاصة:",
-                  back: "← العودة إلى الأسئلة",
-                  andAllahKnowsBest: "والله أعلم.",
-                  fromQuran: "من القرآن الكريم:",
-                  fromSunnah: "من السنة النبوية:",
-                  fromSalaf: "من السلف الصالح:",
-                  fromScholars: "من أقوال العلماء:",
-                }}
-              />
-            }
-          />
+
+          <Route path="/questions/:slug" element={<QuestionPageEnglish />} />
+          <Route path="/ar/questions/:slug" element={<QuestionPageArabic />} />
+
+           <Route path="/about-us" element={<AboutEnglish />} />
+           <Route path="/about-us/ar" element={<AboutArabic />} />
         </Routes>
       </div>
     </Router>
