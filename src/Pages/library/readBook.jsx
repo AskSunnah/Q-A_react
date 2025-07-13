@@ -15,12 +15,12 @@ export default function ReadBook() {
   const [book, setBook] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [fontSize, setFontSize] = useState(1.1);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
  useEffect(() => {
   fetchBook(lang, slug)
     .then(bookData => {
-      // Flatten chapters into a single pages array
       let flatPages = [];
       bookData.chapters.forEach((chapter, chapterIndex) => {
         chapter.pages.forEach((pg, pageIndex) => {
@@ -30,7 +30,6 @@ export default function ReadBook() {
       bookData.pages = flatPages; 
       setBook(bookData);
       setCurrentPage(0);
-      console.log("BOOK DATA after flattening:", bookData); 
     })
     .catch(() => setBook(null));
 }, [lang, slug]);
@@ -38,9 +37,6 @@ export default function ReadBook() {
   if (!book) return <div></div>;
 
   const page = book.pages?.[currentPage] || { blocks: [] };
-  console.log("Rendering page:", currentPage, book.pages?.[currentPage]);
-
-  // Handle direction for Arabic
   const dir = lang === "ar" ? "rtl" : "ltr";
   const labels = LANG_LABELS[lang] || LANG_LABELS.en;
 
@@ -298,14 +294,29 @@ export default function ReadBook() {
             </Link>
           </li>
           <li>
-            <button onClick={() => navigate(-1)}>
-              {labels.back}
-            </button>
+            <button
+  className="nav-link"
+  onClick={() => navigate(`/books/${lang}/${slug}`)}
+>
+  {labels.back}
+</button>
           </li>
         </ul>
       </nav>
       <div className="layout">
+        <button
+  className="sidebar-toggle"
+  onClick={() => setSidebarOpen(open => !open)}
+  aria-label="Toggle sidebar"
+>
+  <img
+    src="https://img.icons8.com/?size=100&id=42763&format=png&color=000000"
+    alt="قائمة"
+    width="30px"
+  />
+</button>
         <Sidebar
+          open={sidebarOpen}
           chapters={book.chapters}
           setCurrentPage={setCurrentPage}
           currentPage={currentPage}
