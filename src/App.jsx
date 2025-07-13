@@ -7,6 +7,7 @@ import QuestionPage from './Components/Home/QuestionPage';
 import Home from './Pages/Home';
 import HomeArabic from './Pages/HomeArabic';
 import ReadBookPage from "./Pages/library/readBook";
+import BookDetails from './Components/library/BookDetails';
 
 import './App.css';
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/library/engbooks" element={<EngBooksPage />} />
           <Route path="/library/arabicbooks" element={<ArabicBooksPage />} />
           <Route path="/library/read/:lang/:slug" element={<ReadBookPage />} />
+          <Route path="/books/:lang/:slug" element={<BookDetails />} />
         </Routes>
       </div>
     </Router>

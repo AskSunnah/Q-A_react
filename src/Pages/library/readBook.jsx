@@ -21,7 +21,6 @@ export default function ReadBook() {
  useEffect(() => {
   fetchBook(lang, slug)
     .then(bookData => {
-      // Flatten chapters into a single pages array
       let flatPages = [];
       bookData.chapters.forEach((chapter, chapterIndex) => {
         chapter.pages.forEach((pg, pageIndex) => {
@@ -38,8 +37,6 @@ export default function ReadBook() {
   if (!book) return <div></div>;
 
   const page = book.pages?.[currentPage] || { blocks: [] };
-
-  // Handle direction for Arabic
   const dir = lang === "ar" ? "rtl" : "ltr";
   const labels = LANG_LABELS[lang] || LANG_LABELS.en;
 
@@ -297,9 +294,12 @@ export default function ReadBook() {
             </Link>
           </li>
           <li>
-            <button onClick={() => navigate(-1)}>
-              {labels.back}
-            </button>
+            <button
+  className="nav-link"
+  onClick={() => navigate(`/books/${lang}/${slug}`)}
+>
+  {labels.back}
+</button>
           </li>
         </ul>
       </nav>
