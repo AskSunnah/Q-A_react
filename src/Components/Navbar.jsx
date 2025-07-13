@@ -24,8 +24,8 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
 
     <>
       <style>
-  {`
-   
+        {`
+
     .navbar {
       background: #e9f5ec;
       padding: 1rem 1.5rem;
@@ -44,7 +44,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     }
 
     .nav-link {
-      color: var(--primary-color);
+      color: #1f6f3e;
       text-decoration: none;
       font-weight: 500;
       padding: 0.5rem 1rem;
@@ -55,7 +55,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
 
     .nav-link:hover,
     .nav-link:focus {
-      background: var(--secondary-color);
+      background:#2e8b57;
       color: #fff;
     }
 
@@ -65,9 +65,9 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--primary-color);
+      color:  #1f6f3e;
       position: absolute;
-      top: -0.3rem;
+      top: 9px;
       right: 1rem;
       z-index: 11;
     }
@@ -111,50 +111,50 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     }
 
   `}
-</style>
-    <nav className="navbar" aria-label="Main Navigation" dir={dir}>
-      <button
-        className="nav-toggle"
-        aria-label="Toggle Navigation"
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        ☰
-      </button>
-      <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
-        <ul style={{ direction: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>
-          {navItems.map((item, index) =>
-            item.internal ? (
-              <li key={index}>
-                <Link to={item.href} className="nav-link">{item.label}</Link>
-              </li>
-            ) : (
-              <li key={index}>
-                <a href={item.href} className="nav-link" target="_blank" rel="noopener">
-                  {item.label}
+      </style>
+      <nav className="navbar" aria-label="Main Navigation" dir={dir}>
+        <button
+          className="nav-toggle"
+          aria-label="Toggle Navigation"
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          ☰
+        </button>
+        <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
+          <ul style={{ direction: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>
+            {navItems.map((item, index) =>
+              item.internal ? (
+                <li key={index}>
+                  <Link to={item.href} className="nav-link">{item.label}</Link>
+                </li>
+              ) : (
+                <li key={index}>
+                  <a href={item.href} className="nav-link" target="_blank" rel="noopener">
+                    {item.label}
+                  </a>
+                </li>
+              )
+            )}
+            {languageSwitcher && (
+              <li>
+                <a href={languageSwitcher.href} className="nav-link">
+                  {languageSwitcher.label}
                 </a>
               </li>
-            )
-          )}
-          {languageSwitcher && (
-            <li>
-              <a href={languageSwitcher.href} className="nav-link">
-                {languageSwitcher.label}
-              </a>
+            )}
+            <li className="nav-darkmode" style={{ marginTop: '10px' }}>
+              <i
+                className={`dark-toggle-icon fa-solid ${dark ? 'fa-sun' : 'fa-moon'}`}
+                title="Toggle dark mode"
+                tabIndex={0}
+                onClick={toggleDarkMode}
+                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color:"green" }}
+              ></i>
             </li>
-          )}
-          <li className="nav-darkmode" style={{ marginTop: '10px' }}>
-            <i
-              className={`dark-toggle-icon fa-solid ${dark ? 'fa-sun' : 'fa-moon'}`}
-              title="Toggle dark mode"
-              tabIndex={0}
-              onClick={toggleDarkMode}
-              style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block' }}
-            ></i>
-          </li>
-        </ul>
-      </div>
-    </nav>
+          </ul>
+        </div>
+      </nav>
     </>
   );
 };

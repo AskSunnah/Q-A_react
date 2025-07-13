@@ -13,7 +13,7 @@ export default function BookContent({ blocks, references, fontSize }) {
               return <p key={idx} style={{ whiteSpace: "pre-wrap" }}>{block.text}</p>;
             case "quote":
               return (
-                <blockquote key={idx} style={{ borderLeft: "3px solid var(--primary-color)", paddingLeft: "1rem", color: "#1f6f3e" }}>
+                <blockquote key={idx} style={{ borderLeft: "3px solid var(--primary)", paddingLeft: "1rem", color: "#1f6f3e" }}>
                   {block.text}
                   {block.reference && <p><small>{block.reference}</small></p>}
                 </blockquote>
