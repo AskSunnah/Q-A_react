@@ -1,11 +1,8 @@
-//Fetch books by language
-export async function fetchBooks(lang = "en") {
-  const endpoint =
-    lang === "ar"
-      ? "https://asksunnah-backend-hno9.onrender.com/api/books/ar"
-      : "https://asksunnah-backend-hno9.onrender.com/api/books/en";
-  const response = await fetch(endpoint);
-  if (!response.ok) throw new Error("Failed to fetch books");
-  const data = await response.json();
-  return data.books;
+// api call for individual book
+export async function fetchBook(lang, slug) {
+  const url = `https://asksunnah-backend-hno9.onrender.com/api/books/${lang}/${slug}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Book not found');
+  const data = await res.json();
+  return data.book;
 }

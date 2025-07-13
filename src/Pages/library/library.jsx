@@ -18,7 +18,7 @@ export default function Library() {
     { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
     { label: "Contribute", href: "https://www.paypal.me/asksunnah", internal: false }
   ]}
-  languageSwitcher={{ label: "العربية", href: "/ar" }}
+  languageSwitcher={{ label: "العربية", href: "/library_ar" }}
 />
 
 
