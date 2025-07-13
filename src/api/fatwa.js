@@ -20,13 +20,16 @@ export const fetchAllFatwasArabic = async () => {
 };
 
 
-export const fetchFatwaBySlug = async (slug) => {
+export const fetchFatwaBySlug = async (slug, lang = 'en') => {
+  const langPrefix = lang === 'ar' ? '/ar' : '';
+  const url = `https://asksunnah-backend-hno9.onrender.com/api${langPrefix}/questions/${slug}`;
+
   try {
-    const response = await fetch(`https://asksunnah-backend-hno9.onrender.com/api/questions/${slug}`);
+    const response = await fetch(url);
     if (!response.ok) throw new Error('Fatwa not found');
     return await response.json();
   } catch (error) {
-    console.error("Error fetching fatwa:", error);
+    console.error(`Error fetching fatwa [${lang}]:`, error);
     return null;
   }
 };
