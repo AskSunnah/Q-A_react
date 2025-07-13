@@ -17,18 +17,28 @@ export default function ReadBook() {
   const [fontSize, setFontSize] = useState(1.1);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchBook(lang, slug)
-      .then(bookData => {
-        setBook(bookData);
-        setCurrentPage(0);
-      })
-      .catch(() => setBook(null));
-  }, [lang, slug]);
+ useEffect(() => {
+  fetchBook(lang, slug)
+    .then(bookData => {
+      // Flatten chapters into a single pages array
+      let flatPages = [];
+      bookData.chapters.forEach((chapter, chapterIndex) => {
+        chapter.pages.forEach((pg, pageIndex) => {
+          flatPages.push({ ...pg, chapterIndex, pageIndex });
+        });
+      });
+      bookData.pages = flatPages; // 👈 Add the flattened array to your book object
+      setBook(bookData);
+      setCurrentPage(0);
+      console.log("BOOK DATA after flattening:", bookData); // For debugging
+    })
+    .catch(() => setBook(null));
+}, [lang, slug]);
 
   if (!book) return <div>Loading...</div>;
 
   const page = book.pages?.[currentPage] || { blocks: [] };
+  console.log("Rendering page:", currentPage, book.pages?.[currentPage]);
 
   // Handle direction for Arabic
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -57,7 +67,7 @@ export default function ReadBook() {
     header {
       background-image:
       linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-       url('/static/library-bg.webp'); 
+       url("/library-bg.webp"); 
       background-size: cover;
       background-position: center;
       color: white;

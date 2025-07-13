@@ -26,7 +26,7 @@ export default function BookContent({ blocks, references, fontSize }) {
     header {
       background-image:
       linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-       url('/static/library-bg.webp'); 
+       url('/library-bg.webp'); 
       background-size: cover;
       background-position: center;
       color: white;
