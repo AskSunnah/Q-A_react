@@ -19,8 +19,8 @@ function Home() {
             <style>
   {`
     :root {
-      --primary-color: #1f6f3e;
-      --secondary-color: #2e8b57;
+      --primary: #1f6f3e;
+      --secondary: #2e8b57;
       --background: #f7f7f7;
       --card-bg: #ffffff;
       --accent-bg: #f0f4fa;
@@ -42,7 +42,7 @@ function Home() {
     }
 
     header {
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       color: #fff;
       padding: 2.5rem 1.25rem;
       text-align: center;
@@ -71,14 +71,14 @@ function Home() {
     }
 
     h2, h3 {
-      color: var(--primary-color);
+      color: var(--primary);
     }
 
     a.btn {
       display: inline-block;
       margin-top: 1rem;
       padding: 0.75rem 1.5rem;
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       color: #fff;
       text-decoration: none;
       border-radius: 6px;
@@ -86,14 +86,14 @@ function Home() {
     }
 
     a.btn:hover {
-      background-color: var(--secondary-color);
+      background-color: var(--secondary);
     }
 
     .question-item {
       display: block;
       margin-top: 1.5rem;
       padding: 1rem;
-      border-left: 5px solid var(--primary-color);
+      border-left: 5px solid var(--primary);
       background-color: var(--accent-bg);
       border-radius: 5px;
       text-decoration: none;
@@ -135,7 +135,7 @@ function Home() {
 
     .modal-content h3 {
       margin-bottom: 1rem;
-      color: var(--primary-color);
+      color: var(--primary);
     }
 
     .modal-content input,
@@ -150,7 +150,7 @@ function Home() {
 
     .modal-content button {
       padding: 0.75rem 1.25rem;
-      background-color: var(--primary-color);
+      background-color: var(--primary);
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -158,7 +158,7 @@ function Home() {
     }
 
     .modal-content button:hover {
-      background-color: var(--secondary-color);
+      background-color: var(--secondary);
     }
 
     .close {
@@ -274,7 +274,7 @@ function Home() {
     }
 
     body.dark header {
-      background-color: var(--primary-color) !important;
+      background-color: var(--primary) !important;
     }
 
     .pagination a,
@@ -286,7 +286,7 @@ function Home() {
       border-radius: 6px;
       font-weight: 500;
       font-family: inherit;
-      color: var(--primary-color);
+      color: var(--primary);
       background: #fff;
       transition: background 0.2s, color 0.2s;
     }
@@ -294,14 +294,14 @@ function Home() {
     .pagination a[aria-current="page"],
     .pagination a.active,
     .pagination a.selected {
-      background: var(--primary-color);
+      background: var(--primary);
       color: #fff;
       font-weight: bold;
       pointer-events: none;
     }
 
     .pagination a:hover:not([aria-current="page"]):not(.active) {
-      background: var(--secondary-color);
+      background: var(--secondary);
       color: #fff;
       cursor: pointer;
     }
@@ -331,7 +331,7 @@ function Home() {
     }
 
     .nav-link {
-      color: var(--primary-color);
+      color: var(--primary);
       text-decoration: none;
       font-weight: 500;
       padding: 0.5rem 1rem;
@@ -342,7 +342,7 @@ function Home() {
 
     .nav-link:hover,
     .nav-link:focus {
-      background: var(--secondary-color);
+      background: var(--secondary);
       color: #fff;
     }
 
@@ -352,9 +352,9 @@ function Home() {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--primary-color);
+      color: var(--primary);
       position: absolute;
-      top: -0.3rem;
+      top: 9px;
       right: 1rem;
       z-index: 11;
     }
@@ -476,7 +476,7 @@ function Home() {
                 navItems={[
                     { label: "الرئيسية", href: "/ar", internal: true },
                     { label: "المكتبة", href: "/library_ar", internal: true },
-                    { label: "عن الموقع", href: "/ar/about-us_ar.html", internal: false },
+                    { label: "عن الموقع", href: "/about-us/ar", internal: false },
                     { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
                     { label: "ساهم", href: "https://www.paypal.me/asksunnah", internal: false }
                 ]}
@@ -489,7 +489,7 @@ function Home() {
                     heading="أرسل سؤالك"
                     description="هل لديك سؤال عن الإسلام؟ أرسله الآن وستتلقى الرد من الشيخ فلاح كركولي وفق رأي موثوق من العلماء."
                     buttonLabel="أرسل سؤالك"
-                    buttonLangLink="/"
+                    
                     onOpenModal={() => setIsModalOpen(true)}
                     lang="rtl"
                 />
@@ -525,7 +525,7 @@ function Home() {
 
 
             </main>
-            <Footer />
+           <Footer lang="ar" />
         </>
     );
 }

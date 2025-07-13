@@ -19,8 +19,8 @@ const QuestionItem = ({ item, index, labelPrefix = 'Q', direction = 'ltr' }) => 
         transition: 'background-color 0.2s',
         direction: direction,
         textAlign: isRTL ? 'right' : 'left',
-        borderLeft: !isRTL ? '5px solid var(--primary-color)' : 'none',
-        borderRight: isRTL ? '5px solid var(--primary-color)' : 'none',
+        borderLeft: !isRTL ? '5px solid var(--primary)' : 'none',
+        borderRight: isRTL ? '5px solid var(--primary)' : 'none',
       }}
     >
       <strong>{labelPrefix}{index + 1}:</strong> {item.heading}
