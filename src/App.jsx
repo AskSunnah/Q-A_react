@@ -18,6 +18,7 @@ import AdminLogin from './Pages/Admin/AdminLogin';
 import AdminDashboard from './Pages/Admin/AdminDashboard';
 import ProtectedRoute from './Components/Admin/ProtectedRoute';
 import AddQA from './Pages/Admin/AddQA';
+import AllQA from './Pages/Admin/AllQA';
 
 
 
@@ -45,8 +46,11 @@ function App() {
           <Route path="/supervised/dashboard" element={
             <ProtectedRoute><AdminDashboard /></ProtectedRoute>
           } />
-           <Route path="/supervised/add-qa" element={
+          <Route path="/supervised/add-qa" element={
             <ProtectedRoute><AddQA /></ProtectedRoute>
+          } />
+        <Route path="/supervised/all-qa" element={
+            <ProtectedRoute><AllQA /></ProtectedRoute>
           } />
 
         </Routes>
