@@ -33,7 +33,7 @@ function QuestionPage() {
   }
 
   if (!data) {
-    return <h2>Question not found</h2>;
+    // return <h2>Question not found</h2>;
   }
 
   return (
@@ -101,7 +101,7 @@ const pageStyles = `
     color: #2c3e50;
     line-height: 1.7;
     padding: 2rem;
-    max-width: 850px;
+    max-width: 887px;
     margin: auto;
   }
 
