@@ -18,6 +18,8 @@ const LibraryMain = ({
         --text-color: #2c3e50;
         --font-family: "Segoe UI", sans-serif;
       }
+      body{
+      margin: 0;}
       .library-bg {
         margin: 0;
         font-family: var(--font-family);

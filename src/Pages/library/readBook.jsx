@@ -1,6 +1,6 @@
 // src/components/ReadBook/ReadBook.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams,Link } from "react-router-dom";
 import { fetchBook } from "../../api/book.js";
 import Sidebar from "../../Components/library/Sidebar";
 import BookContent from "../../Components/library/BookContent";
@@ -16,7 +16,6 @@ export default function ReadBook() {
   const [currentPage, setCurrentPage] = useState(0);
   const [fontSize, setFontSize] = useState(1.1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
 
  useEffect(() => {
   fetchBook(lang, slug)
@@ -285,21 +284,20 @@ export default function ReadBook() {
       </header>
       <nav className="navbar">
         <ul>
-          <li><Link to="/" >Home</Link></li>
+          <li><Link className="nav-link" to="/" >Home</Link></li>
           <li>
-            <Link
+            <Link className="nav-link"
               to={lang === "ar" ? "/library_ar" : "/library"}
             >
               {lang === "ar" ? "المكتبة" : "Library"}
             </Link>
           </li>
           <li>
-            <button
-  className="nav-link"
-  onClick={() => navigate(`/books/${lang}/${slug}`)}
->
-  {labels.back}
-</button>
+            <li>
+            <Link className="nav-link" to={`/books/${lang}/${slug}`}>
+              {labels.back}
+            </Link>
+</li>
           </li>
         </ul>
       </nav>
