@@ -1,5 +1,5 @@
 import LibraryMain from "../../Components/library/LibraryMain";
-import Navbar from '../../Components/Navbar';
+import Navbar from "../../Components/Navbar";
 
 export default function LibraryAr() {
   return (
