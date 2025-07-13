@@ -27,15 +27,15 @@ export default function ReadBook() {
           flatPages.push({ ...pg, chapterIndex, pageIndex });
         });
       });
-      bookData.pages = flatPages; // 👈 Add the flattened array to your book object
+      bookData.pages = flatPages; 
       setBook(bookData);
       setCurrentPage(0);
-      console.log("BOOK DATA after flattening:", bookData); // For debugging
+      console.log("BOOK DATA after flattening:", bookData); 
     })
     .catch(() => setBook(null));
 }, [lang, slug]);
 
-  if (!book) return <div>Loading...</div>;
+  if (!book) return <div></div>;
 
   const page = book.pages?.[currentPage] || { blocks: [] };
   console.log("Rendering page:", currentPage, book.pages?.[currentPage]);
