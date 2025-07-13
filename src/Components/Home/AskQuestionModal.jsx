@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../../styles/homepage.css';
 
 const AskQuestionModal = ({
   isOpen = false,

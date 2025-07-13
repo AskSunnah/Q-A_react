@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QuestionItem from './QuestionItem';
 import Pagination from './Pagination';
-import '../../styles/homepage.css';
 
 const RecentAnswers = ({
   fetchFatwas,            // API fetcher: fetchAllFatwas or fetchAllFatwasArabic

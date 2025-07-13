@@ -1,5 +1,5 @@
 
-import '../../styles/homepage.css';
+
 
 const Header = ({ title, subtitle, dir = 'ltr' }) => {
   return (
