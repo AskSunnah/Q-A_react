@@ -1,9 +1,23 @@
+// src/Components/Home/QuestionPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import { fetchFatwaBySlug } from '../../api/fatwa';
-
-function QuestionPage() {
+function QuestionPage({
+  fetchQuestionBySlug,
+  direction = 'ltr',
+  language = 'en',
+  labels = {
+    question: 'Question:',
+    answer: 'Answer:',
+    conclusion: 'Conclusion:',
+    back: '← Back to Questions',
+    andAllahKnowsBest: 'And Allah knows best.',
+    fromQuran: 'From the Qur’an:',
+    fromSunnah: 'From the Sunnah:',
+    fromSalaf: 'From the Salaf:',
+    fromScholars: 'From the Scholars:',
+  }
+}) {
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,7 +25,7 @@ function QuestionPage() {
   useEffect(() => {
     const loadFatwa = async () => {
       setLoading(true);
-      const result = await fetchFatwaBySlug(slug);
+      const result = await fetchQuestionBySlug(slug);
       if (result) {
         setData(result);
         document.title = result.heading;
@@ -33,29 +47,30 @@ function QuestionPage() {
   }
 
   if (!data) {
-    // return <h2>Question not found</h2>;
+    // return <h2 style={{ textAlign: 'center' }}>❌ Question not found</h2>;
   }
+
+  const sectionTitleMap = {
+    quran: labels.fromQuran,
+    sunnah: labels.fromSunnah,
+    salaf: labels.fromSalaf,
+    scholar: labels.fromScholars,
+    normal: ''
+  };
 
   return (
     <>
       <style>{pageStyles}</style>
-
-      <div className="content">
+      <div className="content" dir={direction} lang={language}>
         <h1>{data.heading}</h1>
-        <p><strong>Question:</strong> <span>{data.question}</span></p>
-        <p><strong>Answer:</strong> <span>{data.answer}</span></p>
+        <p><strong>{labels.question}</strong> <span>{data.question}</span></p>
+        <p><strong>{labels.answer}</strong> <span>{data.answer}</span></p>
 
         <div id="dynamic-content">
           {data.content?.map((section, idx) => {
-            const sectionTitle = {
-              quran: "From the Qur’an:",
-              sunnah: "From the Sunnah:",
-              salaf: "From the Salaf:",
-              scholar: "From the Scholars:",
-              normal: ""
-            }[section.type] || "";
+            const sectionTitle = sectionTitleMap[section.type] || '';
 
-            if (section.type === "normal") {
+            if (section.type === 'normal') {
               return <p key={idx} style={{ whiteSpace: 'pre-wrap' }}>{section.text}</p>;
             }
 
@@ -80,13 +95,13 @@ function QuestionPage() {
 
         {data.conclusion && (
           <div id="conclusion">
-            <h2>Conclusion:</h2>
+            <h2>{labels.conclusion}</h2>
             <p style={{ whiteSpace: 'pre-wrap' }}>{data.conclusion}</p>
           </div>
         )}
 
-        <p><strong>And Allah knows best.</strong></p>
-        <Link to="/" className="back-link">← Back to Questions</Link>
+        <p><strong>{labels.andAllahKnowsBest}</strong></p>
+        <Link to={language === 'ar' ? '/ar' : '/'} className="back-link">{labels.back}</Link>
       </div>
     </>
   );
@@ -124,7 +139,7 @@ const pageStyles = `
   }
 
   ul {
-    padding-left: 1.2rem;
+    padding-${/* Left for LTR, Right for RTL */''}inline-start: 1.2rem;
     margin-bottom: 1.5rem;
   }
 
@@ -134,13 +149,13 @@ const pageStyles = `
 
   blockquote {
     background-color: #eef6f1;
-    border-left: 5px solid #1f6f3e;
+    border-inline-start: 5px solid #1f6f3e;
     margin: 1.5rem 0;
     padding: 1rem 1.25rem;
     font-style: italic;
   }
 
-  a.back-link {
+  .back-link {
     display: inline-block;
     margin-top: 2rem;
     color: #2e8b57;
@@ -148,7 +163,7 @@ const pageStyles = `
     font-weight: bold;
   }
 
-  a.back-link:hover {
+  .back-link:hover {
     text-decoration: underline;
   }
 

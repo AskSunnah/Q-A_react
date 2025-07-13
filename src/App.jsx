@@ -7,6 +7,7 @@ import QuestionPage from './Components/Home/QuestionPage';
 import Home from './Pages/Home';
 import HomeArabic from './Pages/HomeArabic';
 import ReadBookPage from "./Pages/library/readBook";
+import { fetchFatwaBySlug } from './api/fatwa';
 
 import './App.css';
 
@@ -17,13 +18,38 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/questions/:slug" element={<QuestionPage />} />
           <Route path="/ar" element={<HomeArabic />} />
           <Route path="/library" element={<Library />} />
           <Route path="/library_ar" element={<LibraryAr />} />
           <Route path="/library/engbooks" element={<EngBooksPage />} />
           <Route path="/library/arabicbooks" element={<ArabicBooksPage />} />
           <Route path="/library/read/:lang/:slug" element={<ReadBookPage />} />
+          <Route
+            path="/questions/:slug"
+            element={<QuestionPage fetchQuestionBySlug={(slug) => fetchFatwaBySlug(slug)} />}
+          />
+
+          <Route
+            path="/ar/questions/:slug"
+            element={
+              <QuestionPage
+                fetchQuestionBySlug={(slug) => fetchFatwaBySlug(slug, 'ar')}
+                direction="rtl"
+                language="ar"
+                labels={{
+                  question: "السؤال:",
+                  answer: "الجواب:",
+                  conclusion: "الخلاصة:",
+                  back: "← العودة إلى الأسئلة",
+                  andAllahKnowsBest: "والله أعلم.",
+                  fromQuran: "من القرآن الكريم:",
+                  fromSunnah: "من السنة النبوية:",
+                  fromSalaf: "من السلف الصالح:",
+                  fromScholars: "من أقوال العلماء:",
+                }}
+              />
+            }
+          />
         </Routes>
       </div>
     </Router>
