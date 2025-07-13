@@ -89,7 +89,7 @@ const RecentAnswers = ({
           ))
         ) : (
           <p style={{ color: 'red', textAlign: isRTL ? 'right' : 'left' }}>
-            {isRTL ? '❌ لم يتم العثور على أسئلة.' : '❌ No questions found.'}
+            {/* {isRTL ? '❌ لم يتم العثور على أسئلة.' : '❌ No questions found.'} */}
           </p>
         )}
       </div>
