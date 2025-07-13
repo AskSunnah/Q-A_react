@@ -1,16 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+//library imports
 import Library from './Pages/library/library';
 import LibraryAr from './Pages/library/library_ar';
 import EngBooksPage from "./Pages/library/libraryBooks";
 import ArabicBooksPage from "./Pages/library/libraryBooks_ar";
-import Home from './Pages/Home';
-import HomeArabic from './Pages/HomeArabic';
 import ReadBookPage from "./Pages/library/readBook";
 import BookDetails from './Components/library/BookDetails';
+//home imports
+import HomeArabic from './Pages/HomeArabic';
+import Home from './Pages/Home';
 import QuestionPageArabic from './Pages/QuestionPageArabic';
 import QuestionPageEnglish from './Pages/QuestionPageEnglish';
 import AboutArabic from './Pages/About/AboutArabic';
 import AboutEnglish from './Pages/About/AboutEnglish';
+//admin imports
+import AdminLogin from './Pages/Admin/AdminLogin';
+import AdminDashboard from './Pages/Admin/AdminDashboard';
+import ProtectedRoute from './Components/Admin/ProtectedRoute';
 
 
 import './App.css';
@@ -23,19 +29,20 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/ar" element={<HomeArabic />} />
+          <Route path="/questions/:slug" element={<QuestionPageEnglish />} />
+          <Route path="/ar/questions/:slug" element={<QuestionPageArabic />} />
+          <Route path="/about-us" element={<AboutEnglish />} />
+          <Route path="/about-us/ar" element={<AboutArabic />} />
           <Route path="/library" element={<Library />} />
           <Route path="/library_ar" element={<LibraryAr />} />
           <Route path="/library/engbooks" element={<EngBooksPage />} />
           <Route path="/library/arabicbooks" element={<ArabicBooksPage />} />
           <Route path="/library/read/:lang/:slug" element={<ReadBookPage />} />
           <Route path="/books/:lang/:slug" element={<BookDetails />} />
-
-
-          <Route path="/questions/:slug" element={<QuestionPageEnglish />} />
-          <Route path="/ar/questions/:slug" element={<QuestionPageArabic />} />
-
-           <Route path="/about-us" element={<AboutEnglish />} />
-           <Route path="/about-us/ar" element={<AboutArabic />} />
+          <Route path="/supervised" element={<AdminLogin />} />
+          <Route path="/supervised/dashboard" element={
+            <ProtectedRoute><AdminDashboard /></ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>
