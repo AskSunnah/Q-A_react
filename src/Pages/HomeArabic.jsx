@@ -25,7 +25,7 @@ function Home() {
                 dir="rtl"
                 navItems={[
                     { label: "الرئيسية", href: "/ar", internal: true },
-                    { label: "المكتبة", href: "/library/library_ar/library.html", internal: false },
+                    { label: "المكتبة", href: "/library_ar", internal: true },
                     { label: "عن الموقع", href: "/ar/about-us_ar.html", internal: false },
                     { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
                     { label: "ساهم", href: "https://www.paypal.me/asksunnah", internal: false }
