@@ -21,6 +21,97 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
   };
 
   return (
+
+    <>
+      <style>
+  {`
+   
+    .navbar {
+      background: #e9f5ec;
+      padding: 1rem 1.5rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .navbar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background 0.2s;
+      display: inline-block;
+    }
+
+    .nav-link:hover,
+    .nav-link:focus {
+      background: var(--secondary-color);
+      color: #fff;
+    }
+
+    .nav-toggle {
+      display: none;
+      font-size: 1.3rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary-color);
+      position: absolute;
+      top: -0.3rem;
+      right: 1rem;
+      z-index: 11;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1.5rem 0;
+      }
+
+      .nav-toggle {
+        display: block;
+      }
+
+      .nav-menu {
+        display: none;
+        width: 100%;
+      }
+
+      .nav-menu.open {
+        display: block;
+      }
+
+      .navbar ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+    }
+
+    body.dark .navbar {
+      background: #183c25;
+    }
+
+    body.dark .nav-link:hover,
+    body.dark .nav-link:focus {
+      background: #25603a;
+    }
+
+    body.dark .nav-link {
+      color: white;
+    }
+
+  `}
+</style>
     <nav className="navbar" aria-label="Main Navigation" dir={dir}>
       <button
         className="nav-toggle"
@@ -64,6 +155,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
         </ul>
       </div>
     </nav>
+    </>
   );
 };
 
