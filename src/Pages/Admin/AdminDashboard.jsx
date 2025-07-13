@@ -1,83 +1,15 @@
-
-import AdminHeader from "../../Components/Admin/Header"; // adjust path as needed
-import { useNavigate } from "react-router-dom";
-
-const ADMIN_TABS = [
-  { label: "Add Q&A", route: "/supervised/add-qa" },
-  { label: "All Q&As", route: "/supervised/all-qa" },
-  { label: "Add a book", route: "/supervised/add-book" },
-  { label: "All Books", route: "/supervised/manage-books" }
-];
+// src/pages/AdminDashboard.jsx
+import React from "react";
+import AdminHeader from "../../Components/Admin/Header";
 
 export default function AdminDashboard() {
-  
-  const navigate = useNavigate();
-
-  if (!localStorage.getItem("adminToken")) {
-    navigate("/supervised", { replace: true });
-    return null;
-  }
-
-  const handleNav = (route) => {
-    navigate(route);
-  };
-
   return (
-    <div className="admin-dashboard-root">
-      <style>{`
-        .admin-dashboard-root {
-          background-color: #f7f8fa;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-        }
-        .nav {
-          background: #f0f3f2;
-          padding: 12px 20px;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-        }
-        .nav a, .nav .dashboard-link {
-          text-decoration: none;
-          color: #287346;
-          font-weight: 600;
-          cursor: pointer;
-          background: none;
-          border: none;
-          font-size: 1rem;
-        }
-        .nav a:hover, .nav .dashboard-link:hover {
-          text-decoration: underline;
-        }
-        .content {
-          flex: 1;
-          padding: 20px;
-        }
-        @media (max-width: 600px) {
-          .nav {
-            flex-direction: column;
-            gap: 8px;
-          }
-        }
-      `}</style>
-
+    <div style={{ background: "#f7f8fa", minHeight: "100vh" }}>
       <AdminHeader />
-      <nav className="nav">
-        {ADMIN_TABS.map(tab => (
-          <span
-            key={tab.route}
-            className="dashboard-link"
-            onClick={() => handleNav(tab.route)}
-          >
-            {tab.label}
-          </span>
-        ))}
-      </nav>
-
-      <div className="content">
-        <p>Welcome to the Ask Sunnah Admin Dashboard. Select a tab to get started.</p>
-    </div>
+      <div className="content" style={{ flex: 1, padding: 32, maxWidth: 800, margin: "0 auto", fontSize: "1.14rem" }}>
+        <h2 style={{ color: "#287346", fontWeight: 700, marginBottom: 16 }}>Welcome to the Ask Sunnah Admin Dashboard</h2>
+        <p>Select a tab above to get started. From here, you can add new Q&As, edit or manage books, or review all existing entries.</p>
+      </div>
     </div>
   );
 }

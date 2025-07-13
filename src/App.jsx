@@ -17,6 +17,8 @@ import AboutEnglish from './Pages/About/AboutEnglish';
 import AdminLogin from './Pages/Admin/AdminLogin';
 import AdminDashboard from './Pages/Admin/AdminDashboard';
 import ProtectedRoute from './Components/Admin/ProtectedRoute';
+import AddQA from './Pages/Admin/AddQA';
+
 
 
 import './App.css';
@@ -43,6 +45,10 @@ function App() {
           <Route path="/supervised/dashboard" element={
             <ProtectedRoute><AdminDashboard /></ProtectedRoute>
           } />
+           <Route path="/supervised/add-qa" element={
+            <ProtectedRoute><AddQA /></ProtectedRoute>
+          } />
+
         </Routes>
       </div>
     </Router>
