@@ -489,7 +489,7 @@ function Home() {
                     heading="أرسل سؤالك"
                     description="هل لديك سؤال عن الإسلام؟ أرسله الآن وستتلقى الرد من الشيخ فلاح كركولي وفق رأي موثوق من العلماء."
                     buttonLabel="أرسل سؤالك"
-                    
+                    buttonLangLink="/"
                     onOpenModal={() => setIsModalOpen(true)}
                     lang="rtl"
                 />

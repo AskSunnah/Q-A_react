@@ -35,6 +35,8 @@ export default function EditBook() {
     <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
       <AdminHeader />
       <style>{`
+        body {
+          font-family: 'Segoe UI', sans-serif;}
         .form-row { margin-bottom: 1rem; }
         input, textarea, select { width: 100%; margin-top: 0.3rem; padding: 0.4rem; border-radius: 4px; border: 1px solid #b8bbc6;}
         .chapter-block, .page-block, .block-block { border: 1px solid #28734633; border-radius: 6px; background: #fff; margin-bottom: 1rem; padding: 1rem; }

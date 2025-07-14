@@ -29,6 +29,7 @@ export default function Header() {
           align-items: center;
           flex-wrap: wrap;
           font-size: 1.28rem;
+            font-family: 'Segoe UI', sans-serif;
         }
         .admin-header-title {
           font-weight: 600;
@@ -49,11 +50,12 @@ export default function Header() {
           text-decoration: underline;
         }
         .admin-nav {
+          font-family: 'Segoe UI', sans-serif;
           background: #f0f3f2;
-          padding: 20px 0 17px 0;
+          padding: 20px 0 17px 10px;
           display: flex;
           flex-wrap: wrap;
-          gap: 38px;
+          gap: 35px;
           justify-content: start;
         }
         .admin-nav .dashboard-link {

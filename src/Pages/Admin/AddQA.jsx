@@ -138,6 +138,7 @@ export default function AddQA() {
       <AdminHeader />
       <style>{`
         #qa-box {
+          font-family: 'Segoe UI', sans-serif;
           background: #fff;
           max-width: 650px;
           margin: 3rem auto 0 auto;
@@ -147,15 +148,17 @@ export default function AddQA() {
         }
         #qa-box h2 {
           text-align: center;
-          color: #287346;
+          color: #1d5834ff;
           font-size: 2rem;
           margin-bottom: 1.2rem;
           font-family: 'Montserrat', Arial, sans-serif;
         }
         #qa-form label {
           margin: 8px 0 3px 0;
-          font-weight: 500;
           display: block;
+          color: #1d5834ff;
+              font-size: 17px;
+    font-weight: bold;
         }
         #qa-form input, #qa-form select, #qa-form textarea {
           width: 100%;
@@ -164,7 +167,7 @@ export default function AddQA() {
           border: 1.2px solid #b5d4c3;
           background: #f6f7fa;
           padding: 10px;
-          font-size: 1.1rem;
+          font-size: 1rem;
         }
         #qa-form textarea { min-height: 62px; }
         #add-section-bar {
@@ -179,9 +182,10 @@ export default function AddQA() {
           color: #fff;
           border: none;
           border-radius: 8px;
-          padding: 9px 18px;
+          padding: 13px 18px;
           font-size: 1rem;
           cursor: pointer;
+          margin-top:-7px
         }
         #add-section-btn:hover { background: #155e32; }
         .section-block {
@@ -229,6 +233,7 @@ export default function AddQA() {
         @media (max-width: 700px) {
           #qa-box { max-width: 96vw; padding: 1.2rem 0.5rem 2rem 0.5rem;}
         }
+
       `}</style>
       <div id="qa-box">
         <h2>{isEdit ? "Edit Q&A" : "Add a New Q&A"}</h2>
@@ -268,7 +273,7 @@ export default function AddQA() {
                     <div className="section-btns">
                       <button type="button" onClick={() => moveSection(idx, -1)}>↑</button>
                       <button type="button" onClick={() => moveSection(idx, 1)}>↓</button>
-                      <button type="button" onClick={() => deleteSection(idx)}>Delete Section</button>
+                      <button className="delete-secBtn" type="button" onClick={() => deleteSection(idx)}>Delete Section</button>
                     </div>
                   </div>
                 ) : (
@@ -301,14 +306,14 @@ export default function AddQA() {
                           value={item.commentary || ""}
                           onChange={e => handleSectionInput(idx, "commentary", e.target.value, subidx)}
                         />
-                        <button type="button" onClick={() => deleteItem(idx, subidx)}>Remove</button>
+                        <button style={greenButtonStyle} type="button" onClick={() => deleteItem(idx, subidx)}>Remove</button>
                       </div>
                     ))}
-                    <button type="button" onClick={() => addItem(idx)}>Add {section.type} Entry</button>
+                    <button style={greenButtonStyle} type="button" onClick={() => addItem(idx)}>Add {section.type} Entry</button>
                     <div className="section-btns">
                       <button type="button" onClick={() => moveSection(idx, -1)}>↑</button>
                       <button type="button" onClick={() => moveSection(idx, 1)}>↓</button>
-                      <button type="button" onClick={() => deleteSection(idx)}>Delete Section</button>
+                      <button style={greenButtonStyle} type="button" onClick={() => deleteSection(idx)}>Delete Section</button>
                     </div>
                   </div>
                 )
@@ -339,4 +344,19 @@ export default function AddQA() {
       </div>
     </div>
   );
+
 }
+
+const greenButtonStyle = {
+  padding: '10px 22px',
+  background: '#287346',
+  color: '#fff',
+  fontSize: '1.02rem',
+  border: 'none',
+  borderRadius: '7px',
+  cursor: 'pointer',
+  fontWeight: 600,
+  marginTop: '2px',
+  transition: 'background 0.2s',
+};
+
