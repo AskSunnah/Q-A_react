@@ -25,3 +25,22 @@ export async function deleteBookAdmin(lang, slug) {
   return true;
 }
 
+export async function fetchBookAdmin(lang, slug) {
+  const endpoint = `https://asksunnah-backend-hno9.onrender.com/api/books/${lang}/${slug}`;
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  if (!res.ok || !data.book) throw new Error(data.message || "Book not found");
+  return data.book;
+}
+
+export async function saveBookAdmin(lang, slug, bookData) {
+  const endpoint = `https://asksunnah-backend-hno9.onrender.com/api/books/${lang}/${slug}`;
+  const res = await fetch(endpoint, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(bookData)
+  });
+  const data = await res.json();
+  if (!res.ok || !data.success) throw new Error(data.message || "Failed to save");
+  return true;
+}

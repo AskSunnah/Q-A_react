@@ -92,7 +92,7 @@ export default function AllBooks() {
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <button
                       style={{ background: "gray", color: "white", borderRadius: 4 }}
-                      onClick={() => navigate(`/supervised/edit-book?slug=${encodeURIComponent(book.slug)}&lang=${book.language}`)}
+                      onClick={() => navigate(`/supervised/books/edit/${book.language}/${book.slug}`)}
                     >Edit</button>
                     <button
                       style={{ background: "#e53e3e", color: "white", borderRadius: 4 }}

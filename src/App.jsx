@@ -21,6 +21,7 @@ import AddQA from './Pages/Admin/AddQA';
 import AllQA from './Pages/Admin/AllQA';
 import AddBook from './Pages/Admin/AddBook';
 import AllBooks from './Pages/Admin/AllBooks';
+import EditBook from './Pages/Admin/EditBook';
 
 
 
@@ -60,6 +61,9 @@ function App() {
           } />
         <Route path="/supervised/all-books" element={
             <ProtectedRoute><AllBooks /></ProtectedRoute>
+          } />
+        <Route path="/supervised/books/edit/:lang/:slug" element={
+            <ProtectedRoute><EditBook /></ProtectedRoute>
           } />
 
         </Routes>
