@@ -122,6 +122,10 @@ export default function AddBook() {
     <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
       <AdminHeader />
       <style>{`
+
+        body{
+        font-family: 'Segoe UI', sans-serif;
+        }
         .container {
             width: 100%;
             max-width: 850px;
@@ -129,6 +133,7 @@ export default function AddBook() {
             flex-direction: column;
             align-items: center;
             margin: 0 auto;
+              font-family: 'Segoe UI', sans-serif;
         }
 
         h1 {

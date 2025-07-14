@@ -47,7 +47,7 @@ export default function AllBooks() {
 
   // --- Render ---
   return (
-    <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
+    <div style={{ background: "#f4f6f8", minHeight: "100vh", fontFamily: "Segoe UI, sans-serif" }}>
       <AdminHeader />
       <div style={{ maxWidth: 900, margin: "2rem auto" }}>
         <h1 style={{ textAlign: "center", color: "#1f6f3e" }}>Manage Books</h1>
@@ -91,11 +91,17 @@ export default function AllBooks() {
                   <span>{book.title}</span>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <button
-                      style={{ background: "gray", color: "white", borderRadius: 4 }}
+                       style={{
+                        ...buttonStyle,
+                        background: 'grey'
+                      }}
                       onClick={() => navigate(`/supervised/books/edit/${book.language}/${book.slug}`)}
                     >Edit</button>
                     <button
-                      style={{ background: "#e53e3e", color: "white", borderRadius: 4 }}
+                      style={{
+                        ...buttonStyle,
+                        background: '#e53e3e'
+                      }}
                       onClick={() => confirmDelete(book.slug)}
                     >Delete</button>
                   </div>
@@ -145,3 +151,12 @@ export default function AllBooks() {
     </div>
   );
 }
+
+const buttonStyle = {
+  padding: '0.4rem 0.8rem',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontSize: '0.95rem',
+  color: "white"
+};

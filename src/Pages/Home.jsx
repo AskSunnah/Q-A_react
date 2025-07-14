@@ -490,7 +490,7 @@ function Home() {
           heading="Ask a Question!"
           description="Have a question about Islam? Submit it and get a response directly from Dr. Sheikh Falah Kurkully, based on one clear opinion from trusted scholars."
           buttonLabel="Submit Your Question"
-          
+          buttonLangLink="/ar/"
           onOpenModal={() => setIsModalOpen(true)}
           lang="ltr"
         />

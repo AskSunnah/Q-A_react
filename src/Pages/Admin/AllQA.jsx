@@ -46,7 +46,10 @@ export default function AllQA() {
     <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
       <AdminHeader />
       <style>{`
+
         .allqa-container {
+
+         font-family: 'Segoe UI', sans-serif;
           max-width: 920px;
           margin: 2.5rem auto;
           padding: 1.2rem;

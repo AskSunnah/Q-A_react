@@ -109,6 +109,7 @@ function QuestionPage({
 
 export default QuestionPage;
 
+
 const pageStyles = `
   body {
     font-family: 'Segoe UI', sans-serif;
@@ -118,12 +119,14 @@ const pageStyles = `
     padding: 2rem;
     max-width: 887px;
     margin: auto;
+
   }
 
   h1 {
     color: #1f6f3e;
     font-size: 2rem;
     margin-bottom: 1rem;
+    text-align: left;
   }
 
   h2 {
@@ -131,6 +134,7 @@ const pageStyles = `
     margin-top: 2rem;
     margin-bottom: 1rem;
     font-size: 1.3rem;
+    text-align: left;
   }
 
   p {
@@ -139,7 +143,7 @@ const pageStyles = `
   }
 
   ul {
-    padding-${/* Left for LTR, Right for RTL */''}inline-start: 1.2rem;
+    padding-inline-start: 1.2rem;
     margin-bottom: 1.5rem;
   }
 
@@ -153,6 +157,7 @@ const pageStyles = `
     margin: 1.5rem 0;
     padding: 1rem 1.25rem;
     font-style: italic;
+    font-size: 17.5px;
   }
 
   .back-link {
@@ -167,12 +172,201 @@ const pageStyles = `
     text-decoration: underline;
   }
 
-  .content {
-    padding: 2rem;
-    max-width: 850px;
-    margin: auto;
+  /* ============================
+     RESPONSIVE STYLES
+  ============================ */
+
+  /* Tablets and small laptops (768px - 1024px) */
+  @media (max-width: 1024px) {
+    body {
+      padding: 1.5rem;
+    }
+
+    .content {
+      padding: 1.5rem;
+      max-width: 90%;
+    }
+
+    h1 {
+      font-size: 1.875rem;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      line-height: 1.3;
+      margin-top: 1.5rem;
+      margin-bottom: 0.7rem;
+    }
+
+    p {
+      font-size:1.125rem;
+      margin-bottom: 1.1rem;
+    }
+
+    blockquote {
+      font-size:1.125rem;
+      padding: 0.9rem 1.2rem;
+      margin: 1.2rem 0;
+    }
   }
+
+   /* Phones and smaller tablets (≤768px) */
+  @media (max-width: 900px) {
+    body {
+      padding: 2rem;
+    }
+
+    .content {
+      padding: 1rem;
+      max-width: 95%;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+      line-height: 1.3;
+      margin-bottom: 0.8rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      line-height: 1.3;
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    p {
+      font-size: 17px;
+      margin-bottom: 1rem;
+    }
+
+    blockquote {
+      font-size: 16.5px;
+      padding: 0.8rem 1rem;
+      margin: 1.1rem 0;
+    }
+  }
+
+  /* Phones and smaller tablets (≤768px) */
+  @media (max-width: 768px) {
+    body {
+      padding: 1.4rem;
+    }
+
+    .content {
+      padding: 1rem;
+      max-width: 95%;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      line-height: 1.3;
+      margin-bottom: 0.8rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      line-height: 1.3;
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    p {
+      font-size: 17px;
+      margin-bottom: 1rem;
+    }
+
+    blockquote {
+      font-size: 16.5px;
+      padding: 0.8rem 1rem;
+      margin: 1.1rem 0;
+    }
+  }
+
+
+    @media (max-width: 550px) {
+    body {
+      padding: 23px;
+      margin-top: -10px;
+    }
+
+
+    h1 {
+      font-size: 1.4rem;
+      line-height: 1.3;
+      margin-bottom: 0.8rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      line-height: 1.3;
+      margin-top: 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    p {
+      font-size: 17px;
+      margin-bottom: 1rem;
+    }
+
+    blockquote {
+      font-size: 16.5px;
+      padding: 0.8rem 1rem;
+      margin: 1.1rem 0;
+    }
+  }
+  
+
+  /* Small phones (≤480px) */
+  @media (max-width: 480px) {
+    .content {
+      padding: 0.8rem;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      line-height: 1.38;
+      margin-bottom: 0.7rem;
+    }
+
+    h2 {
+      font-size: 0.8rem;
+      line-height: 1.25;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 14px;
+      margin-bottom: 0.9rem;
+    }
+
+    blockquote {
+      font-size: 14px;
+      padding: 0.6rem 0.9rem;
+      margin: 1rem 0;
+    }
+  }
+
+  /* RTL (Arabic) Support */
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] p,
+[dir="rtl"] li,
+[dir="rtl"] blockquote {
+  text-align: right;
+}
+
+[dir="rtl"] ul {
+  padding-inline-end: 1.2rem;
+  padding-inline-start: 0;
+}
+
 `;
+
+
+
 
 const spinnerStyles = `
   .spinner {
