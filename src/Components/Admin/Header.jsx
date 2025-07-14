@@ -54,7 +54,7 @@ export default function Header() {
           display: flex;
           flex-wrap: wrap;
           gap: 38px;
-          justify-content: center;
+          justify-content: start;
         }
         .admin-nav .dashboard-link {
           text-decoration: none;
