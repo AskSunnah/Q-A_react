@@ -46,6 +46,8 @@ export default function AllQA() {
     <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
       <AdminHeader />
       <style>{`
+      body{
+      margin: 0;}
 
         .allqa-container {
 

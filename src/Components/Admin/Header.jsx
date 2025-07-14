@@ -20,6 +20,9 @@ export default function Header() {
   return (
     <>
       <style>{`
+      body{
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;}
         .admin-header {
           background: #287346;
           color: white;

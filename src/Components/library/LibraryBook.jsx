@@ -31,10 +31,17 @@ export default function BookLibrary({ lang = "en" }) {
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
-    fetchBooks(lang)
-      .then(setBooks)
-      .catch(() => setBooks([]));
-  }, [lang]);
+  fetchBooks(lang)
+    .then((data) => {
+      setBooks(
+        data.map((b) => ({
+          ...b,
+          category: b.category ? b.category.toLowerCase() : "uncategorized",
+        }))
+      );
+    })
+    .catch(() => setBooks([]));
+}, [lang]);
 
   useEffect(() => {
     let filtered = books.filter(

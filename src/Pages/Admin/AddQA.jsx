@@ -137,6 +137,8 @@ export default function AddQA() {
     <div style={{ background: "#f7f8fa", minHeight: "100vh" }}>
       <AdminHeader />
       <style>{`
+      body{
+      margin: 0;}
         #qa-box {
           font-family: 'Segoe UI', sans-serif;
           background: #fff;

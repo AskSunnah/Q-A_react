@@ -48,6 +48,12 @@ export default function AllBooks() {
   // --- Render ---
   return (
     <div style={{ background: "#f4f6f8", minHeight: "100vh", fontFamily: "Segoe UI, sans-serif" }}>
+      <style>{`
+        body {
+          margin: 0;
+          font-family: 'Segoe UI', sans-serif;
+        }
+      `}</style>
       <AdminHeader />
       <div style={{ maxWidth: 900, margin: "2rem auto" }}>
         <h1 style={{ textAlign: "center", color: "#1f6f3e" }}>Manage Books</h1>

@@ -284,7 +284,11 @@ export default function ReadBook() {
       </header>
       <nav className="navbar">
         <ul>
-          <li><Link className="nav-link" to="/" >Home</Link></li>
+          <li><Link className="nav-link" 
+          to={lang === "ar" ? "/ar" : "/"} >
+             {lang === "ar" ? "الرئيسية" : "Home"}
+             </Link>
+          </li>
           <li>
             <Link className="nav-link"
               to={lang === "ar" ? "/library_ar" : "/library"}
