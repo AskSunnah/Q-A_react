@@ -1,5 +1,5 @@
 // src/pages/AddBook.jsx
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import AdminHeader from "../../Components/Admin/Header";
 import { submitBook } from "../../api/adminBook";
 
@@ -14,6 +14,8 @@ const LANGS = [
   { value: "en", label: "English" },
   { value: "ar", label: "Arabic" },
 ];
+
+
 
 export default function AddBook() {
   const [form, setForm] = useState({
@@ -36,14 +38,24 @@ export default function AddBook() {
     setChapters(chapters.filter((_, i) => i !== idx));
 
   // --- Page Helpers ---
+  // const addPage = chapterIdx => {
+  //   const chs = [...chapters];
+  //   chs[chapterIdx].pages.push({
+  //     references: [""],
+  //     blocks: [{ type: "heading", text: "", reference: "", narrator: "", commentary: "" }]
+  //   });
+  //   setChapters(chs);
+  // };
+
   const addPage = chapterIdx => {
     const chs = [...chapters];
     chs[chapterIdx].pages.push({
-      references: [""],
-      blocks: [{ type: "heading", text: "", reference: "", narrator: "", commentary: "" }]
+      references: [],
+      blocks: []
     });
     setChapters(chs);
   };
+
   const removePage = (chapterIdx, pageIdx) => {
     setChapters(chapters.map((ch, i) =>
       i !== chapterIdx ? ch : { ...ch, pages: ch.pages.filter((_, j) => j !== pageIdx) }
@@ -275,7 +287,7 @@ export default function AddBook() {
                   <div className="page-block" style={{ background: "#f9f9f9" }} key={pgIdx}>
                     <button type="button" className="remove-btn" onClick={() => setDeletePageIndex({ chapter: chIdx, page: pgIdx })}>Delete Page</button>
                     <h4>Page {pgIdx + 1}</h4>
-                    <label>References:</label>
+                    {/* <label>References:</label>
                     {pg.references.map((ref, refIdx) => (
                       <div key={refIdx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
                         <input
@@ -290,9 +302,34 @@ export default function AddBook() {
                         </button>
                       </div>
                     ))}
-                    <button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button>
+                    <button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button> */}
+<label>References:</label>
+{pg.references.length === 0 && (
+  <p style={{ fontStyle: "italic", color: "#888" }}>No references added yet.</p>
+)}
+{pg.references.map((ref, refIdx) => (
+  <div key={refIdx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+    <input
+      style={{ flex: 1 }}
+      value={ref}
+      onChange={e => updateReference(chIdx, pgIdx, refIdx, e.target.value)}
+      placeholder="Reference"
+    />
+    <button
+      type="button"
+      className="remove-btn"
+      style={{ position: "static" }}
+      onClick={() => removeReference(chIdx, pgIdx, refIdx)}
+    >
+      Delete reference
+    </button>
+  </div>
+))}
+<button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button>
+
+
                     <hr style={{ margin: "1.5rem 0", borderTop: "1px solid #ccc" }} />
-                    <label>Content:</label>
+                    {/* <label>Content:</label>
                     {pg.blocks.map((block, blockIdx) => (
                       <div className="block" key={blockIdx}>
                         <button type="button" className="remove-btn" onClick={() => removeBlock(chIdx, pgIdx, blockIdx)}>Delete Content</button>
@@ -342,7 +379,72 @@ export default function AddBook() {
                         )}
                       </div>
                     ))}
-                    <button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>+ Add Content on Page</button>
+                    <button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>+ Add Content on Page</button> */}
+                    <label>Content:</label>
+{pg.blocks.length === 0 && (
+  <p style={{ fontStyle: "italic", color: "#888" }}>No content on this page yet.</p>
+)}
+{pg.blocks.map((block, blockIdx) => (
+  <div className="block" key={blockIdx}>
+    <button type="button" className="remove-btn" onClick={() => removeBlock(chIdx, pgIdx, blockIdx)}>
+      Delete Content
+    </button>
+
+    <label>Type</label>
+    <select
+      value={block.type}
+      onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, type: e.target.value })}
+    >
+      <option value="heading">Heading</option>
+      <option value="paragraph">Paragraph</option>
+      <option value="hadith">Hadith</option>
+      <option value="ayah">Ayah</option>
+      <option value="quote">Quote</option>
+    </select>
+
+    <label>Text</label>
+    <textarea
+      value={block.text}
+      onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, text: e.target.value })}
+      required
+    />
+
+    {["hadith", "ayah", "quote"].includes(block.type) && (
+      <>
+        <label>Reference</label>
+        <input
+          value={block.reference}
+          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, reference: e.target.value })}
+        />
+      </>
+    )}
+
+    {block.type === "hadith" && (
+      <>
+        <label>Narrator</label>
+        <input
+          value={block.narrator}
+          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, narrator: e.target.value })}
+        />
+      </>
+    )}
+
+    {["hadith", "ayah", "quote"].includes(block.type) && (
+      <>
+        <label>Commentary</label>
+        <textarea
+          value={block.commentary}
+          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, commentary: e.target.value })}
+        />
+      </>
+    )}
+  </div>
+))}
+<button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>
+  + Add Content on Page
+</button>
+
+
                   </div>
                 ))}
                 <button type="button" className="add-btn" onClick={() => addPage(chIdx)}>+ Add Page</button>

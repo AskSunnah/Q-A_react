@@ -88,10 +88,24 @@ export default function AllBooks() {
                     boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
                     display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem"
                   }}>
-                  <span>{book.title}</span>
+                  {/* <span>{book.title}</span> */}
+                  <span
+                    onClick={() => navigate(`/library/read/${book.language}/${book.slug}`)}
+                    style={{
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      color: '#1e293b',
+                      fontWeight: 500,
+                    }}
+                    onMouseEnter={(e) => (e.target.style.textDecoration = 'underline')}
+                    onMouseLeave={(e) => (e.target.style.textDecoration = 'none')}
+                  >
+                    {book.title}
+                  </span>
+
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <button
-                       style={{
+                      style={{
                         ...buttonStyle,
                         background: 'grey'
                       }}
