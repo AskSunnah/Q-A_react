@@ -20,6 +20,7 @@ import ProtectedRoute from './Components/Admin/ProtectedRoute';
 import AddQA from './Pages/Admin/AddQA';
 import AllQA from './Pages/Admin/AllQA';
 import AddBook from './Pages/Admin/AddBook';
+import AllBooks from './Pages/Admin/AllBooks';
 
 
 
@@ -56,6 +57,9 @@ function App() {
           } />
         <Route path="/supervised/add-book" element={
             <ProtectedRoute><AddBook /></ProtectedRoute>
+          } />
+        <Route path="/supervised/all-books" element={
+            <ProtectedRoute><AllBooks /></ProtectedRoute>
           } />
 
         </Routes>
