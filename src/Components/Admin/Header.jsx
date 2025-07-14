@@ -5,7 +5,7 @@ const ADMIN_TABS = [
   { label: "Add Q&A", route: "/supervised/add-qa" },
   { label: "All Q&As", route: "/supervised/all-qa" },
   { label: "Add a book", route: "/supervised/add-book" },
-  { label: "All Books", route: "/supervised/manage-books" }
+  { label: "All Books", route: "/supervised/all-books" }
 ];
 
 export default function Header() {
@@ -54,7 +54,7 @@ export default function Header() {
           display: flex;
           flex-wrap: wrap;
           gap: 38px;
-          justify-content: center;
+          justify-content: start;
         }
         .admin-nav .dashboard-link {
           text-decoration: none;

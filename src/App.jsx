@@ -19,6 +19,10 @@ import AdminDashboard from './Pages/Admin/AdminDashboard';
 import ProtectedRoute from './Components/Admin/ProtectedRoute';
 import AddQA from './Pages/Admin/AddQA';
 import AllQA from './Pages/Admin/AllQA';
+import AddBook from './Pages/Admin/AddBook';
+import AllBooks from './Pages/Admin/AllBooks';
+import EditBook from './Pages/Admin/EditBook';
+
 
 
 
@@ -51,6 +55,15 @@ function App() {
           } />
         <Route path="/supervised/all-qa" element={
             <ProtectedRoute><AllQA /></ProtectedRoute>
+          } />
+        <Route path="/supervised/add-book" element={
+            <ProtectedRoute><AddBook /></ProtectedRoute>
+          } />
+        <Route path="/supervised/all-books" element={
+            <ProtectedRoute><AllBooks /></ProtectedRoute>
+          } />
+        <Route path="/supervised/books/edit/:lang/:slug" element={
+            <ProtectedRoute><EditBook /></ProtectedRoute>
           } />
 
         </Routes>
