@@ -46,6 +46,8 @@ export default function AllQA() {
     <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
       <AdminHeader />
       <style>{`
+      body{
+      margin: 0;}
 
         .allqa-container {
 
@@ -134,7 +136,7 @@ export default function AllQA() {
           <ul>
             {loading ? <li>Loading...</li> : arabicQuestions.length === 0 ? <li>No questions found.</li> : (
               arabicQuestions.map((q, i) => (
-                <li style={{ direction: "rtl", textAlign: "right" }} key={q.slug}>
+                <li key={q.slug}>
                   <a className="qa-link" href={`https://asksunnah.com/ar/questions/${q.slug}`} target="_blank" rel="noopener noreferrer">
                     <strong>س{i + 1}:</strong> {q.heading}
                   </a>

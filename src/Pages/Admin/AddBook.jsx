@@ -1,5 +1,5 @@
 // src/pages/AddBook.jsx
-import React, { useState , useEffect} from "react";
+import React, { useState } from "react";
 import AdminHeader from "../../Components/Admin/Header";
 import { submitBook } from "../../api/adminBook";
 
@@ -137,6 +137,7 @@ export default function AddBook() {
 
         body{
         font-family: 'Segoe UI', sans-serif;
+        margin: 0;
         }
         .container {
             width: 100%;

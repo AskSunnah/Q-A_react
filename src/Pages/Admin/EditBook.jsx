@@ -36,6 +36,7 @@ export default function EditBook() {
       <AdminHeader />
       <style>{`
         body {
+        margin: 0;
           font-family: 'Segoe UI', sans-serif;}
         .form-row { margin-bottom: 1rem; }
         input, textarea, select { width: 100%; margin-top: 0.3rem; padding: 0.4rem; border-radius: 4px; border: 1px solid #b8bbc6;}
