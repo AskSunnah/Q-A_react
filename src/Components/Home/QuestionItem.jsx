@@ -12,7 +12,7 @@ const QuestionItem = ({ item, index, labelPrefix = 'Q', direction = 'ltr' }) => 
         display: 'block',
         marginTop: '1.5rem',
         padding: '1rem',
-        backgroundColor: 'var(--accent-bg)',
+        backgroundColor: 'var(#f0f4fa)',
         borderRadius: '5px',
         textDecoration: 'none',
         color: 'inherit',
