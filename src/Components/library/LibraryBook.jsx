@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
-
+import Navbar from '../../Components/Navbar';
 const CATEGORY_OPTIONS = {
   en: [
     { value: "all", label: "All Categories" },
@@ -167,7 +167,31 @@ export default function BookLibrary({ lang = "en" }) {
       <header>
         <h1>{lang === "ar" ? "الكتب العربية" : "English Books"}</h1>
       </header>
-
+      {lang === "ar" ? (
+        <Navbar
+          dir="rtl"
+          navItems={[
+            { label: "الرئيسية", href: "/ar", internal: true },
+            { label: "المكتبة", href: "/library_ar", internal: true },
+                    { label: "عن الموقع", href: "/about-us/ar", internal: true },
+                    { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
+                    { label: "ساهم", href: "https://www.paypal.me/asksunnah", internal: false }
+                ]}
+                languageSwitcher={{ label: "English", href: "/library/engbooks" }}
+            />
+      ) : (
+        <Navbar
+                dir="ltr"
+                navItems={[
+                    { label: "Home", href: "/", internal: true },
+                    { label: "Library", href: "/library", internal: true },
+                    { label: "About Us", href: "/about-us", internal: true },
+                    { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
+                    { label: "Contribute", href: "https://www.paypal.me/asksunnah", internal: false }
+                ]}
+                languageSwitcher={{ label: "العربية", href: "/library/arabicbooks" }}
+            />
+      )}
       <div className="container">
         {/* Search Bar */}
         <div className="search-bar">

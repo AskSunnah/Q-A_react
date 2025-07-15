@@ -153,7 +153,10 @@ export default function ReadBook() {
       font-family: inherit;
     }
     .controls button:hover {
-      background-color: #e5e5e5;
+      background-color: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      font-weight: 600;
     }
     .referencebox{
       font-size: x-small;
