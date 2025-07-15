@@ -66,6 +66,7 @@ export default function BookDetails() {
         body {
           font-family: 'Segoe UI', sans-serif;
           background: #f9f9f9;
+          margin: 0;
         }
         header {
           background-image:
