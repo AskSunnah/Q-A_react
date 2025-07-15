@@ -1,5 +1,5 @@
 
-import Header from '../../Components/About/Header';
+import Header from '../../Components/Home/Header';
 import AboutUs from "../../Components/About/AboutUs";
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
@@ -29,7 +29,7 @@ const AboutArabic = () => {
         header.hero {
           background: linear-gradient(135deg, var(--primary), var(--secondary));
           color: #fff;
-          padding: 4rem 1rem;
+          padding: 2.5rem 1rem;
           text-align: center;
         }
         header.hero h1 { font-size: 2.75rem; margin-bottom: .5rem; }
@@ -127,7 +127,11 @@ const AboutArabic = () => {
       }
     }
       `}</style>
-            <Header title={data.headerTitle} subtitle={data.headerSubtitle} dir="rtl" />
+            <Header
+                title="اسأل السنة"
+                subtitle="احصل على إجابات شرعية موثوقة من الشيخ الدكتور فلاح كركولي — مستندة من القرآن والسنة (نسخة تجريبية)"
+                dir="rtl"
+            />
             <Navbar
                 dir="rtl"
                 navItems={[

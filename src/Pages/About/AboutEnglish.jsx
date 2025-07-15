@@ -1,16 +1,17 @@
 
-import Header from '../../Components/About/Header';
+// import Header from '../../Components/About/Header';
+import Header from '../../Components/Home/Header';
 import AboutUs from "../../Components/About/AboutUs";
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
 import aboutContent from '../../assets/Data/aboutContent';
 
 const AboutEnglish = () => {
-    const data = aboutContent.en;
-    return (
-        <>
-            {/* Use same inline style here if needed or keep separate */}
-            <style>{`
+  const data = aboutContent.en;
+  return (
+    <>
+      {/* Use same inline style here if needed or keep separate */}
+      <style>{`
         :root {
           --primary: #1f6f3e;
           --secondary: #2e8b57;
@@ -29,7 +30,7 @@ const AboutEnglish = () => {
         header.hero {
           background: linear-gradient(135deg, var(--primary), var(--secondary));
           color: #fff;
-          padding: 4rem 1rem;
+          padding: 2.4rem 1rem;
           text-align: center;
         }
         header.hero h1 { font-size: 2.75rem; margin-bottom: .5rem; }
@@ -212,23 +213,26 @@ const AboutEnglish = () => {
       }
     }
       `}</style>
-            <Header title={data.headerTitle} subtitle={data.headerSubtitle} dir="ltr" />
-            <Navbar
-                dir="ltr"
-                navItems={[
-                    { label: "Home", href: "/", internal: true },
-                    { label: "Library", href: "/library", internal: true },
-                    { label: "About Us", href: "/about-us", internal: true },
-                    { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
-                    { label: "Contribute", href: "https://www.paypal.me/asksunnah", internal: false }
-                ]}
-                languageSwitcher={{ label: "العربية", href: "/about-us/ar" }}
-            />
-            <AboutUs data={data} dir="ltr" />
-            <Footer lang="en" />
+      <Header
+        title="About Us"
+        subtitle="Authentic answers from Dr. Sheikh Falah Kurkully – grounded in Qur’an and Sunnah"
+      />
+      <Navbar
+        dir="ltr"
+        navItems={[
+          { label: "Home", href: "/", internal: true },
+          { label: "Library", href: "/library", internal: true },
+          { label: "About Us", href: "/about-us", internal: true },
+          { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
+          { label: "Contribute", href: "https://www.paypal.me/asksunnah", internal: false }
+        ]}
+        languageSwitcher={{ label: "العربية", href: "/about-us/ar" }}
+      />
+      <AboutUs data={data} dir="ltr" />
+      <Footer lang="en" />
 
-        </>
-    );
+    </>
+  );
 };
 
 export default AboutEnglish;
