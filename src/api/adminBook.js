@@ -1,3 +1,4 @@
+// api calls for admin book management
 export async function submitBook(bookData) {
   const res = await fetch('https://asksunnah-backend-hno9.onrender.com/api/books', {
     method: 'POST',

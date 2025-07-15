@@ -30,28 +30,6 @@ const QuestionItem = ({ item, index, labelPrefix = 'Q', direction = 'ltr' }) => 
   };
 
   return (
-<<<<<<< HEAD
-    <Link
-      to={`/${isRTL ? 'ar/' : ''}questions/${item.slug}`}
-      className="question-item"
-      style={{
-        display: 'block',
-        marginTop: '1.5rem',
-        padding: '1rem',
-        backgroundColor: 'var(#f0f4fa)',
-        borderRadius: '5px',
-        textDecoration: 'none',
-        color: 'inherit',
-        transition: 'background-color 0.2s',
-        direction: direction,
-        textAlign: isRTL ? 'right' : 'left',
-        borderLeft: !isRTL ? '5px solid var(--primary)' : 'none',
-        borderRight: isRTL ? '5px solid var(--primary)' : 'none',
-      }}
-    >
-      <strong>{labelPrefix}{index + 1}:</strong> {item.heading}
-    </Link>
-=======
     <>
       <style>{styles}</style>
       <Link
@@ -62,7 +40,6 @@ const QuestionItem = ({ item, index, labelPrefix = 'Q', direction = 'ltr' }) => 
         <strong>{labelPrefix}{index + 1}:</strong> {item.heading}
       </Link>
     </>
->>>>>>> bf53914a50738a83379b183634007527f95cb2f5
   );
 };
 

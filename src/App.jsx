@@ -7,10 +7,10 @@ import ArabicBooksPage from "./Pages/library/libraryBooks_ar";
 import ReadBookPage from "./Pages/library/readBook";
 import BookDetails from './Components/library/BookDetails';
 //home imports
-import HomeArabic from './Pages/HomeArabic';
-import Home from './Pages/Home';
-import QuestionPageArabic from './Pages/QuestionPageArabic';
-import QuestionPageEnglish from './Pages/QuestionPageEnglish';
+import HomeArabic from './Pages/Home/HomeArabic';
+import Home from './Pages/Home/Home';
+import QuestionPageArabic from './Pages/Home/QuestionPageArabic';
+import QuestionPageEnglish from './Pages/Home/QuestionPageEnglish';
 import AboutArabic from './Pages/About/AboutArabic';
 import AboutEnglish from './Pages/About/AboutEnglish';
 //admin imports

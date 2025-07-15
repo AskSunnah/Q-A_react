@@ -1,5 +1,3 @@
-
-
 const IntroSection = ({ heading, description, buttonLabel, buttonLangLink, onOpenModal, lang = 'ltr' }) => {
   return (
     <section aria-labelledby="ask-question" dir={lang === 'rtl' ? 'rtl' : 'ltr'}>

@@ -1,6 +1,3 @@
-// Components/About/Header.jsx
-import React from 'react';
-
 const Header = ({ title, subtitle, dir }) => {
    return (
     <header className="hero" dir={dir}>

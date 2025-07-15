@@ -1,5 +1,4 @@
 // src/components/ReadBook/BookContent.jsx
-import React from "react";
 
 export default function BookContent({ blocks, references, fontSize }) {
   return (
@@ -18,7 +17,6 @@ export default function BookContent({ blocks, references, fontSize }) {
                   {block.reference && <p><small>{block.reference}</small></p>}
                 </blockquote>
               );
-            // ...other block types
             default:
               return <p key={idx}>{block.text}</p>;
           }

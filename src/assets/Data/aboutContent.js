@@ -1,5 +1,4 @@
-
-
+//static content for the about us page (eng and arabic)
 const aboutContent = {
   en: {
     headerTitle: "About Us",

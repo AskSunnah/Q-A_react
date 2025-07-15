@@ -47,7 +47,7 @@ function QuestionPage({
   }
 
   if (!data) {
-    // return <h2 style={{ textAlign: 'center' }}>❌ Question not found</h2>;
+    console.error(`No data found for slug: ${slug}`);
   }
 
   const sectionTitleMap = {
