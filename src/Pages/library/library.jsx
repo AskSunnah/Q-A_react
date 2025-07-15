@@ -20,8 +20,6 @@ export default function Library() {
   ]}
   languageSwitcher={{ label: "العربية", href: "/library_ar" }}
 />
-
-
       <LibraryMain
         heading="Welcome to the Library, Students of Knowledge!"
         firstButtonLabel="English Books"

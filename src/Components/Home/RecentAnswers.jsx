@@ -3,11 +3,11 @@ import QuestionItem from './QuestionItem';
 import Pagination from './Pagination';
 
 const RecentAnswers = ({
-  fetchFatwas,            // API fetcher: fetchAllFatwas or fetchAllFatwasArabic
+  fetchFatwas,
   sectionTitle = 'Recent Answers',
   searchPlaceholder = 'Search...',
   questionLabel = 'Q',
-  direction = 'ltr',      // NEW: direction prop for RTL/LTR layout
+  direction = 'ltr',
 }) => {
   const [fatwas, setFatwas] = useState([]);
   const [filteredFatwas, setFilteredFatwas] = useState([]);

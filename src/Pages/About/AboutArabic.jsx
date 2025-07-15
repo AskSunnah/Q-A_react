@@ -133,7 +133,7 @@ const AboutArabic = () => {
                 navItems={[
                     { label: "الرئيسية", href: "/ar", internal: true },
                     { label: "المكتبة", href: "/library_ar", internal: true },
-                    { label: "عن الموقع", href: "/about-us/ar", internal: false },
+                    { label: "عن الموقع", href: "/about-us/ar", internal: true },
                     { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
                     { label: "ساهم", href: "https://www.paypal.me/asksunnah", internal: false }
                 ]}

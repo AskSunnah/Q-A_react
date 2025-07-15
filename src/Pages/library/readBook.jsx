@@ -6,8 +6,8 @@ import Sidebar from "../../Components/library/Sidebar";
 import BookContent from "../../Components/library/BookContent";
 import Controls from "../../Components/library/Controls";
 const LANG_LABELS = {
-  en: { toc: "Table of Contents", back: "Back to Book" },
-  ar: { toc: "فهرس المحتويات", back: "العودة إلى الكتاب" }
+  en: { toc: "Table of Contents", back: "Book Details" },
+  ar: { toc: "فهرس المحتويات", back: "تفاصيل الكتاب" }
 };
 
 export default function ReadBook() {

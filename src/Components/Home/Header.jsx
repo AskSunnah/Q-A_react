@@ -1,6 +1,3 @@
-
-
-
 const Header = ({ title, subtitle, dir = 'ltr' }) => {
   return (
     <header dir={dir}>

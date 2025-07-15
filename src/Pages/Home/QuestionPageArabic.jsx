@@ -1,6 +1,6 @@
 import React from 'react';
-import QuestionPage from '../Components/Home/QuestionPage';
-import { fetchFatwaBySlug } from '../api/fatwa';
+import QuestionPage from '../../Components/Home/QuestionPage';
+import { fetchFatwaBySlug } from '../../api/fatwa';
 
 const QuestionPageArabic = () => {
   return (
