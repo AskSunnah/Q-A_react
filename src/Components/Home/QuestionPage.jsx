@@ -1,7 +1,7 @@
 // src/Components/Home/QuestionPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Navbar from '../../Components/Navbar';
+
 
 function QuestionPage({
   fetchQuestionBySlug,
@@ -39,17 +39,6 @@ function QuestionPage({
   if (loading) {
     return (
       <>
-        <Navbar
-                dir="ltr"
-                navItems={[
-                    { label: "Home", href: "/", internal: true },
-                    { label: "Library", href: "/library", internal: true },
-                    { label: "About Us", href: "/about-us", internal: true },
-                    { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
-                    { label: "Contribute", href: "https://www.paypal.me/asksunnah", internal: false }
-                ]}
-                languageSwitcher={{ label: "العربية", href: "/about-us/ar" }}
-            />
         <style>{spinnerStyles}</style>
         <div style={{ textAlign: 'center', marginTop: 50 }}>
           <div className="spinner" />
