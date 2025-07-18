@@ -1,32 +1,14 @@
-// ------------------------------
-// FRONTEND - Contribute.jsx (Main Form Component)
-// ------------------------------
-
 import React, { useState } from "react";
 import paypalIcon from "../../assets/paypal.png";
 import cardIcon from "../../assets/card.png";
 import { loadStripe } from "@stripe/stripe-js";
+import { createCheckoutSession } from "../../api/stripe"; // ✅ Your helper
 
-const stripePromise = loadStripe("your-publishable-key");
+const stripePromise = loadStripe("pk_test_51RlSlOBaaF6tLrTwGu90OxDMfGW0uv0CcXBN9SqOdk5lghoLwxD2Bk78KxEsnla2oPjcsOHMNNn1125ci4fRzqOW00LDAbdmd8");
 
 const getAmount = (customAmount, selectedAmount) => {
   const amount = customAmount !== "" ? parseFloat(customAmount) : selectedAmount;
   return Math.max(1, amount);
-};
-
-const handleStripeDonate = async ({ donationType, amount }) => {
-  const stripe = await stripePromise;
-  const response = await fetch(`/api/donate/create-${donationType}-session`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ amount }),
-  });
-  const data = await response.json();
-  if (data.url) {
-    window.location.href = data.url;
-  } else {
-    alert("Failed to initiate payment.");
-  }
 };
 
 const Contribute = ({ lang = "en" }) => {
@@ -34,6 +16,7 @@ const Contribute = ({ lang = "en" }) => {
   const [donationType, setDonationType] = useState("one-time");
   const [selectedAmount, setSelectedAmount] = useState(10);
   const [customAmount, setCustomAmount] = useState("");
+  const [email, setEmail] = useState("");
 
   const amountToSend = getAmount(customAmount, selectedAmount);
   const isArabic = lang === "ar";
@@ -58,40 +41,29 @@ const Contribute = ({ lang = "en" }) => {
     );
   };
 
+  const handleStripeDonate = async () => {
+    if (!email) {
+      alert("Please enter your email before proceeding.");
+      return;
+    }
+
+    const data = await createCheckoutSession({
+      email,
+      amount: amountToSend,
+      isRecurring: donationType === "recurring",
+    });
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
   return (
     <>
-      <style>
-        {`
-          :root {
-            --primary: #1f6f3e;
-            --secondary: #2e8b57;
-            --background: #f7f7f7;
-            --card-bg: #ffffff;
-            --accent-bg: #f0f4fa;
-            --text-color: #2c3e50;
-            --font-family: "Segoe UI", sans-serif;
-          }
-
-          body, html {
-            margin: 0;
-            padding: 0;
-          }
-
-          @media (max-width: 768px) {
-            .contribute-container {
-              flex-direction: column;
-            }
-
-            .card-details {
-              width: 100%;
-              margin-top: 20px;
-            }
-          }
-        `}
-      </style>
-
       <div style={styles.pageWrapper} dir={isArabic ? "rtl" : "ltr"}>
-        <div className="contribute-container" style={styles.container}>
+        <div style={styles.container}>
           <div style={styles.formSide}>
             <h1 style={styles.heading}>{t.heading}</h1>
             <p style={styles.motivation}>{t.motivation}</p>
@@ -108,7 +80,7 @@ const Contribute = ({ lang = "en" }) => {
           </div>
 
           {selectedMethod === "card" && (
-            <div className="card-details" style={styles.cardSide}>
+            <div style={styles.cardSide}>
               <div style={styles.optionGroupWrapper}>
                 <div style={styles.optionGroup}>
                   <button
@@ -149,10 +121,17 @@ const Contribute = ({ lang = "en" }) => {
               </div>
 
               <div style={styles.summary}>{t.donating} <strong>${amountToSend}</strong></div>
-              <button
-                onClick={() => handleStripeDonate({ donationType, amount: amountToSend })}
-                style={styles.primaryButton}
-              >
+
+              {/* ✅ EMAIL FIELD */}
+              <input
+                type="email"
+                placeholder={isArabic ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={styles.emailInput}
+              />
+
+              <button onClick={handleStripeDonate} style={styles.primaryButton}>
                 {t.card}
               </button>
             </div>
@@ -165,8 +144,8 @@ const Contribute = ({ lang = "en" }) => {
 
 const styles = {
   pageWrapper: {
-    backgroundColor: "var(--background)",
-    fontFamily: "var(--font-family)",
+    backgroundColor: "#f7f7f7",
+    fontFamily: "Segoe UI, sans-serif",
     minHeight: "69vh",
     padding: "23px 51px",
     display: "flex",
@@ -176,31 +155,26 @@ const styles = {
   container: {
     display: "flex",
     flexDirection: "row",
-    backgroundColor: "var(--card-bg)",
+    backgroundColor: "#ffffff",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
     borderRadius: "0px",
     overflow: "hidden",
     maxWidth: "1000px",
     width: "100%",
+    flexWrap: "wrap",
   },
   formSide: {
     flex: 1,
     padding: "40px 30px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
   },
   cardSide: {
     flex: 1,
     padding: "40px 30px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
     backgroundColor: "#e9f5ec",
   },
   heading: {
     fontSize: "28px",
-    color: "var(--text-color)",
+    color: "#2c3e50",
     marginBottom: "10px",
   },
   motivation: {
@@ -210,7 +184,7 @@ const styles = {
   },
   subheading: {
     fontSize: "18px",
-    color: "var(--text-color)",
+    color: "#2c3e50",
     marginBottom: "12px",
   },
   methodButtons: {
@@ -219,7 +193,7 @@ const styles = {
     marginBottom: "20px",
   },
   iconButton: {
-    border: "1px solid var(--primary)",
+    border: "1px solid #1f6f3e",
     borderRadius: "5px",
     backgroundColor: "#fff",
     padding: "9px 21px",
@@ -239,10 +213,10 @@ const styles = {
     display: "inline-flex",
     borderRadius: "5px",
     overflow: "hidden",
-    border: "1px solid var(--primary)",
+    border: "1px solid #1f6f3e",
   },
   optionActive: {
-    backgroundColor: "var(--primary)",
+    backgroundColor: "#1f6f3e",
     color: "white",
     padding: "9px 21px",
     border: "none",
@@ -250,7 +224,7 @@ const styles = {
   },
   optionInactive: {
     backgroundColor: "#fff",
-    color: "var(--text-color)",
+    color: "#2c3e50",
     padding: "9px 21px",
     border: "none",
     cursor: "pointer",
@@ -262,7 +236,7 @@ const styles = {
     marginBottom: "15px",
   },
   amountActive: {
-    backgroundColor: "var(--primary)",
+    backgroundColor: "#1f6f3e",
     color: "white",
     padding: "9px 21px",
     borderRadius: "5px",
@@ -281,19 +255,27 @@ const styles = {
     borderRadius: "5px",
     border: "1px solid #ccc",
   },
+  emailInput: {
+    width: "100%",
+    padding: "10px",
+    marginBottom: "10px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
   summary: {
     fontSize: "16px",
     marginTop: "10px",
     marginBottom: "10px",
   },
   primaryButton: {
-    backgroundColor: "var(--primary)",
+    backgroundColor: "#1f6f3e",
     color: "white",
     padding: "12px 24px",
     border: "none",
     borderRadius: "5px",
     fontSize: "16px",
     cursor: "pointer",
+    width: "100%",
   },
 };
 

@@ -25,15 +25,11 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     <>
       <style>
         {`
-
-
-
     .navbar {
       background: #e9f5ec;
       padding: 1rem 1.5rem;
       position: relative;
       z-index: 10;
-
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
@@ -153,7 +149,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
                 title="Toggle dark mode"
                 tabIndex={0}
                 onClick={toggleDarkMode}
-                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color:"green" }}
+                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color: "green" }}
               ></i>
             </li>
           </ul>
@@ -162,5 +158,4 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     </>
   );
 };
-
 export default Navbar;
