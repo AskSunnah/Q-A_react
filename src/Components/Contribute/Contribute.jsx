@@ -4,7 +4,7 @@ import cardIcon from "../../assets/card.png";
 import { loadStripe } from "@stripe/stripe-js";
 import { createCheckoutSession } from "../../api/stripe";
 
-const stripePromise = loadStripe("pk_test_51RlSlOBaaF6tLrTwGu90OxDMfGW0uv0CcXBN9SqOdk5lghoLwxD2Bk78KxEsnla2oPjcsOHMNNn1125ci4fRzqOW00LDAbdmd8");
+const stripePromise = loadStripe("pk_live_51RlSlOBaaF6tLrTwrOKCypgsYNxh7MVwmpbfMhWRdjSFyZjFXzsuWEceF7R7B98X5ANbvsHba3kqfBQLXUdevC5L00FGZGI4JC");
 
 const getAmount = (customAmount, selectedAmount) => {
   const amount = customAmount !== "" ? parseFloat(customAmount) : selectedAmount;
