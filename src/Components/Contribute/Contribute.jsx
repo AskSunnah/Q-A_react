@@ -17,6 +17,7 @@ const Contribute = ({ lang = "en" }) => {
   const [selectedAmount, setSelectedAmount] = useState(10);
   const [customAmount, setCustomAmount] = useState("");
   const [email, setEmail] = useState("");
+  const [maintenanceMsg, setMaintenanceMsg] = useState(false);
 
   const amountToSend = getAmount(customAmount, selectedAmount);
   const isArabic = lang === "ar";
@@ -74,7 +75,21 @@ const Contribute = ({ lang = "en" }) => {
           }
         }
       `}</style>
-
+      {maintenanceMsg && (
+      <div style={{
+        background: "#fff3cd",
+        color: "#856404",
+        padding: "16px",
+        textAlign: "center",
+        fontWeight: "bold",
+        borderRadius: "6px",
+        marginBottom: "18px",
+        border: "1px solid #ffeeba",
+        fontSize: "17px",
+  }}>
+      Under Maintenance, please come back
+  </div>
+)}
       <div style={styles.pageWrapper} dir={isArabic ? "rtl" : "ltr"}>
         <div className="contribute-container" style={styles.container}>
           <div className="contribute-formSide" style={styles.formSide}>
@@ -86,7 +101,8 @@ const Contribute = ({ lang = "en" }) => {
               <button onClick={handlePayPalRedirect} style={styles.iconButton}>
                 <img src={paypalIcon} alt="PayPal" style={styles.iconImg} />
               </button>
-              <button onClick={() => setSelectedMethod("card")} style={styles.iconButton}>
+              <button onClick={() => {setSelectedMethod("card");
+              setMaintenanceMsg(true); }} style={styles.iconButton}>
                 <img src={cardIcon} alt="Card" style={styles.iconImg} />
               </button>
             </div>
