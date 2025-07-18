@@ -178,7 +178,48 @@ function Home() {
       text-align: right;
     }
 
-    @media (max-width: 768px) {
+
+      
+    .pagination a,
+    .pagination span {
+      display: inline-block;
+      padding: 0.5rem 0.75rem;
+      margin: 0 0.15rem;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--primary);
+      background: #fff;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .pagination a[aria-current="page"],
+    .pagination a.active,
+    .pagination a.selected {
+      background: var(--primary);
+      color: #fff;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .pagination a:hover:not([aria-current="page"]):not(.active) {
+      background: var(--secondary);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .pagination span {
+      background: transparent !important;
+      color: #555 !important;
+      border: none !important;
+      cursor: default;
+    }
+
+
+   
+
+     @media (max-width: 768px) {
       header h1 {
         font-size: 1.8rem;
       }
@@ -216,8 +257,8 @@ function Home() {
       }
 
       .pagination a {
-        font-size: 0.9rem;
-        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        padding: 0.6rem 0.6rem;
       }
 
       footer h4 {
@@ -228,6 +269,25 @@ function Home() {
         font-size: 0.85rem;
       }
     }
+
+     @media (max-width: 500px) {
+  .pagination {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .pagination::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+
+  .pagination a,
+  .pagination span {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.4rem !important;
+    flex-shrink: 0; /* prevent shrinking text */
+  }
+}
 
     body.dark {
       --background: #0f172a;
@@ -275,42 +335,6 @@ function Home() {
 
     body.dark header {
       background-color: var(--primary) !important;
-    }
-
-    .pagination a,
-    .pagination span {
-      display: inline-block;
-      padding: 0.5rem 0.75rem;
-      margin: 0 0.15rem;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: 500;
-      font-family: inherit;
-      color: var(--primary);
-      background: #fff;
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .pagination a[aria-current="page"],
-    .pagination a.active,
-    .pagination a.selected {
-      background: var(--primary);
-      color: #fff;
-      font-weight: bold;
-      pointer-events: none;
-    }
-
-    .pagination a:hover:not([aria-current="page"]):not(.active) {
-      background: var(--secondary);
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .pagination span {
-      background: transparent !important;
-      color: #555 !important;
-      border: none !important;
-      cursor: default;
     }
 
     .navbar {

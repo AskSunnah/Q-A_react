@@ -26,11 +26,15 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       <style>
         {`
 
+
+
     .navbar {
       background: #e9f5ec;
       padding: 1rem 1.5rem;
       position: relative;
       z-index: 10;
+
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .navbar ul {

@@ -24,6 +24,10 @@ import AllBooks from './Pages/Admin/AllBooks';
 import EditBook from './Pages/Admin/EditBook';
 
 
+import ContributePage from './Pages/Contribute';
+import ContributePageAr from './Pages/ContributeArabic';
+
+
 
 
 import './App.css';
@@ -53,18 +57,23 @@ function App() {
           <Route path="/supervised/add-qa" element={
             <ProtectedRoute><AddQA /></ProtectedRoute>
           } />
-        <Route path="/supervised/all-qa" element={
+          <Route path="/supervised/all-qa" element={
             <ProtectedRoute><AllQA /></ProtectedRoute>
           } />
-        <Route path="/supervised/add-book" element={
+          <Route path="/supervised/add-book" element={
             <ProtectedRoute><AddBook /></ProtectedRoute>
           } />
-        <Route path="/supervised/all-books" element={
+          <Route path="/supervised/all-books" element={
             <ProtectedRoute><AllBooks /></ProtectedRoute>
           } />
-        <Route path="/supervised/books/edit/:lang/:slug" element={
+          <Route path="/supervised/books/edit/:lang/:slug" element={
             <ProtectedRoute><EditBook /></ProtectedRoute>
           } />
+
+
+
+          <Route path="/contribute" element={<ContributePage  />} />
+          <Route path="/ar/contribute" element={<ContributePageAr />} />
 
         </Routes>
       </div>
