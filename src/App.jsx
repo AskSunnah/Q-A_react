@@ -22,6 +22,10 @@ import AllQA from './Pages/Admin/AllQA';
 import AddBook from './Pages/Admin/AddBook';
 import AllBooks from './Pages/Admin/AllBooks';
 import EditBook from './Pages/Admin/EditBook';
+//payment imports
+import ManageSubscription from './Pages/ManageSubscription';
+import Success from './Pages/Success';
+import Cancel from './Pages/Cancel';
 
 
 
@@ -65,6 +69,9 @@ function App() {
         <Route path="/supervised/books/edit/:lang/:slug" element={
             <ProtectedRoute><EditBook /></ProtectedRoute>
           } />
+        <Route path="/managesubscription" element={<ManageSubscription />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancel" element={<Cancel />} />
 
         </Routes>
       </div>
