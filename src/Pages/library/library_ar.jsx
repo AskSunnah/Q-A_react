@@ -14,7 +14,7 @@ export default function LibraryAr() {
     { label: "المكتبة", href: "/library_ar", internal: true },
     { label: "عن الموقع", href: "/about-us/ar", internal: false },
     { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
-    { label: "ساهم", href: "https://www.paypal.me/asksunnah", internal: false }
+    { label: "ساهم", href: "/ar/contribute", internal: true }
   ]}
   languageSwitcher={{ label: "English", href: "/library" }}
 />
