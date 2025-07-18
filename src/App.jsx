@@ -24,7 +24,7 @@ import AllBooks from './Pages/Admin/AllBooks';
 import EditBook from './Pages/Admin/EditBook';
 //payment imports
 import ManageSubscription from './Pages/ManageSubscription';
-import Success from '../Pages/Success';
+import Success from './Pages/Success';
 import Cancel from '.Pages/Cancel';
 
 
