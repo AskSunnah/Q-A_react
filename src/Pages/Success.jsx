@@ -1,9 +1,7 @@
 import React from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import {  Link } from 'react-router-dom';
 
 export default function Success() {
-  const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session_id');
 
   return (
     <div style={styles.wrapper}>
@@ -11,16 +9,6 @@ export default function Success() {
         <div style={styles.checkmark}>✓</div>
         <h1 style={styles.title}>Thank you!</h1>
         <p style={styles.message}>Your donation has been successfully processed.</p>
-
-        {sessionId && (
-          <a
-            href={`/manage-subscription?session_id=${sessionId}`}
-            style={styles.subscriptionBtn}
-          >
-            Manage My Subscription
-          </a>
-        )}
-
         <Link to="/" style={styles.homeLink}>
           ← Go back to AskSunnah
         </Link>
