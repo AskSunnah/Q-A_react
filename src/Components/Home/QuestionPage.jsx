@@ -44,7 +44,7 @@ function QuestionPage({
           <div className="spinner" />
         </div>
       </>
-      
+
     );
   }
 
@@ -66,7 +66,15 @@ function QuestionPage({
       <div className="content" dir={direction} lang={language}>
         <h1>{data.heading}</h1>
         <p><strong>{labels.question}</strong> <span>{data.question}</span></p>
-        <p><strong>{labels.answer}</strong> <span>{data.answer}</span></p>
+        {/* <p><strong>{labels.answer}</strong> <span>{data.answer}</span></p> */}
+        <p>
+  <strong>{labels.answer}</strong>
+  <br />
+  <span style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5', margin: 0 }}>
+    {data.answer?.split('\n').filter(line => line.trim() !== '').join('\n')}
+  </span>
+</p>
+
 
         <div id="dynamic-content">
           {data.content?.map((section, idx) => {
