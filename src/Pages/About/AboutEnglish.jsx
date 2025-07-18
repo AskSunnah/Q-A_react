@@ -224,7 +224,7 @@ const AboutEnglish = () => {
           { label: "Library", href: "/library", internal: true },
           { label: "About Us", href: "/about-us", internal: true },
           { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
-          { label: "Contribute", href: "https://www.paypal.me/asksunnah", internal: false }
+          { label: "Contribute", href: "/contribute", internal: false }
         ]}
         languageSwitcher={{ label: "العربية", href: "/about-us/ar" }}
       />

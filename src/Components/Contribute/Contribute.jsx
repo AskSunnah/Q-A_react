@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import paypalIcon from "../../assets/paypal.png";
 import cardIcon from "../../assets/card.png";
 import { loadStripe } from "@stripe/stripe-js";
-import { createCheckoutSession } from "../../api/stripe"; // ✅ Your helper
+import { createCheckoutSession } from "../../api/stripe";
 
 const stripePromise = loadStripe("pk_test_51RlSlOBaaF6tLrTwGu90OxDMfGW0uv0CcXBN9SqOdk5lghoLwxD2Bk78KxEsnla2oPjcsOHMNNn1125ci4fRzqOW00LDAbdmd8");
 
@@ -35,10 +35,7 @@ const Contribute = ({ lang = "en" }) => {
   };
 
   const handlePayPalRedirect = () => {
-    window.open(
-      `https://www.paypal.com/donate?business=your-paypal-email@example.com&currency_code=CAD&amount=${amountToSend}`,
-      "_blank"
-    );
+    window.open("https://www.paypal.me/asksunnah", "_blank");
   };
 
   const handleStripeDonate = async () => {
@@ -62,9 +59,25 @@ const Contribute = ({ lang = "en" }) => {
 
   return (
     <>
+      <style>{`
+        @media (max-width: 768px) {
+          .contribute-container {
+            flex-direction: column !important;
+          }
+          .contribute-formSide,
+          .contribute-cardSide {
+            width: 100% !important;
+            padding: 20px !important;
+          }
+          .contribute-cardSide {
+            margin-top: 10px;
+          }
+        }
+      `}</style>
+
       <div style={styles.pageWrapper} dir={isArabic ? "rtl" : "ltr"}>
-        <div style={styles.container}>
-          <div style={styles.formSide}>
+        <div className="contribute-container" style={styles.container}>
+          <div className="contribute-formSide" style={styles.formSide}>
             <h1 style={styles.heading}>{t.heading}</h1>
             <p style={styles.motivation}>{t.motivation}</p>
 
@@ -80,7 +93,7 @@ const Contribute = ({ lang = "en" }) => {
           </div>
 
           {selectedMethod === "card" && (
-            <div style={styles.cardSide}>
+            <div className="contribute-cardSide" style={styles.cardSide}>
               <div style={styles.optionGroupWrapper}>
                 <div style={styles.optionGroup}>
                   <button
@@ -120,9 +133,10 @@ const Contribute = ({ lang = "en" }) => {
                 />
               </div>
 
-              <div style={styles.summary}>{t.donating} <strong>${amountToSend}</strong></div>
+              <div style={styles.summary}>
+                {t.donating} <strong>${amountToSend}</strong>
+              </div>
 
-              {/* ✅ EMAIL FIELD */}
               <input
                 type="email"
                 placeholder={isArabic ? "أدخل بريدك الإلكتروني" : "Enter your email"}
@@ -193,15 +207,20 @@ const styles = {
     marginBottom: "20px",
   },
   iconButton: {
-    border: "1px solid #1f6f3e",
-    borderRadius: "5px",
+    border: "1px solid #ccc",
+    borderRadius: "8px",
     backgroundColor: "#fff",
-    padding: "9px 21px",
+    padding: "10px 14px",
     cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s ease-in-out",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
   },
   iconImg: {
-    width: "30px",
-    height: "30px",
+    width: "24px",
+    height: "24px",
     objectFit: "contain",
   },
   optionGroupWrapper: {
