@@ -60,6 +60,82 @@ function QuestionPage({
     normal: ''
   };
 
+  const renderAnswer = (text) => {
+    const lines = text.split('\n').map((line) => line.trim()).filter(Boolean);
+
+    const numberedListRegex = /^\d+[\).]\s+/;
+    const bulletListRegex = /^[-•*]\s+/;
+
+    const elements = [];
+    let currentList = null;
+
+    for (let line of lines) {
+      if (numberedListRegex.test(line)) {
+        if (!currentList || currentList.type !== 'ol') {
+          currentList = { type: 'ol', items: [] };
+          elements.push(currentList);
+        }
+        currentList.items.push(line.replace(numberedListRegex, ''));
+      } else if (bulletListRegex.test(line)) {
+        if (!currentList || currentList.type !== 'ul') {
+          currentList = { type: 'ul', items: [] };
+          elements.push(currentList);
+        }
+        currentList.items.push(line.replace(bulletListRegex, ''));
+      } else {
+        currentList = null;
+        elements.push(line);
+      }
+    }
+
+    return elements.map((el, idx) => {
+      if (typeof el === 'string') {
+        return (
+          <p key={idx} style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', marginBottom: '1rem' }}>
+            {el}
+          </p>
+        );
+      } else if (el.type === 'ol') {
+        return (
+          <ol key={idx} style={{ paddingInlineStart: '1.5rem', marginBottom: '1.5rem' }}>
+            {el.items.map((item, i) => (
+              <li
+                key={i}
+                style={{
+                  fontSize: '18px',
+                  marginBottom: '1rem',
+                  lineHeight: '1.6',
+                }}
+              >
+                {item}
+              </li>
+
+            ))}
+          </ol>
+        );
+      } else if (el.type === 'ul') {
+        return (
+          <ul key={idx} style={{ paddingInlineStart: '1.5rem', marginBottom: '1.5rem' }}>
+            {el.items.map((item, i) => (
+              <li
+                key={i}
+                style={{
+                  fontSize: '18px',
+                  marginBottom: '1rem',
+                  lineHeight: '1.6',
+                }}
+              >
+                {item}
+              </li>
+
+            ))}
+          </ul>
+        );
+      }
+    });
+
+  };
+
   return (
     <>
       <style>{pageStyles}</style>
@@ -67,13 +143,21 @@ function QuestionPage({
         <h1>{data.heading}</h1>
         <p><strong>{labels.question}</strong> <span>{data.question}</span></p>
         {/* <p><strong>{labels.answer}</strong> <span>{data.answer}</span></p> */}
-        <p>
-  <strong>{labels.answer}</strong>
-  <br />
-  <span style={{ whiteSpace: 'pre-wrap', lineHeight: '1.5', margin: 0 }}>
-    {data.answer?.split('\n').filter(line => line.trim() !== '').join('\n')}
-  </span>
-</p>
+        {/* <div style={{ marginBottom: '1.5rem' }}>
+          <strong>{labels.answer}</strong>
+          {data.answer &&
+            data.answer
+              .split(/\n\s*\n/) // splits at empty lines
+              .map((paragraph, idx) => (
+                <p key={idx} style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', marginBottom: '1rem' }}>
+                  {paragraph}
+                </p>
+              ))}
+        </div> */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <strong>{labels.answer}</strong>
+          {data.answer && renderAnswer(data.answer)}
+        </div>
 
 
         <div id="dynamic-content">
@@ -90,14 +174,21 @@ function QuestionPage({
                 {sectionTitle && <h2>{sectionTitle}</h2>}
                 <ul>
                   {items.map((item, i) => (
-                    <li key={i}>
-                      {item.reference && <strong>{item.reference}<br /></strong>}
-                      {item.narrator && <em>{item.narrator}<br /></em>}
-                      <blockquote>{item.text}</blockquote>
-                      {item.commentary && <p style={{ whiteSpace: 'pre-wrap' }}>{item.commentary}</p>}
+                    <li key={i} style={{ marginBottom: '1.5rem' }}>
+                      {item.reference && (
+                        <strong style={{ display: 'block', marginBottom: '0.3rem' }}>{item.reference}</strong>
+                      )}
+                      {item.narrator && (
+                        <em style={{ display: 'block', marginBottom: '0.3rem' }}>{item.narrator}</em>
+                      )}
+                      <blockquote style={{ marginBottom: '0.5rem' }}>{item.text}</blockquote>
+                      {item.commentary && (
+                        <p style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>{item.commentary}</p>
+                      )}
                     </li>
                   ))}
                 </ul>
+
               </div>
             );
           })}
@@ -155,6 +246,7 @@ const pageStyles = `
   ul {
     padding-inline-start: 1.2rem;
     margin-bottom: 1.5rem;
+    list-style-type: disc;
   }
 
   li {
@@ -181,6 +273,15 @@ const pageStyles = `
   .back-link:hover {
     text-decoration: underline;
   }
+   
+  ul li {
+    margin-bottom: 0.75rem;
+  }
+  [dir="rtl"] ul {
+    padding-inline-end: 1.2rem;
+    padding-inline-start: 0;
+  }
+
 
   /* ============================
      RESPONSIVE STYLES
