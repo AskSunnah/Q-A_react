@@ -33,7 +33,7 @@ const aboutContent = {
     },
     bio: {
       title: "About Dr. Sheikh Falah Kurkully",
-      text: "Dr. Sheikh Falah Kurkully is a distinguished Islamic scholar with a PhD in Hadith Sciences. He has studied under some of the most esteemed scholars of our time..."
+      text: "Dr. Sheikh Falah Karkoli is a distinguished Islamic scholar who holds a PhD in Hadith Sciences. He studied under renowned scholars such as Sheikh Ibn Uthaymeen, Sheikh Saleh Al-Fawzan, Sheikh Abdul-Muhsin Al-Abbad, Sheikh Muqbil bin Hadi Al-Wadi’i, and Sheikh Abu Bakr Al-Jaza’iri. With decades of experience in teaching and Islamic outreach (da’wah), he provides answers on AskSunnah that are rooted in knowledge, precision, and scholarly integrity."
     },
     dua: "O Allah, make us steadfast on the path of guidance, help us adhere to what pleases You, and accept our humble efforts, Ameen."
   },
