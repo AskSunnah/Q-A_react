@@ -8,7 +8,9 @@
   --button-text-color: #3d3300;
   /* BACKGROUNDS */
   --bg-main: #faf9f5;
-  --bg-secondary: #f0f0ef;
+  --bg-secondary: #fcf7e296;
+  --bg-color-header: #bea331;
+  --bg-light:#efead8ad;
   --bg-tertiary: #aaa9a8;
   --bg-muted: #92928f;
   /* TEXT COLORS */
@@ -16,4 +18,5 @@
   --text-accent: #8a782e;
   --text-secondary: #707070;
   --text-tertiary: #989898;
+  --font-family: "Segoe UI", sans-serif;
 }

@@ -224,14 +224,14 @@ const pageStyles = `
   }
 
   h1 {
-    color: #1f6f3e;
+    color: var(--bg-color-header);
     font-size: 2rem;
     margin-bottom: 1rem;
     text-align: left;
   }
 
   h2 {
-    color: #2e8b57;
+    color: var(--bg-color-header);
     margin-top: 2rem;
     margin-bottom: 1rem;
     font-size: 1.3rem;
@@ -254,8 +254,8 @@ const pageStyles = `
   }
 
   blockquote {
-    background-color: #eef6f1;
-    border-inline-start: 5px solid #1f6f3e;
+    background-color: var(--bg-light);
+    border-inline-start: 5px solid var(--bg-color-header);
     margin: 1.5rem 0;
     padding: 1rem 1.25rem;
     font-style: italic;
@@ -265,7 +265,7 @@ const pageStyles = `
   .back-link {
     display: inline-block;
     margin-top: 2rem;
-    color: #2e8b57;
+    color: var(--bg-color-header);
     text-decoration: none;
     font-weight: bold;
   }

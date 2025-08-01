@@ -26,7 +26,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       <style>
         {`
     .navbar {
-      background: #e9f5ec;
+      background: var(--bg-secondary);
       padding: 1rem 1.5rem;
       position: relative;
       z-index: 10;
@@ -44,7 +44,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     }
 
     .nav-link {
-      color: #1f6f3e;
+      color: var(--text-main);
       text-decoration: none;
       font-weight: 500;
       padding: 0.5rem 1rem;
@@ -55,7 +55,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
 
     .nav-link:hover,
     .nav-link:focus {
-      background:#2e8b57;
+      background-color: var(--bg-color-header);
       color: #fff;
     }
 
@@ -65,7 +65,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       background: none;
       border: none;
       cursor: pointer;
-      color:  #1f6f3e;
+      color:  var(--text-main);
       position: absolute;
       top: 9px;
       right: 1rem;
@@ -98,12 +98,12 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     }
 
     body.dark .navbar {
-      background: #183c25;
+      background: var(--bg-color-header);
     }
 
     body.dark .nav-link:hover,
     body.dark .nav-link:focus {
-      background: #25603a;
+      background: var(--bg-color-header);
     }
 
     body.dark .nav-link {
@@ -149,7 +149,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
                 title="Toggle dark mode"
                 tabIndex={0}
                 onClick={toggleDarkMode}
-                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color: "green" }}
+                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color: "var(--bg-color-header)" }}
               ></i>
             </li>
           </ul>

@@ -48,74 +48,149 @@ const Footer = ({ lang = 'en' }) => {
   ];
 
   return (
-    <footer
-      dir={t.dir}
-      style={{
-        background: 'linear-gradient(to top, #1f6f3e, #2e8b57)',
-        color: 'white',
-        padding: '2rem 1.5rem 1rem',
-        fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
-        textAlign: 'center',
-      }}
-    >
-      <h2 style={{ fontWeight: '700', marginBottom: '0.5rem', color: 'white' }}>{t.logoText}</h2>
-      <p style={{ fontSize: '0.95rem', color: '#f0f0f0', marginBottom: '1rem' }}>{t.tagline}</p>
 
-      <div
+    <>
+      <style>
+        {`
+      
+         .custom-footer {
+            background: var(--bg-color-header);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            font-family: "Arial", sans-serif;
+            margin-top: 3rem;
+          }
+
+          .footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 0.5rem;
+          }
+
+          .footer-handle {
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+          }
+
+          .footer-button {
+            display: inline-block;
+            background-color: white;
+            color: #1a1a1a;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-bottom: 1.5rem;
+          }
+
+          .footer-button:hover {
+            background-color: #e2e2e2;
+          }
+
+          .footer-share {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #cccccc;
+            font-style: italic;
+          }
+
+          .social-icon {
+            display: inline-block;
+            transition: transform 0.3s ease, filter 0.3s ease;
+          }
+
+          .social-icon:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px white);
+          }
+
+          @media (max-width: 600px) {
+            footer svg {
+              width: 24px;
+              height: 24px;
+            }
+
+            footer a.social-icon {
+              margin-bottom: 10px;
+            }
+          }
+      `}
+      </style>
+      <footer
+        dir={t.dir}
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '1.2rem',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          marginBottom: '0.5rem',
+          background: 'var(--bg-color-header)',
+          color: 'white',
+          padding: '2rem 1.5rem 1rem',
+          fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
+          textAlign: 'center',
         }}
       >
-        {socials.map((s, i) => (
-          <a
-            key={i}
-            href={s.href}
-            target="_blank"
-            rel="noreferrer"
-            title={s.label}
-            className="social-icon"
-            style={{
-              display: 'inline-block',
-              transition: 'transform 0.3s ease, filter 0.3s ease',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'scale(1.2)';
-              e.currentTarget.style.filter = 'drop-shadow(0 0 5px white)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.filter = 'none';
-            }}
-          >
-            {s.svg}
-          </a>
-        ))}
-      </div>
+        <h2 style={{ fontWeight: '700', marginBottom: '0.5rem', color: 'white' }}>{t.logoText}</h2>
+        <p style={{ fontSize: '0.95rem', color: '#f0f0f0', marginBottom: '1rem' }}>{t.tagline}</p>
 
-      <div
-        style={{
-          borderTop: '1px solid #eeeeee33',
-          marginTop: '1.5rem',
-          paddingTop: '1rem',
-          fontSize: '0.85rem',
-          color: '#cccccc',
-        }}
-      >
-        <span>{t.copyright}</span>
-        <span style={{ margin: '0 0.5rem' }}>|</span>
-        <Link
-          to={t.termsLink}
-          style={{ color: '#cccccc', textDecoration: 'none' }}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '1.2rem',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            marginBottom: '0.5rem',
+          }}
         >
-          {t.terms}
-        </Link>
-      </div>
-    </footer>
+          {socials.map((s, i) => (
+            <a
+              key={i}
+              href={s.href}
+              target="_blank"
+              rel="noreferrer"
+              title={s.label}
+              className="social-icon"
+              style={{
+                display: 'inline-block',
+                transition: 'transform 0.3s ease, filter 0.3s ease',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'scale(1.2)';
+                e.currentTarget.style.filter = 'drop-shadow(0 0 5px white)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.filter = 'none';
+              }}
+            >
+              {s.svg}
+            </a>
+          ))}
+        </div>
+
+        <div
+          style={{
+            borderTop: '1px solid #eeeeee33',
+            marginTop: '1.5rem',
+            paddingTop: '1rem',
+            fontSize: '0.85rem',
+            color: '#cccccc',
+          }}
+        >
+          <span>{t.copyright}</span>
+          <span style={{ margin: '0 0.5rem' }}>|</span>
+          <Link
+            to={t.termsLink}
+            style={{ color: '#cccccc', textDecoration: 'none' }}
+          >
+            {t.terms}
+          </Link>
+        </div>
+      </footer>
+    </>
   );
 };
 
