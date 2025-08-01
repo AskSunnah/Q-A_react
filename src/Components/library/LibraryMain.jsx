@@ -9,22 +9,13 @@ const LibraryMain = ({
 }) => (
   <main dir={dir}>
      <style>{`
-      :root {
-        --primary-color: #1f6f3e;
-        --secondary-color: #2e8b57;
-        --background: #f7f7f7;
-        --card-bg: #ffffff;
-        --accent-bg: #f0f4fa;
-        --text-color: #2c3e50;
-        --font-family: "Segoe UI", sans-serif;
-      }
       body{
       margin: 0;}
       .library-bg {
         margin: 0;
         font-family: var(--font-family);
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/library-bg.webp");
-        background-size: cover;
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("/books.jpeg");
+        background-size:fit;
         background-position: center;
         display: flex;
         flex-direction: column;
@@ -36,17 +27,17 @@ const LibraryMain = ({
         max-width:fit-content;
         padding: 4rem;
         margin: 2rem auto;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: var(--bg-light);
         border-radius: 12px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        color: #fff;
+        color:var( --text-main);
       }
       header {
-        background-color: rgba(22, 101, 52, 0.9);
+        background-color:  rgba(213, 175, 40, 0.9);
         color: white;
         padding: 2rem 1rem 1rem 1rem;
         text-align: center;
@@ -63,10 +54,10 @@ const LibraryMain = ({
         margin: 3rem;
       }
       main button {
-        color: white;
+        color: var(--button-text-color);
         font-weight: 600;
         font-size: 1rem;
-        background-color: #166534;
+        background: var(--button-gradient);
         border: none;
         border-radius: 6px;
         height: 50px;
