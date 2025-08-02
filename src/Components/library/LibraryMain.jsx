@@ -22,6 +22,7 @@ const LibraryMain = ({
         min-height: 100vh;
       }
       main {
+        max-width:1/2;
         padding: 4rem;
         margin: 0 auto;
         background-color: var(--bg-light);
@@ -67,12 +68,12 @@ const LibraryMain = ({
         color: var(--text-main);
       }
         .lib-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
       @media (max-width: 768px) {
         main {
           padding: 2rem;

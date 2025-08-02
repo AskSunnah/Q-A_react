@@ -18,8 +18,7 @@ export default function LibraryAr() {
   ]}
   languageSwitcher={{ label: "English", href: "/library" }}
 />
-
-
+      <div className='lib-content'>
       <LibraryMain
         heading="مرحبًا بكم في المكتبة، يا طلاب العلم!"
         firstButtonLabel="الكتب العربية"
@@ -28,6 +27,7 @@ export default function LibraryAr() {
         secondButtonLink="/library/engbooks"
         dir="rtl"
       />
+      </div>
     </div>
   );
 }
