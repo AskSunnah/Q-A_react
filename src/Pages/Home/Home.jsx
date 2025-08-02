@@ -41,13 +41,6 @@ function Home() {
       line-height: 1.6;
     }
 
-    header {
-      background-color: var(--primary);
-      color: #fff;
-      padding: 2.5rem 1.25rem;
-      text-align: center;
-    }
-
     header h1 {
       font-size: 2.5rem;
     }

@@ -11,8 +11,8 @@ const Header = ({ title, subtitle, dir = 'ltr' }) => {
       box-sizing: border-box;
     }
     header {
-      background-color:var(--bg-color-header);
-      color: #fff;
+      background-color: var(--bg-color-header);
+      color: var(--text-main);
       padding: 2.5rem 1.25rem;
       text-align: center;
     }
