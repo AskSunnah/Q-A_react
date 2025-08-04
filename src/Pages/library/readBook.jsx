@@ -76,6 +76,7 @@ useEffect(() => {
       flex-direction: row;
       padding: 1em;
       
+      
     }
 
     .sidebar {
@@ -84,6 +85,7 @@ useEffect(() => {
       padding: 1rem;
       overflow-y: scroll;
       height: 70vh;
+      margin-right:3px;
       
     }
 
@@ -121,12 +123,17 @@ useEffect(() => {
       flex: 1;
       padding: 1em;
       line-height: 2;
+      color:var(--text-main);
       font-size: 1.1rem;
       border: 1px double var(--border-color);
       background-color: var(--bg-secondary);
       border-radius: 2%;
+      background:  url("/test1.jpg");
+      background-size:cover;
+      background-position: center;
       text-align: justify;
     }
+      
 
     .controls {
       text-align: center;

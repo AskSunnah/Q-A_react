@@ -26,7 +26,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       <style>
         {`
     .navbar {
-      background: var(--bg-main);
+      background: white;
       padding: 1rem 1.5rem;
       position: relative;
       z-index: 10;
@@ -55,8 +55,8 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
 
     .nav-link:hover,
     .nav-link:focus {
-      background: var( --button-gradient);
-      color:var(--text-main);
+      background-color: var(--bg-color-header);
+      color: #fff;
     }
 
     .nav-toggle {
