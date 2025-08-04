@@ -200,7 +200,7 @@ const styles = {
   cardSide: {
     flex: 1,
     padding: "40px 30px",
-    backgroundColor: "#e9f5ec",
+    backgroundColor: "var(--bg-light)",
   },
   heading: {
     fontSize: "28px",
@@ -248,10 +248,10 @@ const styles = {
     display: "inline-flex",
     borderRadius: "5px",
     overflow: "hidden",
-    border: "1px solid #1f6f3e",
+    border: "1px solid var(--bg-color-header)",
   },
   optionActive: {
-    backgroundColor: "#1f6f3e",
+    backgroundColor: "var(--bg-color-header)",
     color: "white",
     padding: "9px 21px",
     border: "none",
@@ -271,7 +271,7 @@ const styles = {
     marginBottom: "15px",
   },
   amountActive: {
-    backgroundColor: "#1f6f3e",
+    backgroundColor: "var(--bg-color-header)",
     color: "white",
     padding: "9px 21px",
     borderRadius: "5px",
@@ -303,7 +303,7 @@ const styles = {
     marginBottom: "10px",
   },
   primaryButton: {
-    backgroundColor: "#1f6f3e",
+    backgroundColor: "var(--bg-color-header)",
     color: "white",
     padding: "12px 24px",
     border: "none",
