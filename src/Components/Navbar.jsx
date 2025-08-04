@@ -26,7 +26,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       <style>
         {`
     .navbar {
-      background: var(--bg-secondary);
+      background: white;
       padding: 1rem 1.5rem;
       position: relative;
       z-index: 10;

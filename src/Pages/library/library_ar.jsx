@@ -1,8 +1,10 @@
 import LibraryMain from "../../Components/library/LibraryMain";
+import Footer from "../../Components/Footer"
 import Navbar from "../../Components/Navbar";
 
 export default function LibraryAr() {
   return (
+    <>
     <div className="library-bg">
       <header>
         <h1>المكتبة</h1>
@@ -18,8 +20,7 @@ export default function LibraryAr() {
   ]}
   languageSwitcher={{ label: "English", href: "/library" }}
 />
-
-
+      <div className='lib-content'>
       <LibraryMain
         heading="مرحبًا بكم في المكتبة، يا طلاب العلم!"
         firstButtonLabel="الكتب العربية"
@@ -28,6 +29,9 @@ export default function LibraryAr() {
         secondButtonLink="/library/engbooks"
         dir="rtl"
       />
+      </div>
     </div>
+    <Footer/>
+    </>
   );
 }

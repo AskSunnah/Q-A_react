@@ -59,54 +59,57 @@ export default function BookDetails() {
   return (
     <div dir={labels.dir} style={{ background: "#f9f9f9", minHeight: "100vh", color: "#1e293b" }}>
       <style>{`
-        :root {
-          --primary: #1f6f3e;
-          --secondary: #2e8b57;
-        }
         body {
-          font-family: 'Segoe UI', sans-serif;
-          background: #f9f9f9;
           margin: 0;
         }
         header {
-          background-image:
-            linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-            url('/library-bg.webp');
-          background-size: cover;
-          background-position: center;
-          color: white;
-          padding: 2rem;
-          text-align: center;
-        }
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/books.jpeg");
+      background-size:fit;
+      background-position: center;
+      color: white;
+      padding: 1rem 2rem;
+      text-align: center;
+    }
+
         .book-title {
           font-size: 2rem;
           font-weight: bold;
           margin-bottom: 0.5rem;
         }
-        nav.navbar {
-          background-color: #e9f5ec;
-          padding: 1rem 1.5rem;
-        }
-        nav ul {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          gap: 1.5rem;
-        }
-        nav .nav-link {
-          color: var(--primary);
-          text-decoration: none;
-          font-weight: 500;
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
-          transition: background 0.2s;
-        }
-        nav .nav-link:hover {
-          background-color: var(--secondary);
-          color: #fff;
-        }
+        .navbar {
+      background: var(--bg-main);
+      padding: 1rem 1.5rem;
+      position: relative;
+      z-index: 10;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background 0.2s;
+      display: inline-block;
+    }
+
+    .nav-link:hover,
+    .nav-link:focus {
+      background: var( --button-gradient);
+      color:var(--text-main);
+    }
+
         .container {
           max-width: 960px;
           margin: 2rem auto;
@@ -130,7 +133,7 @@ export default function BookDetails() {
           margin-bottom: 0.5rem;
         }
         .toc a {
-          color: #1e40af;
+          color: var(--text-accent);
           text-decoration: none;
         }
         .toc a:hover {
