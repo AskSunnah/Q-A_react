@@ -1,10 +1,12 @@
 import Navbar from '../../Components/Navbar';
 import LibraryMain from "../../Components/library/LibraryMain";
+import Footer from "../../Components/Footer"
 
 // Import the CSS here!
 
 export default function Library() {
   return (
+    <>
     <div className="library-bg">
       <header>
         <h1>Library</h1>
@@ -30,5 +32,7 @@ export default function Library() {
         dir="ltr"
       /></div>
     </div>
+      <Footer />
+    </>
   );
 }

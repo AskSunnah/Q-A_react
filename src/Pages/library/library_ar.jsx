@@ -1,8 +1,10 @@
 import LibraryMain from "../../Components/library/LibraryMain";
+import Footer from "../../Components/Footer"
 import Navbar from "../../Components/Navbar";
 
 export default function LibraryAr() {
   return (
+    <>
     <div className="library-bg">
       <header>
         <h1>المكتبة</h1>
@@ -29,5 +31,7 @@ export default function LibraryAr() {
       />
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }

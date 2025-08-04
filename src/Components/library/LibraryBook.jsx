@@ -74,7 +74,7 @@ export default function BookLibrary({ lang = "en" }) {
         min-height: 100vh;
       }
       header {
-        background-color:  rgba(213, 175, 40, 0.9);
+        background-color:var(--bg-lib-header);
         color: white;
         padding: 2rem 1rem 1rem 1rem;
         text-align: center;
@@ -169,7 +169,9 @@ export default function BookLibrary({ lang = "en" }) {
     }
 
     .book-card a:hover {
-      background-color: #14532d;
+      background: var(--button-bg-transparent);
+      border: 1px solid var(--button-gradient);
+      color: var(--text-main);
     }
 
     footer {

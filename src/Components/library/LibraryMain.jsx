@@ -35,7 +35,7 @@ const LibraryMain = ({
         color:var( --text-main);
       }
       header {
-        background-color:rgba(213, 175, 40, 0.9);
+        background-color:var(--bg-lib-header);;
         color: white;
         padding: 2rem 1rem 1rem 1rem;
         text-align: center;
