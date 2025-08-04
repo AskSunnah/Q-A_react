@@ -1,10 +1,12 @@
 import Navbar from '../../Components/Navbar';
 import LibraryMain from "../../Components/library/LibraryMain";
+import Footer from "../../Components/Footer"
 
 // Import the CSS here!
 
 export default function Library() {
   return (
+    <>
     <div className="library-bg">
       <header>
         <h1>Library</h1>
@@ -19,7 +21,8 @@ export default function Library() {
     { label: "Contribute", href: "/contribute", internal: true }
   ]}
   languageSwitcher={{ label: "العربية", href: "/library_ar" }}
-/>
+/>    
+      <div className='lib-content'>
       <LibraryMain
         heading="Welcome to the Library, Students of Knowledge!"
         firstButtonLabel="English Books"
@@ -27,7 +30,9 @@ export default function Library() {
         secondButtonLabel="Arabic Books"
         secondButtonLink="/library/arabicbooks"
         dir="ltr"
-      />
+      /></div>
     </div>
+      <Footer />
+    </>
   );
 }

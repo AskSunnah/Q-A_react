@@ -62,39 +62,51 @@ export default function BookLibrary({ lang = "en" }) {
       className="library-bg"
       dir={dir}
     > <style>{`
-      :root {
-      --primary-color: #1f6f3e;
-      --accent-bg: rgba(255, 255, 255, 0.1);
-      --font-family: 'Segoe UI', sans-serif;
-    }
 
-    body {
-      margin: 0;
-      font-family: var(--font-family);
-      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("/library-bg.webp");
-      background-size: cover;
-      background-position: center;
-      color: white;
-    }
-
-    header {
-      background-color: rgba(22, 101, 52, 0.9);
-      padding: 1.5rem;
-      text-align: center;
-      
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
+    body{
+      margin: 0;}
+      .library-bg {
+        margin: 0;
+        font-family: var(--font-family);
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3)), url("/books.jpeg");
+        background-size:fit;
+        background-position: center;
+        min-height: 100vh;
+      }
+      header {
+        background-color:var(--bg-lib-header);
+        color: white;
+        padding: 2rem 1rem 1rem 1rem;
+        text-align: center;
+      }
+      header h1 {
+        font-size: 2rem;
+      }
+      .header p {
+        margin-top: 0.5rem;
+        font-size: 1.2rem;
+        font-weight: 300;
+      }
+      main button:hover {
+        background: var(--button-bg-transparent);
+        border: 1px solid var(--button-gradient);
+        color: var(--text-main);
+      }
+        .lib-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
     }
 
     .container {
-      max-width: 1000px;
+    max-width: 1000px;
       margin: 2rem auto;
       padding: 1rem;
-      background-color: rgba(0, 0, 0, 0.5);
       border-radius: 12px;
+        background-color: var(--bg-light);
+        color:var( --text-main);
     }
 
     .search-bar,
@@ -121,8 +133,10 @@ export default function BookLibrary({ lang = "en" }) {
     }
 
     .book-card {
-      background-color: var(--accent-bg);
+      background-color: var(--bg-secondary);
       border-radius: 8px;
+      border: 2px solid var(--bg-color-header);
+      color: var(--text-main);
       padding: 1rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       display: flex;
@@ -139,14 +153,15 @@ export default function BookLibrary({ lang = "en" }) {
 
     .book-author {
       font-size: 0.9rem;
-      color: #cbd5e1;
+      color:var(--text-main);
       margin-bottom: 1rem;
     }
 
     .book-card a {
       align-self: start;
-      background-color: var(--primary-color);
-      color: white;
+      background: var(--button-gradient);
+      color: var(--text-main);
+      font-weight:10px;
       padding: 0.5rem 1rem;
       text-decoration: none;
       border-radius: 4px;
@@ -154,7 +169,9 @@ export default function BookLibrary({ lang = "en" }) {
     }
 
     .book-card a:hover {
-      background-color: #14532d;
+      background: var(--button-bg-transparent);
+      border: 1px solid var(--button-gradient);
+      color: var(--text-main);
     }
 
     footer {
