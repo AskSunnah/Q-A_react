@@ -31,6 +31,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       position: relative;
       z-index: 10;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      box-shadow: 1px 1px 1px rgba(255, 215, 0, 0.2);
     }
 
     .navbar ul {
