@@ -20,6 +20,8 @@ function Home() {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+     
+
     }
 
     body {
@@ -33,7 +35,8 @@ function Home() {
       padding: 1.5rem;
       background: var(--bg-main);
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 2px 3px 12px rgba(0, 0, 0, 0.14);
+       color: var(--text-main);
     }
 
     section {
@@ -41,7 +44,7 @@ function Home() {
     }
 
     h2, h3 {
-      color: var(--bg-color-header);
+      color: var(--text-accent);
  } 
    
 

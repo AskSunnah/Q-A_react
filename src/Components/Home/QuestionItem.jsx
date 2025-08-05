@@ -13,6 +13,7 @@ const styles = `
     text-decoration: none;
     color: inherit;
     transition: background-color 0.2s;
+    color: var(--text-main);
   }
 
 
