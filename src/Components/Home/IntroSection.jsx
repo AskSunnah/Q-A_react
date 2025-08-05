@@ -8,8 +8,9 @@ const IntroSection = ({ heading, description, buttonLabel, buttonLangLink, onOpe
   display: inline-block;
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
-  background: var(--bg-color-header);
-  color: #fff;
+  background: var(--button-gradient);
+  color: var(--button-text-color);
+  font-weight:600;
   text-decoration: none;
   border-radius: 6px;
   transition: background 0.3s ease;

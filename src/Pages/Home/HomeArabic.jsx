@@ -36,7 +36,7 @@ function Home() {
 
     body {
       font-family: var(--font-family);
-      background-color: var(--background);
+      background-color: white;
       color: var(--text-color);
       line-height: 1.6;
     }
@@ -47,7 +47,7 @@ function Home() {
       max-width: 900px;
       margin: 2rem auto;
       padding: 1.5rem;
-      background: var(--card-bg);
+      background: var(--bg-main);
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }

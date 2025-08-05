@@ -24,7 +24,7 @@ function Home() {
 
     body {
       font-family: var(--font-family);
-      background-color: var(--bg-main);
+      background-color: white
       line-height: 1.6;
     }
     main {

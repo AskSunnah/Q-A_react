@@ -15,7 +15,7 @@ const Header = ({ title, subtitle, dir = 'ltr' }) => {
 
 
     header {
-      background-color:var(--bg-color-header);
+      background:#c3a421;
       color: #fff;
       padding: 2.5rem 1.25rem;
       text-align: center;
