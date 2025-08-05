@@ -28,6 +28,7 @@ function Home() {
       font-family: var(--font-family);
       background-color: white
       line-height: 1.6;
+
     }
     main {
       max-width: 900px;
@@ -44,7 +45,7 @@ function Home() {
     }
 
     h2, h3 {
-      color: var(--text-accent);
+      color: var(--bg-color-header);
  } 
    
 

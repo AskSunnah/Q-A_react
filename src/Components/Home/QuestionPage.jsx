@@ -482,7 +482,7 @@ const pageStyles = `
 const spinnerStyles = `
   .spinner {
     border: 8px solid #f3f3f3;
-    border-top: 8px solid #1f6f3e;
+    border-top: 8px solid var(--bg-color-header);
     border-radius: 50%;
     width: 60px;
     height: 60px;

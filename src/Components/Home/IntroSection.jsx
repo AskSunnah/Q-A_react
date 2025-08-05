@@ -24,7 +24,7 @@ const IntroSection = ({ heading, description, buttonLabel, buttonLangLink, onOpe
 
           h2{
             padding: 0.5rem 0;
-            color: var(--text-accent);
+            color: var(--bg-color-header);
           }
 
           a.btn:hover {

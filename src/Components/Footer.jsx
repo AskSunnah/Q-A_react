@@ -54,7 +54,7 @@ const Footer = ({ lang = 'en' }) => {
         {`
       
          .custom-footer {
-            background-color: #c3a421;
+            background-color: var(--bg-color-header);
             color: white;
             padding: 2rem 1rem;
             text-align: center;
@@ -125,9 +125,9 @@ const Footer = ({ lang = 'en' }) => {
       <footer
         dir={t.dir}
         style={{
-          background: '#c3a421',
+          background: 'var(--bg-color-header)',
           color: 'white',
-          padding: '2rem 1.5rem 1rem',
+          padding: '1.5rem 1.5rem 1rem',
           fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
           textAlign: 'center',
         }}
