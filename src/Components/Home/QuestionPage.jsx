@@ -61,80 +61,90 @@ function QuestionPage({
   };
 
   const renderAnswer = (text) => {
-    const lines = text.split('\n').map((line) => line.trim()).filter(Boolean);
+  const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
 
-    const numberedListRegex = /^\d+[\).]\s+/;
-    const bulletListRegex = /^[-•*]\s+/;
+  const numberedHeadingRegex = /^\d+[\).]\s*/;
+  const bulletRegex = /^[-•*]\s*/;
 
-    const elements = [];
-    let currentList = null;
+  const elements = [];
+  let currentSection = null;
 
-    for (let line of lines) {
-      if (numberedListRegex.test(line)) {
-        if (!currentList || currentList.type !== 'ol') {
-          currentList = { type: 'ol', items: [] };
-          elements.push(currentList);
-        }
-        currentList.items.push(line.replace(numberedListRegex, ''));
-      } else if (bulletListRegex.test(line)) {
-        if (!currentList || currentList.type !== 'ul') {
-          currentList = { type: 'ul', items: [] };
-          elements.push(currentList);
-        }
-        currentList.items.push(line.replace(bulletListRegex, ''));
+  lines.forEach((line) => {
+    if (numberedHeadingRegex.test(line)) {
+      // Push any previous section
+      if (currentSection) elements.push(currentSection);
+      // Start new section
+      currentSection = {
+        type: 'section',
+        heading: line.replace(numberedHeadingRegex, '').trim(),
+        bullets: []
+      };
+    } else if (bulletRegex.test(line)) {
+      if (currentSection) {
+        currentSection.bullets.push(line.replace(bulletRegex, '').trim());
       } else {
-        currentList = null;
-        elements.push(line);
+        // Orphan bullet outside of any section
+        elements.push({
+          type: 'ul',
+          items: [line.replace(bulletRegex, '').trim()]
+        });
       }
+    } else {
+      // Plain paragraph or end of section
+      if (currentSection) {
+        elements.push(currentSection);
+        currentSection = null;
+      }
+      elements.push(line);
+    }
+  });
+
+  if (currentSection) {
+    elements.push(currentSection);
+  }
+
+  // Rendering logic
+  let manualSectionCounter = 1;
+
+  return elements.map((el, idx) => {
+    if (typeof el === 'string') {
+      return (
+        <p key={idx} style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', marginBottom: '1rem' }}>
+          {el}
+        </p>
+      );
     }
 
-    return elements.map((el, idx) => {
-      if (typeof el === 'string') {
-        return (
-          <p key={idx} style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', marginBottom: '1rem' }}>
-            {el}
+    if (el.type === 'section') {
+      const sectionNumber = manualSectionCounter++;
+      return (
+        <div key={idx} style={{ marginBottom: '1.5rem' }}>
+          <p style={{ fontSize: '18px', marginBottom: '0.5rem' }}>
+            {`${sectionNumber}. ${el.heading}`}
           </p>
-        );
-      } else if (el.type === 'ol') {
-        return (
-          <ol key={idx} style={{ paddingInlineStart: '1.5rem', marginBottom: '1.5rem' }}>
-            {el.items.map((item, i) => (
-              <li
-                key={i}
-                style={{
-                  fontSize: '18px',
-                  marginBottom: '1rem',
-                  lineHeight: '1.6',
-                }}
-              >
-                {item}
-              </li>
-
-            ))}
-          </ol>
-        );
-      } else if (el.type === 'ul') {
-        return (
-          <ul key={idx} style={{ paddingInlineStart: '1.5rem', marginBottom: '1.5rem' }}>
-            {el.items.map((item, i) => (
-              <li
-                key={i}
-                style={{
-                  fontSize: '18px',
-                  marginBottom: '1rem',
-                  lineHeight: '1.6',
-                }}
-              >
-                {item}
-              </li>
-
+          <ul style={{ paddingInlineStart: '1.5rem' }}>
+            {el.bullets.map((b, i) => (
+              <li key={i} style={{ fontSize: '17px', marginBottom: '' }}>{b}</li>
             ))}
           </ul>
-        );
-      }
-    });
+        </div>
+      );
+    }
 
-  };
+    if (el.type === 'ul') {
+      return (
+        <ul key={idx} style={{  }}>
+          {el.items.map((item, i) => (
+            <li key={i} style={{ fontSize: '17px' }}>{item}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    return null;
+  });
+};
+
 
   return (
     <>
@@ -245,7 +255,6 @@ const pageStyles = `
 
   ul {
     padding-inline-start: 1.2rem;
-    margin-bottom: 1.5rem;
     list-style-type: disc;
   }
 
@@ -481,8 +490,8 @@ const pageStyles = `
 
 const spinnerStyles = `
   .spinner {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid var(--bg-color-header);
+    border: 8px solid var(--bg-color-header);
+    border-top: 8px solid var(--text-accent);
     border-radius: 50%;
     width: 60px;
     height: 60px;
