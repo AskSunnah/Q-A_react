@@ -11,14 +11,7 @@ const AboutArabic = () => {
         <>
             {/* Use same inline style here if needed or keep separate */}
             <style>{`
-        :root {
-          --primary: #1f6f3e;
-          --secondary: #2e8b57;
-          --background: #f7f7f7;
-          --card-bg: #ffffff;
-          --text: #2c3e50;
-          --font: 'Segoe UI', sans-serif;
-        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html {
           font-family: var(--font-family);

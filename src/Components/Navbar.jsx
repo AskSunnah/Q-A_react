@@ -30,8 +30,10 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       padding: 1rem 1.5rem;
       position: relative;
       z-index: 10;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      box-shadow: 1px 1px 1px rgba(255, 215, 0, 0.2);
+      font-family: var(--font-family);
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid #f0f0f0;
     }
 
     .navbar ul {
@@ -56,8 +58,8 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
 
     .nav-link:hover,
     .nav-link:focus {
-      background-color: var(--bg-color-header);
       color: #fff;
+      background:var(--button-hover); /* darker golden gradient */
     }
 
     .nav-toggle {

@@ -8,19 +8,21 @@ const styles = `
     margin-top: 1.5rem;
     padding: 1rem;
     border-left: 5px solid var(--bg-color-header);
-    background-color: var(--bg-light);
+     background-color: #fefefe;
+      border: 1px solid #eee;
     border-radius: 5px;
     text-decoration: none;
     color: inherit;
     transition: background-color 0.2s;
+    color: var(--text-main);
   }
 
-
-
-  .question-item:hover {
-    background-color:var(--bg-secondary);
+.question-item:hover {
+  background-color: #f9f9f9;
+     background-color:var(--bg-secondary);
       cursor: pointer;
-  }
+}
+
 `;
 
 const QuestionItem = ({ item, index, labelPrefix = 'Q', direction = 'ltr' }) => {

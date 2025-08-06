@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import Navbar from '../../Components/Navbar';
 import Footer from '../../Components/Footer';
@@ -7,8 +7,6 @@ import IntroSection from '../../Components/Home/IntroSection';
 import RecentAnswers from '../../Components/Home/RecentAnswers';
 import AskQuestionModal from '../../Components/Home/AskQuestionModal';
 import { fetchAllFatwas } from "../../api/fatwa";
-
-
 
 function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,12 +20,15 @@ function Home() {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+     
+
     }
 
     body {
       font-family: var(--font-family);
       background-color: white
       line-height: 1.6;
+
     }
     main {
       max-width: 900px;
@@ -35,7 +36,8 @@ function Home() {
       padding: 1.5rem;
       background: var(--bg-main);
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 2px 3px 12px rgba(0, 0, 0, 0.14);
+       color: var(--text-main);
     }
 
     section {

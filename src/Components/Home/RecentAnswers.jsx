@@ -48,7 +48,7 @@ const RecentAnswers = ({
   return (
     <section aria-labelledby="recent-answers" dir={direction}>
       <div style={{ textAlign: isRTL ? 'right' : 'left' }}>
-        <h3 id="recent-answers" style={{ margin: 0 }}>{sectionTitle}</h3>
+        <h3 id="recent-answers" style={{ margin: 0}}>{sectionTitle}</h3>
         <span
           id="answerCount"
           style={{ fontSize: '0.95rem', display: 'block', marginTop: '0.5rem' }}
