@@ -77,6 +77,9 @@ function Home() {
       main {
         padding: 1rem;
         margin: 1rem;
+        background: white;
+      border-radius: 0px;
+      box-shadow:none;
       }
 
       .question-item {
