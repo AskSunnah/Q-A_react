@@ -102,7 +102,7 @@ const Contribute = ({ lang = "en" }) => {
                 <img src={paypalIcon} alt="PayPal" style={styles.iconImg} />
               </button>
               <button onClick={() => {setSelectedMethod("card");
-              setMaintenanceMsg(true); }} style={styles.iconButton}>
+              setMaintenanceMsg(false); }} style={styles.iconButton}>
                 <img src={cardIcon} alt="Card" style={styles.iconImg} />
               </button>
             </div>
