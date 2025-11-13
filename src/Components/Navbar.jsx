@@ -152,7 +152,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
                 title="Toggle dark mode"
                 tabIndex={0}
                 onClick={toggleDarkMode}
-                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color: "var(--bg-color-header)" }}
+                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color: dark ? 'white' : 'var(--bg-color-header)', }}
               ></i>
             </li>
           </ul>

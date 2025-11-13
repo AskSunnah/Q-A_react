@@ -6,7 +6,7 @@
   --button-gradient: linear-gradient(135deg, #fff1b7, #bea331);
   --button-bg-transparent: #faf9f5;
   --button-text-color: #3d3300;
-  --button-hover:linear-gradient(135deg, #fce490, #a88c1e);;
+  --button-hover: linear-gradient(135deg, #fce490, #a88c1e);
   /* BACKGROUNDS */
   --bg-main: #faf9f5;
   --bg-secondary: #fcf7e296;

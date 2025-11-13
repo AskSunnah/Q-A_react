@@ -129,7 +129,7 @@ function Home() {
     }
 
     body.dark #answerCount {
-      color: var(--text-color);
+      color:black;
     }
 
     .dark-toggle-btn {
@@ -146,11 +146,11 @@ function Home() {
 
     body.dark .dark-toggle-btn {
       background: rgba(255, 255, 255, 0.1);
-      color: #f1f5f9;
+      color: #ffffff;
     }
 
     body.dark header {
-      background-color: var(--primary) !important;
+      background-color: var(--bg-color-header);
     }
 
 

@@ -139,7 +139,7 @@ function Home() {
     }
 
     body.dark #answerCount {
-      color: var(--text-color);
+      color: black;
     }
 
     .dark-toggle-btn {
@@ -160,7 +160,7 @@ function Home() {
     }
 
     body.dark header {
-      background-color: var(--primary) !important;
+      background-color:var(--bg-color-header);
     }
 
 
