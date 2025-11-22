@@ -21,12 +21,22 @@ export default function BookEditor({ book, onChange }) {
           chapter={ch}
           onChange={newCh => updateChapter(idx, newCh)}
           onDelete={() => deleteChapter(idx)}
-          onAddPage={() =>
-            updateChapter(idx, {
-              ...ch,
-              pages: [...(ch.pages || []), { number: (ch.pages?.length || 0) + 1, blocks: [], references: [] }]
-            })
-          }
+         onAddPage={() =>
+  updateChapter(idx, {
+    ...ch,
+    pages: [
+      ...(ch.pages || []),
+      {
+        number: (ch.pages?.length || 0) + 1,
+        blocks: [
+          { type: "paragraph", text: "", reference: "", narrator: "", commentary: "" }
+        ],
+        references: []
+      }
+    ]
+  })
+}
+
         />
       ))}
       <button type="button" className="btn-add" onClick={addChapter}>Add Chapter</button>
