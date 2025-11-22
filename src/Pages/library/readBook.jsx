@@ -17,6 +17,8 @@ export default function ReadBook() {
   const [currentPage, setCurrentPage] = useState(0);
   const [fontSize, setFontSize] = useState(1.1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isTashkeelRemoved, setIsTashkeelRemoved] = useState(false);
+
 
  useEffect(() => {
   fetchBook(lang, slug)
@@ -51,9 +53,15 @@ useEffect(() => {
 }, [currentPage, book?.pages?.length]);
   if (!book) return <div></div>;
 
-  const page = book.pages?.[currentPage] || { blocks: [] };
+   const page = book.pages?.[currentPage] || { blocks: [] };
   const dir = lang === "ar" ? "rtl" : "ltr";
   const labels = LANG_LABELS[lang] || LANG_LABELS.en;
+  const isArabic = lang === "ar";
+
+  function handleTashkeelToggle() {
+    setIsTashkeelRemoved(prev => !prev);
+    console.log("Tashkeel toggled. Now removed:", !isTashkeelRemoved);
+  }
 
   return (
     <div className="root" dir={dir}>
@@ -283,6 +291,22 @@ useEffect(() => {
     body.dark .nav-link:focus {
       background: #25603a;
     }
+          .tashkeel-btn {
+      background: #0c0c0cff;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1.4rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      margin-inline-start: 0.5rem;
+    }
+
+    .tashkeel-btn:hover {
+      background: #ef0000f6;
+    }
+
     `}</style>
       <header>
         <h1>{book.title}</h1>
@@ -331,19 +355,27 @@ useEffect(() => {
           tocLabel={labels.toc}
         />
         <main>
-          <BookContent
-            blocks={page.blocks}
-            references={page.references}
-            fontSize={fontSize}
-          />
-          <Controls
-            currentPage={currentPage}
-            totalPages={book.pages ? book.pages.length : 0}
-            setCurrentPage={setCurrentPage}
-            fontSize={fontSize}
-            setFontSize={setFontSize}
-          />
-        </main>
+  {isArabic && (
+    <button className="tashkeel-btn" onClick={handleTashkeelToggle}>
+    {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
+    </button>
+  )}
+
+  <BookContent
+  blocks={page.blocks}
+  references={page.references}
+  fontSize={fontSize}
+  removeTashkeel={isTashkeelRemoved}
+/>
+  <Controls
+    currentPage={currentPage}
+    totalPages={book.pages ? book.pages.length : 0}
+    setCurrentPage={setCurrentPage}
+    fontSize={fontSize}
+    setFontSize={setFontSize}
+  />
+</main>
+
       </div>
       <Footer/>
     </div>
