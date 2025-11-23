@@ -69,11 +69,15 @@ const handleShare = async () => {
   const title = document.title;
   const url = window.location.href;
 
+  const text = isArabic
+    ? `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`
+    : `📖 Read this book on AskSunnah: ${title}`;
+
   if (navigator.share) {
     try {
       await navigator.share({
         title: title,
-        text: `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`,
+        text: text,
         url: url,
       });
     } catch (err) {
@@ -81,9 +85,10 @@ const handleShare = async () => {
     }
   } else {
     await navigator.clipboard.writeText(url);
-    alert("📋 تم نسخ رابط الكتاب!");
+    alert(isArabic ? "📋 تم نسخ رابط الكتاب!" : "📋 Book link copied!");
   }
 };
+
 
 
   return (
@@ -408,17 +413,22 @@ top: -5.7px; /* Move up slightly — try -3px or -4px if needed */
           tocLabel={labels.toc}
         />
         <main>
-  {isArabic && (
   <div className="tashkeel-share-wrapper">
+  {isArabic && (
     <button className="tashkeel-btn" onClick={handleTashkeelToggle}>
       {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
     </button>
+  )}
 
-    <button onClick={handleShare} title="شارك" className="share-button">
-      <FiShare2 size={18} />
-    </button>
-  </div>
-)}
+  <button
+    onClick={handleShare}
+    title={isArabic ? "شارك" : "Share"}
+    className="share-button"
+  >
+    <FiShare2 size={18} />
+  </button>
+</div>
+
 
 
   <BookContent
