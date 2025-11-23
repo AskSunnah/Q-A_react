@@ -1,4 +1,5 @@
 // src/components/ReadBook/ReadBook.jsx
+
 import React, { useEffect, useState } from "react";
 import { useParams,Link } from "react-router-dom";
 import { fetchBook } from "../../api/book.js";
@@ -6,6 +7,7 @@ import Sidebar from "../../Components/library/Sidebar";
 import BookContent from "../../Components/library/BookContent";
 import Controls from "../../Components/library/Controls";
 import Footer from "../../Components/Footer.jsx"
+import { FiShare2 } from "react-icons/fi";
 const LANG_LABELS = {
   en: { toc: "Table of Contents", back: "Book Details" },
   ar: { toc: "فهرس المحتويات", back: "تفاصيل الكتاب" }
@@ -62,6 +64,27 @@ useEffect(() => {
     setIsTashkeelRemoved(prev => !prev);
     console.log("Tashkeel toggled. Now removed:", !isTashkeelRemoved);
   }
+
+const handleShare = async () => {
+  const title = document.title;
+  const url = window.location.href;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: title,
+        text: `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`,
+        url: url,
+      });
+    } catch (err) {
+      console.log("Sharing cancelled or failed:", err);
+    }
+  } else {
+    await navigator.clipboard.writeText(url);
+    alert("📋 تم نسخ رابط الكتاب!");
+  }
+};
+
 
   return (
     <div className="root" dir={dir}>
@@ -307,6 +330,36 @@ useEffect(() => {
       background: #ef0000f6;
     }
 
+    .tashkeel-share-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.share-button {
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  transition: 0.2s ease;
+  position: relative;
+top: -5.7px; /* Move up slightly — try -3px or -4px if needed */
+
+}
+
+.share-button:hover {
+  color: #0077cc;
+  border-color: #0077cc;
+  transform: scale(1.05);
+}
+
+
     `}</style>
       <header>
         <h1>{book.title}</h1>
@@ -356,10 +409,17 @@ useEffect(() => {
         />
         <main>
   {isArabic && (
+  <div className="tashkeel-share-wrapper">
     <button className="tashkeel-btn" onClick={handleTashkeelToggle}>
-    {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
+      {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
     </button>
-  )}
+
+    <button onClick={handleShare} title="شارك" className="share-button">
+      <FiShare2 size={18} />
+    </button>
+  </div>
+)}
+
 
   <BookContent
   blocks={page.blocks}
@@ -371,7 +431,7 @@ useEffect(() => {
     currentPage={currentPage}
     totalPages={book.pages ? book.pages.length : 0}
     setCurrentPage={setCurrentPage}
-    fontSize={fontSize}
+    fontSize={fontSize}x
     setFontSize={setFontSize}
   />
 </main>
