@@ -59,11 +59,10 @@ const TermsContent = ({ data, dir = 'ltr' }) => {
         }
       `}</style>
 
-      <h1 style={{ textAlign: dir === "rtl" ? "right" : "left" }} className="title">
+      <h1 style={{ textAlign: dir === "rtl" ? "right" : "left" , marginBottom : "15px"}} className="title">
         {data.pageTitle}
       </h1>
 
-      <p className="terms-updated">{data.lastUpdated}</p>
 
       {data.sections.map((sec) => (
         <section key={sec.id} className="terms-section">
