@@ -13,7 +13,8 @@ const Footer = ({ lang = 'en' }) => {
       ? '© 2025 اسأل السنة. جميع الحقوق محفوظة.'
       : '© 2025 AskSunnah. All rights reserved.',
     terms: isArabic ? 'الشروط والأحكام' : 'Terms & Conditions',
-    termsLink: isArabic ? '/ar/terms_ar.html' : '/terms',
+    termsLink: isArabic ? '/ar/terms' : '/terms',
+
     dir: isArabic ? 'rtl' : 'ltr',
   };
 
