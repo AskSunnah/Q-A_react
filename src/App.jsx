@@ -1,3 +1,5 @@
+import ChatbaseLoader from "./Components/ChatbaseLoader"; // match your folder name
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 //library imports
 import Library from './Pages/library/library';
@@ -26,21 +28,14 @@ import EditBook from './Pages/Admin/EditBook';
 import ManageSubscription from './Pages/ManageSubscription';
 import Success from './Pages/Success';
 import Cancel from './Pages/Cancel';
-
-
 import ContributePage from './Pages/Contribute';
 import ContributePageAr from './Pages/ContributeArabic';
-
-
-
-
 import './App.css';
-
 function App() {
   return (
     <Router>
       <div>
-
+<ChatbaseLoader />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/ar" element={<HomeArabic />} />
@@ -83,6 +78,7 @@ function App() {
           <Route path="/ar/contribute" element={<ContributePageAr />} />
 
         </Routes>
+        
       </div>
     </Router>
   );

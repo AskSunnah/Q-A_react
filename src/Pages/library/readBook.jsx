@@ -1,4 +1,5 @@
 // src/components/ReadBook/ReadBook.jsx
+
 import React, { useEffect, useState } from "react";
 import { useParams,Link } from "react-router-dom";
 import { fetchBook } from "../../api/book.js";
@@ -6,6 +7,7 @@ import Sidebar from "../../Components/library/Sidebar";
 import BookContent from "../../Components/library/BookContent";
 import Controls from "../../Components/library/Controls";
 import Footer from "../../Components/Footer.jsx"
+import { FiShare2 } from "react-icons/fi";
 const LANG_LABELS = {
   en: { toc: "Table of Contents", back: "Book Details" },
   ar: { toc: "فهرس المحتويات", back: "تفاصيل الكتاب" }
@@ -17,6 +19,8 @@ export default function ReadBook() {
   const [currentPage, setCurrentPage] = useState(0);
   const [fontSize, setFontSize] = useState(1.1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isTashkeelRemoved, setIsTashkeelRemoved] = useState(false);
+
 
  useEffect(() => {
   fetchBook(lang, slug)
@@ -51,9 +55,41 @@ useEffect(() => {
 }, [currentPage, book?.pages?.length]);
   if (!book) return <div></div>;
 
-  const page = book.pages?.[currentPage] || { blocks: [] };
+   const page = book.pages?.[currentPage] || { blocks: [] };
   const dir = lang === "ar" ? "rtl" : "ltr";
   const labels = LANG_LABELS[lang] || LANG_LABELS.en;
+  const isArabic = lang === "ar";
+
+  function handleTashkeelToggle() {
+    setIsTashkeelRemoved(prev => !prev);
+    console.log("Tashkeel toggled. Now removed:", !isTashkeelRemoved);
+  }
+
+const handleShare = async () => {
+  const title = document.title;
+  const url = window.location.href;
+
+  const text = isArabic
+    ? `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`
+    : `📖 Read this book on AskSunnah: ${title}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: title,
+        text: text,
+        url: url,
+      });
+    } catch (err) {
+      console.log("Sharing cancelled or failed:", err);
+    }
+  } else {
+    await navigator.clipboard.writeText(url);
+    alert(isArabic ? "📋 تم نسخ رابط الكتاب!" : "📋 Book link copied!");
+  }
+};
+
+
 
   return (
     <div className="root" dir={dir}>
@@ -283,6 +319,52 @@ useEffect(() => {
     body.dark .nav-link:focus {
       background: #25603a;
     }
+          .tashkeel-btn {
+      background: #0c0c0cff;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1.4rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      margin-inline-start: 0.5rem;
+    }
+
+    .tashkeel-btn:hover {
+      background: #ef0000f6;
+    }
+
+    .tashkeel-share-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.share-button {
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  transition: 0.2s ease;
+  position: relative;
+top: -5.7px; /* Move up slightly — try -3px or -4px if needed */
+
+}
+
+.share-button:hover {
+  color: #0077cc;
+  border-color: #0077cc;
+  transform: scale(1.05);
+}
+
+
     `}</style>
       <header>
         <h1>{book.title}</h1>
@@ -331,19 +413,39 @@ useEffect(() => {
           tocLabel={labels.toc}
         />
         <main>
-          <BookContent
-            blocks={page.blocks}
-            references={page.references}
-            fontSize={fontSize}
-          />
-          <Controls
-            currentPage={currentPage}
-            totalPages={book.pages ? book.pages.length : 0}
-            setCurrentPage={setCurrentPage}
-            fontSize={fontSize}
-            setFontSize={setFontSize}
-          />
-        </main>
+  <div className="tashkeel-share-wrapper">
+  {isArabic && (
+    <button className="tashkeel-btn" onClick={handleTashkeelToggle}>
+      {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
+    </button>
+  )}
+
+  <button
+    onClick={handleShare}
+    title={isArabic ? "شارك" : "Share"}
+    className="share-button"
+  >
+    <FiShare2 size={18} />
+  </button>
+</div>
+
+
+
+  <BookContent
+  blocks={page.blocks}
+  references={page.references}
+  fontSize={fontSize}
+  removeTashkeel={isTashkeelRemoved}
+/>
+  <Controls
+    currentPage={currentPage}
+    totalPages={book.pages ? book.pages.length : 0}
+    setCurrentPage={setCurrentPage}
+    fontSize={fontSize}x
+    setFontSize={setFontSize}
+  />
+</main>
+
       </div>
       <Footer/>
     </div>

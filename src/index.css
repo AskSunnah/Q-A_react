@@ -1,1 +1,7 @@
 @import "./variables.css";
+:root {
+  --primary: #c9a533;
+  --secondary: #f5f5f5;
+  --text-color: #222222;
+}
+
