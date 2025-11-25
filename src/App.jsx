@@ -30,12 +30,15 @@ import Success from './Pages/Success';
 import Cancel from './Pages/Cancel';
 import ContributePage from './Pages/Contribute';
 import ContributePageAr from './Pages/ContributeArabic';
+import TermsArabic from "./Pages/Terms/TermsArabic";
+import TermsEnglish from "./Pages/Terms/TermsEnglish";
+
 import './App.css';
 function App() {
   return (
     <Router>
       <div>
-<ChatbaseLoader />
+        <ChatbaseLoader />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/ar" element={<HomeArabic />} />
@@ -68,17 +71,18 @@ function App() {
           <Route path="/supervised/books/edit/:lang/:slug" element={
             <ProtectedRoute><EditBook /></ProtectedRoute>
           } />
-        <Route path="/managesubscription" element={<ManageSubscription />} />
-        <Route path="/success" element={<Success />} />
-        <Route path="/cancel" element={<Cancel />} />
+          <Route path="/managesubscription" element={<ManageSubscription />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
 
+          <Route path="/terms" element={<TermsEnglish />} />
+          <Route path="/ar/terms" element={<TermsArabic />} />
 
-
-          <Route path="/contribute" element={<ContributePage  />} />
+          <Route path="/contribute" element={<ContributePage />} />
           <Route path="/ar/contribute" element={<ContributePageAr />} />
 
         </Routes>
-        
+
       </div>
     </Router>
   );

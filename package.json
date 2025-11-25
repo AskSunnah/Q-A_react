@@ -10,8 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@posthog/react": "^1.5.0",
     "@stripe/stripe-js": "^7.5.0",
-    "posthog-js": "^1.297.2",
+    "posthog-js": "^1.298.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",

@@ -162,3 +162,4 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
   );
 };
 export default Navbar;
+
