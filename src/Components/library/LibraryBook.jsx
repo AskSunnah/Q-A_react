@@ -192,7 +192,7 @@ export default function BookLibrary({ lang = "en" }) {
             { label: "المكتبة", href: "/library_ar", internal: true },
                     { label: "عن الموقع", href: "/about-us/ar", internal: true },
                     { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
-                    { label: "ساهم", href: "https://www.paypal.me/asksunnah", internal: false }
+                    { label: "ساهم", href: "/contribute", internal: true }
                 ]}
                 languageSwitcher={{ label: "English", href: "/library/engbooks" }}
             />
@@ -204,7 +204,7 @@ export default function BookLibrary({ lang = "en" }) {
                     { label: "Library", href: "/library", internal: true },
                     { label: "About Us", href: "/about-us", internal: true },
                     { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
-                    { label: "Contribute", href: "https://www.paypal.me/asksunnah", internal: false }
+                    { label: "Contribute", href: "/contribute", internal: true }
                 ]}
                 languageSwitcher={{ label: "العربية", href: "/library/arabicbooks" }}
             />
