@@ -1,7 +1,7 @@
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import Header from '../Components/Home/Header';
-import FeedbackForm from "../Components/FeedbackFormArabic";
+import FeedbackForm from "../Components/FeedbackForm";
 
 const ContributeP = () => {
 
@@ -102,13 +102,13 @@ const ContributeP = () => {
                 navItems={[
                     { label: "الرئيسية", href: "/ar", internal: true },
                     { label: "المكتبة", href: "/library_ar", internal: true },
-                    { label: "عن الموقع", href: "/about-us/ar", internal: false },
-                    { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
+                    { label: "عن الموقع", href: "/about-us/ar", internal: true },
+                    { label: "شاركنا رأيك", href: "/feedback-ar", internal: true },
                     { label: "ساهم", href: "/ar/contribute", internal: true }
                 ]}
-                languageSwitcher={{ label: "English", href: "/" }}
+                languageSwitcher={{ label: "English", href: "/feedback" }}
             />
-            <FeedbackForm />    
+            <FeedbackForm lang="ar"/>    
       <Footer lang="arabic" />
         </>
     );

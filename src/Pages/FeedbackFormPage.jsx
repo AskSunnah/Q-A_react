@@ -106,9 +106,9 @@ const ContributeP = () => {
                     { label: "Feedback", href: "/feedback", internal: true },
                     { label: "Contribute", href: "/contribute", internal: true }
                 ]}
-                languageSwitcher={{ label: "العربية", href: "/ar/contribute" }}
+                languageSwitcher={{ label: "العربية", href: "/feedback-ar" }}
             />
-            <FeedbackForm />    
+            <FeedbackForm lang="en" />    
       <Footer />
         </>
     );

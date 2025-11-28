@@ -1,151 +1,232 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-export default function FeedbackForm() {
+const STRINGS = {
+  en: {
+    dir: "ltr",
+    isArabic: false,
+    title: "We Value Your Feedback",
+    subtitle: "Help us improve AskSunnah for everyone",
+    nameLabel: "Your Name *",
+    emailLabel: "Email Address *",
+    phoneLabel: "Phone Number",
+    phoneOptional: "(optional)",
+    ratingQuestion: "1. How was your experience? *",
+    ratingHint: "1 star = Very bad, 5 stars = Excellent",
+    sectionQuestion: "2. What part of AskSunnah were you using? *",
+    feedbackQuestion: "3. What went wrong or what should we improve? *",
+    feedbackHint: "Tell us briefly about your experience",
+    submit: "Submit Feedback",
+    sending: "Sending…",
+    successTitle: "Jazakallah Khairan!",
+    successText: "Your feedback has been submitted successfully.",
+    requiredAlert: "Please fill in all required fields",
+    errorGeneric: "Something went wrong sending your feedback. Please try again.",
+    errorNetwork: "Network error. Please check your connection and try again.",
+    placeholderName: "Enter your name",
+    placeholderEmail: "your.email@example.com",
+    placeholderPhone: "+1 (555) 000-0000",
+    placeholderFeedback: "Share your thoughts, suggestions, or issues you encountered...",
+    sections: [
+      { value: "Q&A", label: "Q&A" },
+      { value: "Books", label: "Books" },
+      { value: "Search / Library", label: "Search / Library" },
+      { value: "Other", label: "Other" },
+    ],
+  },
+  ar: {
+    dir: "rtl",
+    isArabic: true,
+    title: "نُقدِّر رأيك في AskSunnah",
+    subtitle: "ساعدنا على تحسين المنصة لجميع المستخدمين",
+    nameLabel: "الاسم الكريم *",
+    emailLabel: "البريد الإلكتروني *",
+    phoneLabel: "رقم الجوال",
+    phoneOptional: "(اختياري)",
+    ratingQuestion: "١. كيف تُقيِّم تجربتك مع AskSunnah؟ *",
+    ratingHint: "١ نجمة = سيئة جدًا ، ٥ نجوم = ممتازة",
+    sectionQuestion: "٢. أي جزء من AskSunnah كنتَ تستخدم؟ *",
+    feedbackQuestion: "٣. ما المشكلة التي واجهتها أو ماذا تقترح لتحسين المنصة؟ *",
+    feedbackHint: "اكتب لنا بإيجاز رأيك أو ملاحظاتك أو أي صعوبات واجهتها",
+    submit: "إرسال الملاحظة",
+    sending: "جاري الإرسال…",
+    successTitle: "جزاك الله خيرا!",
+    successText: "تم إرسال ملاحظتك بنجاح.",
+    requiredAlert: "يرجى تعبئة جميع الحقول المطلوبة",
+    errorGeneric: "حدث خطأ أثناء إرسال الملاحظة. يرجى المحاولة مرة أخرى.",
+    errorNetwork: "خطأ في الاتصال. يرجى المحاولة مرة أخرى.",
+    placeholderName: "اكتب اسمك هنا",
+    placeholderEmail: "your.email@example.com",
+    placeholderPhone: "+966 5x xxx xxxx",
+    placeholderFeedback: "اكتب ملاحظاتك أو اقتراحاتك هنا...",
+    // values stay EN for backend/db, labels are AR
+    sections: [
+      { value: "Q&A", label: "قسم الأسئلة والأجوبة" },
+      { value: "Books", label: "قسم الكتب" },
+      { value: "Search / Library", label: "البحث / المكتبة" },
+      { value: "Other", label: "أخرى" },
+    ],
+  },
+};
+
+export default function FeedbackForm({ lang = "en" }) {
+  const t = STRINGS[lang] || STRINGS.en;
+  const isArabic = t.isArabic;
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: "",
+    email: "",
+    phone: "",
     rating: 0,
-    section: '',
-    feedback: ''
+    section: "",
+    feedback: "",
   });
   const [submitted, setSubmitted] = useState(false);
-const [submitting, setSubmitting] = useState(false);
-const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
-  e.preventDefault(); // important if you're using <form> tag
+    e.preventDefault();
 
-  // Basic validation
-  if (!formData.name || !formData.email || !formData.rating || !formData.section || !formData.feedback) {
-    alert('Please fill in all required fields');
-    return;
-  }
-
-  setSubmitting(true);
-  setError(null);
-
-  try {
-    const res = await fetch('https://formspree.io/f/mrbwreqj', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        rating: formData.rating,
-        section: formData.section,
-        feedback: formData.feedback,
-      }),
-    });
-
-    if (res.ok) {
-      setSubmitted(true);
-      // Optional: log
-      console.log('Form submitted to Formspree:', formData);
-
-      // Reset form after a few seconds
-      setTimeout(() => {
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          rating: 0,
-          section: '',
-          feedback: ''
-        });
-        setSubmitted(false);
-      }, 3000);
-    } else {
-      const data = await res.json().catch(() => null);
-      console.error('Formspree error:', data);
-      setError('Something went wrong sending your feedback. Please try again.');
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.rating ||
+      !formData.section ||
+      !formData.feedback
+    ) {
+      alert(t.requiredAlert);
+      return;
     }
-  } catch (err) {
-    console.error('Network error:', err);
-    setError('Network error. Please check your connection and try again.');
-  } finally {
-    setSubmitting(false);
-  }
-};
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("https://formspree.io/f/mrbwreqj", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        // reset after 3s
+        setTimeout(() => {
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            rating: 0,
+            section: "",
+            feedback: "",
+          });
+          setSubmitted(false);
+        }, 3000);
+      } else {
+        console.error("Formspree error:", await res.json().catch(() => null));
+        alert(t.errorGeneric);
+      }
+    } catch (err) {
+      console.error("Network error:", err);
+      alert(t.errorNetwork);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleRating = (rating) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rating
+      rating,
     }));
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background:'white',
-      padding: '40px 20px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      <div style={{
-        maxWidth: '600px',
-        margin: '0 auto',
-        background: 'var(--bg-light)',
-        borderRadius: '16px',
-        padding: '40px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 style={{
-            fontSize: '28px',
-            fontWeight: '700',
-            color: '#1a202c',
-            marginBottom: '8px'
-          }}>
-            We Value Your Feedback
+    <div
+      dir={t.dir}
+      style={{
+        minHeight: "100vh",
+        background: "white",
+        padding: "40px 20px",
+        fontFamily: isArabic
+          ? '"Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+          : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "600px",
+          margin: "0 auto",
+          background: "var(--bg-light)",
+          borderRadius: "16px",
+          padding: "40px",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <h1
+            style={{
+              fontSize: "28px",
+              fontWeight: 700,
+              color: "#1a202c",
+              marginBottom: "8px",
+            }}
+          >
+            {t.title}
           </h1>
-          <p style={{ color: '#718096', fontSize: '15px' }}>
-            Help us improve AskSunnah for everyone
-          </p>
+          <p style={{ color: "#718096", fontSize: "15px" }}>{t.subtitle}</p>
         </div>
 
         {submitted ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '60px 20px',
-            animation: 'fadeIn 0.5s ease-in'
-          }}>
-            <div style={{
-              fontSize: '48px',
-              marginBottom: '16px'
-            }}>✓</div>
-            <h2 style={{
-              fontSize: '24px',
-              color: '#10b981',
-              marginBottom: '8px'
-            }}>Thank You!</h2>
-            <p style={{ color: '#718096' }}>Your feedback has been submitted successfully.</p>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              animation: "fadeIn 0.5s ease-in",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "48px",
+                marginBottom: "16px",
+              }}
+            >
+              ✓
+            </div>
+            <h2
+              style={{
+                fontSize: "24px",
+                color: "#10b981",
+                marginBottom: "8px",
+              }}
+            >
+              {t.successTitle}
+            </h2>
+            <p style={{ color: "#718096" }}>{t.successText}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
-          <div>
             {/* Name */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
-                Your Name *
+            <div style={{ marginBottom: "24px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#374151",
+                  marginBottom: "8px",
+                }}
+              >
+                {t.nameLabel}
               </label>
               <input
                 type="text"
@@ -153,31 +234,34 @@ const [error, setError] = useState(null);
                 value={formData.name}
                 onChange={handleInputChange}
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '15px',
-                  transition: 'border-color 0.2s',
-                  outline: 'none',
-                  boxSizing: 'border-box'
+                  width: "100%",
+                  padding: "12px 16px",
+                  border: "2px solid #e5e7eb",
+                  borderRadius: "8px",
+                  fontSize: "15px",
+                  transition: "border-color 0.2s",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  textAlign: isArabic ? "right" : "left",
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                placeholder="Enter your name"
+                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
+                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                placeholder={t.placeholderName}
               />
             </div>
 
             {/* Email */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
-                Email Address *
+            <div style={{ marginBottom: "24px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#374151",
+                  marginBottom: "8px",
+                }}
+              >
+                {t.emailLabel}
               </label>
               <input
                 type="email"
@@ -185,31 +269,42 @@ const [error, setError] = useState(null);
                 value={formData.email}
                 onChange={handleInputChange}
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '15px',
-                  transition: 'border-color 0.2s',
-                  outline: 'none',
-                  boxSizing: 'border-box'
+                  width: "100%",
+                  padding: "12px 16px",
+                  border: "2px solid #e5e7eb",
+                  borderRadius: "8px",
+                  fontSize: "15px",
+                  transition: "border-color 0.2s",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  textAlign: isArabic ? "right" : "left",
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                placeholder="your.email@example.com"
+                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
+                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                placeholder={t.placeholderEmail}
               />
             </div>
 
             {/* Phone */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
-                Phone Number <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span>
+            <div style={{ marginBottom: "32px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#374151",
+                  marginBottom: "8px",
+                }}
+              >
+                {t.phoneLabel}{" "}
+                <span
+                  style={{
+                    color: "#9ca3af",
+                    fontWeight: 400,
+                  }}
+                >
+                  {t.phoneOptional}
+                </span>
               </label>
               <input
                 type="tel"
@@ -217,94 +312,134 @@ const [error, setError] = useState(null);
                 value={formData.phone}
                 onChange={handleInputChange}
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '15px',
-                  transition: 'border-color 0.2s',
-                  outline: 'none',
-                  boxSizing: 'border-box'
+                  width: "100%",
+                  padding: "12px 16px",
+                  border: "2px solid #e5e7eb",
+                  borderRadius: "8px",
+                  fontSize: "15px",
+                  transition: "border-color 0.2s",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  textAlign: isArabic ? "right" : "left",
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                placeholder="+1 (555) 000-0000"
+                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
+                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                placeholder={t.placeholderPhone}
               />
             </div>
 
             {/* Rating */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
-                1. How was your experience? *
+            <div style={{ marginBottom: "32px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#374151",
+                  marginBottom: "8px",
+                }}
+              >
+                {t.ratingQuestion}
               </label>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <p
+                style={{
+                  fontSize: "13px",
+                  color: "#6b7280",
+                  marginBottom: "8px",
+                }}
+              >
+                {t.ratingHint}
+              </p>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  marginTop: "12px",
+                  direction: "ltr",                          // ignore RTL for this row
+      justifyContent: isArabic ? "flex-end" : "flex-start",
+                }}
+              >
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
-                  type='button'
                     key={star}
+                    type="button"
                     onClick={() => handleRating(star)}
                     style={{
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '40px',
-                      cursor: 'pointer',
-                      padding: '4px'
+                      background: "none",
+                      border: "none",
+                      fontSize: "40px",
+                      cursor: "pointer",
+                      padding: "4px",
                     }}
                   >
-                    {star <= (formData.rating) ? '★' : '☆'}
+                    {star <= formData.rating ? "★" : "☆"}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Section */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '12px'
-              }}>
-                2. What part of AskSunnah were you using? *
+            <div style={{ marginBottom: "32px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#374151",
+                  marginBottom: "12px",
+                }}
+              >
+                {t.sectionQuestion}
               </label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {['Q&A', 'Books', 'Search / Library', 'Other'].map((option) => (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
+                {t.sections.map((option) => (
                   <label
-                    key={option}
+                    key={option.value}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '14px 16px',
-                      border: '2px solid',
-                      borderColor: formData.section === option ? '#667eea' : '#e5e7eb',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      background: formData.section === option ? '#f3f4f6' : 'white'
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "14px 16px",
+                      border: "2px solid",
+                      borderColor:
+                        formData.section === option.value
+                          ? "#667eea"
+                          : "#e5e7eb",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      background:
+                        formData.section === option.value
+                          ? "#f3f4f6"
+                          : "white",
                     }}
                   >
                     <input
                       type="radio"
                       name="section"
-                      value={option}
-                      checked={formData.section === option}
+                      value={option.value}
+                      checked={formData.section === option.value}
                       onChange={handleInputChange}
                       style={{
-                        marginRight: '12px',
-                        width: '18px',
-                        height: '18px',
-                        cursor: 'pointer'
+                        marginRight: isArabic ? 0 : "12px",
+                        marginLeft: isArabic ? "12px" : 0,
+                        width: "18px",
+                        height: "18px",
+                        cursor: "pointer",
                       }}
                     />
-                    <span style={{ fontSize: '15px', color: '#374151' }}>
-                      {option}
+                    <span
+                      style={{
+                        fontSize: "15px",
+                        color: "#374151",
+                      }}
+                    >
+                      {option.label}
                     </span>
                   </label>
                 ))}
@@ -312,22 +447,26 @@ const [error, setError] = useState(null);
             </div>
 
             {/* Feedback */}
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
-                3. What went wrong or what should we improve? *
+            <div style={{ marginBottom: "32px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "#374151",
+                  marginBottom: "8px",
+                }}
+              >
+                {t.feedbackQuestion}
               </label>
-              <p style={{
-                fontSize: '14px',
-                color: '#6b7280',
-                marginBottom: '12px'
-              }}>
-                Tell us briefly about your experience
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "#6b7280",
+                  marginBottom: "12px",
+                }}
+              >
+                {t.feedbackHint}
               </p>
               <textarea
                 name="feedback"
@@ -335,53 +474,58 @@ const [error, setError] = useState(null);
                 onChange={handleInputChange}
                 rows="5"
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '15px',
-                  transition: 'border-color 0.2s',
-                  outline: 'none',
-                  resize: 'vertical',
-                  fontFamily: 'inherit',
-                  boxSizing: 'border-box'
+                  width: "100%",
+                  padding: "12px 16px",
+                  border: "2px solid #e5e7eb",
+                  borderRadius: "8px",
+                  fontSize: "15px",
+                  transition: "border-color 0.2s",
+                  outline: "none",
+                  resize: "vertical",
+                  fontFamily: "inherit",
+                  boxSizing: "border-box",
+                  textAlign: isArabic ? "right" : "left",
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                placeholder="Share your thoughts, suggestions, or issues you encountered..."
+                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
+                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                placeholder={t.placeholderFeedback}
               />
             </div>
 
             {/* Submit Button */}
             <button
-            type='submit'
-            disabled={submitting}
-              onClick={handleSubmit}
+              type="submit"
+              disabled={submitting}
               style={{
-                width: '100%',
-                padding: '14px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
+                width: "100%",
+                padding: "14px",
+                background: submitting
+                  ? "var(--button-gradient)"
+                  : "var(--button-gradient)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: 600,
+                cursor: submitting ? "not-allowed" : "pointer",
+                transition: "transform 0.2s, box-shadow 0.2s",
+                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.5)';
+                if (submitting) return;
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow =
+                  "0 6px 16px rgba(102, 126, 234, 0.5)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(102, 126, 234, 0.4)";
               }}
             >
-               {submitting ? 'Sending…' : 'Submit Feedback'}
+              {submitting ? t.sending : t.submit}
             </button>
-          </div></form>
+          </form>
         )}
       </div>
 

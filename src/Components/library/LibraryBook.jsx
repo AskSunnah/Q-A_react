@@ -191,7 +191,7 @@ export default function BookLibrary({ lang = "en" }) {
             { label: "الرئيسية", href: "/ar", internal: true },
             { label: "المكتبة", href: "/library_ar", internal: true },
                     { label: "عن الموقع", href: "/about-us/ar", internal: true },
-                    { label: "شاركنا رأيك", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
+                    { label: "شاركنا رأيك", href: "/feedback-ar", internal: true },
                     { label: "ساهم", href: "/contribute", internal: true }
                 ]}
                 languageSwitcher={{ label: "English", href: "/library/engbooks" }}
