@@ -1,21 +1,15 @@
-// ------------------------------
-// FRONTEND - ContributePageAr.jsx
-// ------------------------------
-
-import React from "react";
-// import Header from "../Components/Contribute/Header";
 import Navbar from "../Components/Navbar";
-import Contribute from "../Components/Contribute/Contribute";
-import Header from '../Components/Home/Header'; // Adjust the import path as necessary
+import Footer from "../Components/Footer";
+import Header from '../Components/Home/Header';
+import FeedbackForm from "../Components/FeedbackForm";
 
-
-const ContributePageAr = () => {
+const ContributeP = () => {
 
 
     return (
         <>
 
-                <style>
+            <style>
                 {`
     :root {
       --primary: #1f6f3e;
@@ -99,11 +93,9 @@ const ContributePageAr = () => {
     
   `}
             </style>
-            {/* <Header lang="ar" /> */}
-             <Header
-                title="ساهم معنا"
-                // subtitle="احصل على إجابات شرعية موثوقة من الشيخ الدكتور فلاح كركولي — مستندة من القرآن والسنة (نسخة تجريبية)"
-                dir="rtl"
+            <Header
+                title="FeedBack"
+            // subtitle="Authentic answers from Dr. Sheikh Falah Kurkully – grounded in Qur’an and Sunnah"
             />
             <Navbar
                 dir="rtl"
@@ -114,11 +106,12 @@ const ContributePageAr = () => {
                     { label: "شاركنا رأيك", href: "/feedback-ar", internal: true },
                     { label: "ساهم", href: "/ar/contribute", internal: true }
                 ]}
-                languageSwitcher={{ label: "English", href: "/" }}
+                languageSwitcher={{ label: "English", href: "/feedback" }}
             />
-            <Contribute lang="ar" />
+            <FeedbackForm lang="ar"/>    
+      <Footer lang="arabic" />
         </>
     );
 };
 
-export default ContributePageAr;
+export default ContributeP;

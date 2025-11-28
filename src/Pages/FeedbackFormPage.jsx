@@ -1,21 +1,15 @@
-// ------------------------------
-// FRONTEND - ContributePageAr.jsx
-// ------------------------------
-
-import React from "react";
-// import Header from "../Components/Contribute/Header";
 import Navbar from "../Components/Navbar";
-import Contribute from "../Components/Contribute/Contribute";
-import Header from '../Components/Home/Header'; // Adjust the import path as necessary
+import Footer from "../Components/Footer";
+import Header from '../Components/Home/Header';
+import FeedbackForm from "../Components/FeedbackForm";
 
-
-const ContributePageAr = () => {
+const ContributeP = () => {
 
 
     return (
         <>
 
-                <style>
+            <style>
                 {`
     :root {
       --primary: #1f6f3e;
@@ -99,26 +93,25 @@ const ContributePageAr = () => {
     
   `}
             </style>
-            {/* <Header lang="ar" /> */}
-             <Header
-                title="ساهم معنا"
-                // subtitle="احصل على إجابات شرعية موثوقة من الشيخ الدكتور فلاح كركولي — مستندة من القرآن والسنة (نسخة تجريبية)"
-                dir="rtl"
+            <Header
+                title="FeedBack"
+            // subtitle="Authentic answers from Dr. Sheikh Falah Kurkully – grounded in Qur’an and Sunnah"
             />
             <Navbar
-                dir="rtl"
+                dir="ltr"
                 navItems={[
-                    { label: "الرئيسية", href: "/ar", internal: true },
-                    { label: "المكتبة", href: "/library_ar", internal: true },
-                    { label: "عن الموقع", href: "/about-us/ar", internal: true },
-                    { label: "شاركنا رأيك", href: "/feedback-ar", internal: true },
-                    { label: "ساهم", href: "/ar/contribute", internal: true }
+                    { label: "Home", href: "/", internal: true },
+                    { label: "Library", href: "/library", internal: true },
+                    { label: "About Us", href: "/about-us", internal: true },
+                    { label: "Feedback", href: "/feedback", internal: true },
+                    { label: "Contribute", href: "/contribute", internal: true }
                 ]}
-                languageSwitcher={{ label: "English", href: "/" }}
+                languageSwitcher={{ label: "العربية", href: "/feedback-ar" }}
             />
-            <Contribute lang="ar" />
+            <FeedbackForm lang="en" />    
+      <Footer />
         </>
     );
 };
 
-export default ContributePageAr;
+export default ContributeP;

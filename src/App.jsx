@@ -1,4 +1,3 @@
-import ChatbaseLoader from "./Components/ChatbaseLoader"; // match your folder name
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 //library imports
@@ -28,8 +27,12 @@ import EditBook from './Pages/Admin/EditBook';
 import ManageSubscription from './Pages/ManageSubscription';
 import Success from './Pages/Success';
 import Cancel from './Pages/Cancel';
+//shared
 import ContributePage from './Pages/Contribute';
 import ContributePageAr from './Pages/ContributeArabic';
+import ChatbaseLoader from "./Components/ChatbaseLoader";
+import FeedbackFormPage from './Pages/FeedbackFormPage';
+import FeedbackFormArabicPage from './Pages/FeedbackFormPageArabic';
 import TermsArabic from "./Pages/Terms/TermsArabic";
 import TermsEnglish from "./Pages/Terms/TermsEnglish";
 
@@ -79,6 +82,12 @@ function App() {
           <Route path="/ar/terms" element={<TermsArabic />} />
 
           <Route path="/contribute" element={<ContributePage />} />
+        <Route path="/managesubscription" element={<ManageSubscription />} />
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancel" element={<Cancel />} />
+        <Route path = "/feedback" element={<FeedbackFormPage />}/>
+        <Route path = "/feedback-ar" element={<FeedbackFormArabicPage />}/>
+          <Route path="/contribute" element={<ContributePage  />} />
           <Route path="/ar/contribute" element={<ContributePageAr />} />
 
         </Routes>

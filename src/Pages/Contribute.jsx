@@ -413,7 +413,7 @@ const ContributeP = () => {
                     { label: "Home", href: "/", internal: true },
                     { label: "Library", href: "/library", internal: true },
                     { label: "About Us", href: "/about-us", internal: true },
-                    { label: "Feedback", href: "https://forms.gle/e5jGuDBJhZAyCP448", internal: false },
+                    { label: "Feedback", href: "/feedback", internal: true },
                     { label: "Contribute", href: "/contribute", internal: true }
                 ]}
                 languageSwitcher={{ label: "العربية", href: "/ar/contribute" }}
