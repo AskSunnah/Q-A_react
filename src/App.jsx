@@ -32,6 +32,7 @@ import ContributePage from './Pages/Contribute';
 import ContributePageAr from './Pages/ContributeArabic';
 import ChatbaseLoader from "./Components/ChatbaseLoader";
 import FeedbackFormPage from './Pages/FeedbackFormPage';
+import FeedbackFormArabicPage from './Pages/FeedbackFormPageArabic';
 import './App.css';
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
         <Route path = "/feedback" element={<FeedbackFormPage />}/>
+        <Route path = "/feedback-ar" element={<FeedbackFormArabicPage />}/>
           <Route path="/contribute" element={<ContributePage  />} />
           <Route path="/ar/contribute" element={<ContributePageAr />} />
 

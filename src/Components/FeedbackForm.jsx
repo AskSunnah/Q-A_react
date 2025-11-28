@@ -10,33 +10,67 @@ export default function FeedbackForm() {
     feedback: ''
   });
   const [submitted, setSubmitted] = useState(false);
+const [submitting, setSubmitting] = useState(false);
+const [error, setError] = useState(null);
 
-  const handleSubmit = () => {
-    // Validate required fields
-    if (!formData.name || !formData.email || !formData.rating || !formData.section || !formData.feedback) {
-      alert('Please fill in all required fields');
-      return;
+  const handleSubmit = async (e) => {
+  e.preventDefault(); // important if you're using <form> tag
+
+  // Basic validation
+  if (!formData.name || !formData.email || !formData.rating || !formData.section || !formData.feedback) {
+    alert('Please fill in all required fields');
+    return;
+  }
+
+  setSubmitting(true);
+  setError(null);
+
+  try {
+    const res = await fetch('https://formspree.io/f/mrbwreqj', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        rating: formData.rating,
+        section: formData.section,
+        feedback: formData.feedback,
+      }),
+    });
+
+    if (res.ok) {
+      setSubmitted(true);
+      // Optional: log
+      console.log('Form submitted to Formspree:', formData);
+
+      // Reset form after a few seconds
+      setTimeout(() => {
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          rating: 0,
+          section: '',
+          feedback: ''
+        });
+        setSubmitted(false);
+      }, 3000);
+    } else {
+      const data = await res.json().catch(() => null);
+      console.error('Formspree error:', data);
+      setError('Something went wrong sending your feedback. Please try again.');
     }
-    
-    // Here you would typically send the data to your backend
-    console.log('Form submitted:', formData);
-    
-    // Show success message
-    setSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        rating: 0,
-        section: '',
-        feedback: ''
-      });
-      setSubmitted(false);
-    }, 3000);
-  };
+  } catch (err) {
+    console.error('Network error:', err);
+    setError('Network error. Please check your connection and try again.');
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -100,6 +134,7 @@ export default function FeedbackForm() {
             <p style={{ color: '#718096' }}>Your feedback has been submitted successfully.</p>
           </div>
         ) : (
+          <form onSubmit={handleSubmit} noValidate>
           <div>
             {/* Name */}
             <div style={{ marginBottom: '24px' }}>
@@ -211,6 +246,7 @@ export default function FeedbackForm() {
               <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
+                  type='button'
                     key={star}
                     onClick={() => handleRating(star)}
                     style={{
@@ -318,6 +354,8 @@ export default function FeedbackForm() {
 
             {/* Submit Button */}
             <button
+            type='submit'
+            disabled={submitting}
               onClick={handleSubmit}
               style={{
                 width: '100%',
@@ -341,9 +379,9 @@ export default function FeedbackForm() {
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
               }}
             >
-              Submit Feedback
+               {submitting ? 'Sending…' : 'Submit Feedback'}
             </button>
-          </div>
+          </div></form>
         )}
       </div>
 
