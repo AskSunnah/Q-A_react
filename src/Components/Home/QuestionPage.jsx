@@ -1,6 +1,8 @@
 // src/Components/Home/QuestionPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import Footer from '../Footer'; // 
+
 
 
 function QuestionPage({
@@ -213,7 +215,10 @@ function QuestionPage({
 
         <p><strong>{labels.andAllahKnowsBest}</strong></p>
         <Link to={language === 'ar' ? '/ar' : '/'} className="back-link">{labels.back}</Link>
+        
+
       </div>
+      <Footer lang={language} />
     </>
   );
 }
@@ -223,15 +228,20 @@ export default QuestionPage;
 
 const pageStyles = `
   body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f7f7f7;
-    color: #2c3e50;
-    line-height: 1.7;
-    padding: 2rem;
-    max-width: 887px;
-    margin: auto;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f7f7f7;
+  color: #2c3e50;
+  line-height: 1.7;
+  margin: 0;
+  padding: 0;
+}
 
-  }
+.content {
+  padding: 2rem;
+  max-width: 887px;
+  margin: auto;
+}
+
 
   h1 {
     color: var(--bg-color-header);

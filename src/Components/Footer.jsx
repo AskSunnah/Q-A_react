@@ -52,16 +52,33 @@ const Footer = ({ lang = 'en' }) => {
 
     <>
       <style>
-        {`
+        
       
-         .custom-footer {
-            background-color: var(--bg-color-header);
-            color: white;
-            padding: 2rem 1rem;
-            text-align: center;
-            font-family: "Arial", sans-serif;
-            margin-top: 3rem;
-          }
+         {`
+    .custom-footer {
+      background-color: var(--bg-color-header);
+      color: white;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-family: "Arial", sans-serif;
+      margin-top: 3rem;
+    }
+
+    .footer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer-icons {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
 
           .footer-icons {
             display: flex;
@@ -124,17 +141,22 @@ const Footer = ({ lang = 'en' }) => {
       `}
       </style>
       <footer
-        dir={t.dir}
-        style={{
-          background: 'var(--bg-color-header)',
-          color: 'white',
-          padding: '1.5rem 1.5rem 1rem',
-          fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
-          textAlign: 'center',
-        }}
-      >
-        <h2 style={{ fontWeight: '700', marginBottom: '0.5rem', color: 'white' }}>{t.logoText}</h2>
-        <p style={{ fontSize: '0.95rem', color: '#f0f0f0', marginBottom: '1rem' }}>{t.tagline}</p>
+  className="custom-footer"
+   style={{
+    background: 'var(--bg-color-header)',
+    color: 'white',
+    padding: '1.5rem 1.5rem 1rem',
+    fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
+    direction: t.dir,    // 🔥 only affects text direction
+    textAlign: 'center', // 🔥 keeps visual center
+    
+    
+  }}
+  
+>
+  <div className="footer-container">
+        <h2 style={{ fontWeight: '700', fontSize: '2rem', marginBottom: '0.5rem', color: 'white' }}>{t.logoText}</h2>
+        <p style={{ fontSize: '1rem', color: '#f0f0f0', marginBottom: '1rem' }}>{t.tagline}</p>
 
         <div
           style={{
@@ -166,6 +188,7 @@ const Footer = ({ lang = 'en' }) => {
                 e.currentTarget.style.transform = 'scale(1)';
                 e.currentTarget.style.filter = 'none';
               }}
+              
             >
               {s.svg}
             </a>
@@ -190,6 +213,7 @@ const Footer = ({ lang = 'en' }) => {
             {t.terms}
           </Link>
         </div>
+         </div> {/* ✅ Close .footer-container */}
       </footer>
     </>
   );
