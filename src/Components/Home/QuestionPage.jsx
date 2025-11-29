@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Footer from '../Footer'; // 
+import Navbar from '../Navbar';
+
 
 
 
@@ -149,9 +151,24 @@ function QuestionPage({
 
 
   return (
-    <>
-      <style>{pageStyles}</style>
-      <div className="content" dir={direction} lang={language}>
+  <>
+    <Navbar
+      navItems={[
+        { label: 'Home', href: '/', internal: true },
+        { label: 'Library', href: '/library', internal: true },
+        { label: 'About Us', href: '/about', internal: true },
+        { label: 'Feedback', href: '/feedback', internal: true }
+      ]}
+      languageSwitcher={{
+        href: language === 'ar' ? '/' : '/ar',
+        label: language === 'ar' ? 'English' : 'العربية'
+      }}
+      dir={direction}
+    />
+
+    <style>{pageStyles}</style>
+
+    <div className="content" dir={direction} lang={language}>
         <h1>{data.heading}</h1>
         <p><strong>{labels.question}</strong> <span>{data.question}</span></p>
         {/* <p><strong>{labels.answer}</strong> <span>{data.answer}</span></p> */}

@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dark, setDark] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
 
+  // Dark mode on first load
   useEffect(() => {
     const saved = localStorage.getItem('mode');
     if (saved === 'dark') {
@@ -20,20 +23,46 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     setDark(isDarkNow);
   };
 
-  return (
+  // Hide on scroll logic
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const goingDown = currentY > lastScrollY.current;
+      const pastThreshold = currentY > 80; // ignore tiny scrolls at top
 
+      if (goingDown && pastThreshold) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+
+      lastScrollY.current = currentY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
     <>
       <style>
         {`
     .navbar {
       background: white;
       padding: 1rem 1.5rem;
-      position: relative;
-      z-index: 10;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       font-family: var(--font-family);
       color: var(--text-main);
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       border-bottom: 1px solid #f0f0f0;
+      transform: translateY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .navbar.nav-hidden {
+      transform: translateY(-100%);
     }
 
     .navbar ul {
@@ -59,7 +88,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     .nav-link:hover,
     .nav-link:focus {
       color: #fff;
-      background:var(--button-hover); /* darker golden gradient */
+      background: var(--button-hover);
     }
 
     .nav-toggle {
@@ -68,11 +97,11 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       background: none;
       border: none;
       cursor: pointer;
-      color:  var(--text-main);
+      color: var(--text-main);
       position: absolute;
       top: 9px;
       right: 1rem;
-      z-index: 11;
+      z-index: 1100;
     }
 
     @media (max-width: 768px) {
@@ -112,10 +141,14 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     body.dark .nav-link {
       color: white;
     }
-
   `}
       </style>
-      <nav className="navbar" aria-label="Main Navigation" dir={dir}>
+
+      <nav
+        className={`navbar ${hidden ? 'nav-hidden' : ''}`}
+        aria-label="Main Navigation"
+        dir={dir}
+      >
         <button
           className="nav-toggle"
           aria-label="Toggle Navigation"
@@ -124,21 +157,35 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
         >
           ☰
         </button>
+
         <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
-          <ul style={{ direction: dir, textAlign: dir === 'rtl' ? 'right' : 'left' }}>
+          <ul
+            style={{
+              direction: dir,
+              textAlign: dir === 'rtl' ? 'right' : 'left',
+            }}
+          >
             {navItems.map((item, index) =>
               item.internal ? (
                 <li key={index}>
-                  <Link to={item.href} className="nav-link">{item.label}</Link>
+                  <Link to={item.href} className="nav-link">
+                    {item.label}
+                  </Link>
                 </li>
               ) : (
                 <li key={index}>
-                  <a href={item.href} className="nav-link" target="_blank" rel="noopener">
+                  <a
+                    href={item.href}
+                    className="nav-link"
+                    target="_blank"
+                    rel="noopener"
+                  >
                     {item.label}
                   </a>
                 </li>
               )
             )}
+
             {languageSwitcher && (
               <li>
                 <a href={languageSwitcher.href} className="nav-link">
@@ -146,13 +193,21 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
                 </a>
               </li>
             )}
+
             <li className="nav-darkmode" style={{ marginTop: '10px' }}>
               <i
-                className={`dark-toggle-icon fa-solid ${dark ? 'fa-sun' : 'fa-moon'}`}
+                className={`dark-toggle-icon fa-solid ${
+                  dark ? 'fa-sun' : 'fa-moon'
+                }`}
                 title="Toggle dark mode"
                 tabIndex={0}
                 onClick={toggleDarkMode}
-                style={{ cursor: 'pointer', fontSize: '1.3rem', display: 'inline-block', color: dark ? 'white' : 'var(--bg-color-header)', }}
+                style={{
+                  cursor: 'pointer',
+                  fontSize: '1.3rem',
+                  display: 'inline-block',
+                  color: dark ? 'white' : 'var(--bg-color-header)',
+                }}
               ></i>
             </li>
           </ul>
@@ -161,5 +216,5 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
     </>
   );
 };
-export default Navbar;
 
+export default Navbar;
