@@ -33,6 +33,33 @@ export default function AllBooks() {
       onYes: () => doDelete(slug)
     });
   };
+
+  const handleAddDownloadLink = async (bookId) => {
+  const driveLink = prompt("Paste the Google Drive link here:");
+
+  if (!driveLink) return; // cancelled or empty
+
+  try {
+    const res = await fetch(`http://localhost:5000/api/admin/books/${bookId}/download`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ driveLink }),
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.message || "Failed to add link");
+
+    alert("Download link updated successfully!");
+
+    // update locally
+    setBooks(books.map(b =>
+      b._id === bookId ? { ...b, download: data.download } : b
+    ));
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+};
+
   const doDelete = async (slug) => {
     setModal({ show: false });
     setLoading(true);
@@ -110,21 +137,38 @@ export default function AllBooks() {
                   </span>
 
                   <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button
-                      style={{
-                        ...buttonStyle,
-                        background: 'grey'
-                      }}
-                      onClick={() => navigate(`/supervised/books/edit/${book.language}/${book.slug}`)}
-                    >Edit</button>
-                    <button
-                      style={{
-                        ...buttonStyle,
-                        background: '#e53e3e'
-                      }}
-                      onClick={() => confirmDelete(book.slug)}
-                    >Delete</button>
-                  </div>
+  <button
+    style={{
+      ...buttonStyle,
+      background: '#2563eb' // blue
+    }}
+    onClick={() => handleAddDownloadLink(book._id)}
+  >
+    Add Download Link
+  </button>
+
+  
+
+  <button
+    style={{
+      ...buttonStyle,
+      background: 'grey'
+    }}
+    onClick={() => navigate(`/supervised/books/edit/${book.language}/${book.slug}`)}
+  >
+    Edit
+  </button>
+
+  <button
+    style={{
+      ...buttonStyle,
+      background: '#e53e3e'
+    }}
+    onClick={() => confirmDelete(book.slug)}
+  >
+    Delete
+  </button>
+</div>
                 </li>
               ))
             )}

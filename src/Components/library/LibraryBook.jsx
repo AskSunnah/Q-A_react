@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
 import Navbar from '../../Components/Navbar';
+
+
 const CATEGORY_OPTIONS = {
   en: [
     { value: "all", label: "All Categories" },
@@ -22,7 +24,10 @@ const READ_LABEL = {
   en: "Read Book",
   ar: "اقرأ الكتاب",
 };
-
+const DOWNLOAD_LABEL = {
+  en: "Download (Free)",
+  ar: "تحميل (مجاني)",
+};
 export default function BookLibrary({ lang = "en" }) {
   const [books, setBooks] = useState([]);
   const [displayBooks, setDisplayBooks] = useState([]);
@@ -56,6 +61,24 @@ export default function BookLibrary({ lang = "en" }) {
   // Proper link for each language
   const getBookLink = (slug) =>
   `/library/read/${lang}/${slug}`
+
+const handleDownload = async (bookId) => {
+  try {
+    const res = await fetch(`http://localhost:5000/api/books/${bookId}/download`);
+    const data = await res.json();
+
+    if (!res.ok || !data.downloadUrl) {
+      alert("No download link available for this book.");
+      return;
+    }
+
+    window.open(data.downloadUrl, "_blank"); // Opens the Drive download link
+  } catch (err) {
+    console.error("Error downloading:", err);
+    alert("Something went wrong while downloading.");
+  }
+};
+
 
   return (
     <div
@@ -245,7 +268,41 @@ export default function BookLibrary({ lang = "en" }) {
               <div className="book-card" key={book.slug} data-category={book.category}>
                 <div className="book-title">{book.title}</div>
                 <div className="book-author">{book.author}</div>
-                <a href={getBookLink(book.slug)}>{READ_LABEL[lang]}</a>
+                <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-start" }}>
+  {/* Read Book */}
+  <a
+    href={getBookLink(book.slug)}
+    style={{
+      background: "#c9a227",
+      color: "black",
+      padding: "0.5rem 1rem",
+      borderRadius: "4px",
+      textDecoration: "none",
+      fontWeight: "700",
+    }}
+  >
+    {READ_LABEL[lang]}
+  </a>
+
+  {/* Download Button */}
+  <button
+  onClick={() => handleDownload(book._id)}
+  style={{
+    background: "#1f6f3e",
+    color: "white",
+    border: "none",
+    padding: "0.6rem 0.5rem",
+    borderRadius: "4px",
+    cursor: "pointer",
+    fontWeight: "400",
+    fontSize: "1.05rem",
+  }}
+>
+  {DOWNLOAD_LABEL[lang]}
+</button>
+
+</div>
+
               </div>
             ))
           )}
