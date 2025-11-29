@@ -64,7 +64,9 @@ export default function BookLibrary({ lang = "en" }) {
 
 const handleDownload = async (bookId) => {
   try {
-    const res = await fetch(`https://asksunnah-backend-hno9.onrender.com/api/books/${bookId}/download`);
+    const res = await fetch(
+      `https://asksunnah-backend-hno9.onrender.com/api/books/${bookId}/download`
+    );
     const data = await res.json();
 
     if (!res.ok || !data.downloadUrl) {
@@ -72,12 +74,14 @@ const handleDownload = async (bookId) => {
       return;
     }
 
-    window.open(data.downloadUrl, "_blank"); // Opens the Drive download link
+    // Use same tab instead of opening a new one
+    window.location.href = data.downloadUrl;
   } catch (err) {
     console.error("Error downloading:", err);
     alert("Something went wrong while downloading.");
   }
 };
+
 
 
   return (
