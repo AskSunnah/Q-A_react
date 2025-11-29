@@ -51,10 +51,8 @@ const Footer = ({ lang = 'en' }) => {
   return (
 
     <>
-      <style>
-        
-      
-         {`
+     <style>
+  {`
     .custom-footer {
       background-color: var(--bg-color-header);
       color: white;
@@ -62,6 +60,17 @@ const Footer = ({ lang = 'en' }) => {
       text-align: center;
       font-family: "Arial", sans-serif;
       margin-top: 3rem;
+      box-sizing: border-box;
+    }
+
+    /* Make footer full-width on mobile */
+    @media (max-width: 768px) {
+      .custom-footer {
+        width: 100vw;             /* stretch to full viewport width */
+        margin-left: 50%;         /* move center of footer to middle */
+        transform: translateX(-50%); /* pull it back so it’s centered */
+        border-radius: 0;         /* make sure corners aren’t rounded */
+      }
     }
 
     .footer-container {
@@ -80,66 +89,58 @@ const Footer = ({ lang = 'en' }) => {
       margin-bottom: 0.5rem;
     }
 
-          .footer-icons {
-            display: flex;
-            justify-content: center;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-            align-items: center;
-            margin-bottom: 0.5rem;
-          }
+    .footer-handle {
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
 
-          .footer-handle {
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-          }
+    .footer-button {
+      display: inline-block;
+      background-color: white;
+      color: #1a1a1a;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      margin-bottom: 1.5rem;
+    }
 
-          .footer-button {
-            display: inline-block;
-            background-color: white;
-            color: #1a1a1a;
-            padding: 0.4rem 1rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            margin-bottom: 1.5rem;
-          }
+    .footer-button:hover {
+      background-color: #e2e2e2;
+    }
 
-          .footer-button:hover {
-            background-color: #e2e2e2;
-          }
+    .footer-share {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #cccccc;
+      font-style: italic;
+    }
 
-          .footer-share {
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-            color: #cccccc;
-            font-style: italic;
-          }
+    .social-icon {
+      display: inline-block;
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
 
-          .social-icon {
-            display: inline-block;
-            transition: transform 0.3s ease, filter 0.3s ease;
-          }
+    .social-icon:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 5px white);
+    }
 
-          .social-icon:hover {
-            transform: scale(1.2);
-            filter: drop-shadow(0 0 5px white);
-          }
+    @media (max-width: 600px) {
+      footer svg {
+        width: 24px;
+        height: 24px;
+      }
 
-          @media (max-width: 600px) {
-            footer svg {
-              width: 24px;
-              height: 24px;
-            }
+      footer a.social-icon {
+        margin-bottom: 10px;
+      }
+    }
+  `}
+</style>
 
-            footer a.social-icon {
-              margin-bottom: 10px;
-            }
-          }
-      `}
-      </style>
       <footer
   className="custom-footer"
    style={{
