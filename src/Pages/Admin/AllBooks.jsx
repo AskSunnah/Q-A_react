@@ -37,14 +37,12 @@ export default function AllBooks() {
   const handleAddDownloadLink = async (bookId) => {
   const driveLink = prompt("Paste the Google Drive link here:");
 
-  if (!driveLink) return; // cancelled or empty
-
   try {
-    const res = await fetch(`http://localhost:5000/api/admin/books/${bookId}/download`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ driveLink }),
-    });
+  const res = await fetch(`https://asksunnah-backend-hno9.onrender.com/api/admin/books/${bookId}/download`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ driveLink }),
+  });
 
     const data = await res.json();
     if (!res.ok || !data.success) throw new Error(data.message || "Failed to add link");

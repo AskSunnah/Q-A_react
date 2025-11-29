@@ -64,7 +64,7 @@ export default function BookLibrary({ lang = "en" }) {
 
 const handleDownload = async (bookId) => {
   try {
-    const res = await fetch(`http://localhost:5000/api/books/${bookId}/download`);
+    const res = await fetch(`https://asksunnah-backend-hno9.onrender.com/api/books/${bookId}/download`);
     const data = await res.json();
 
     if (!res.ok || !data.downloadUrl) {
