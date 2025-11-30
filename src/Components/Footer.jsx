@@ -49,177 +49,190 @@ const Footer = ({ lang = 'en' }) => {
   ];
 
   return (
-
     <>
-     <style>
-  {`
-   .custom-footer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 15px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
-}
-.custom-footer {
-  position: relative;
-  overflow: hidden;
-}
+      <style>
+        {`
+          .custom-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 15px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+          }
 
-    /* Make footer full-width on mobile */
-    @media (max-width: 768px) {
-      .custom-footer {
-        width: 100vw;             /* stretch to full viewport width */
-        margin-left: 50%;         /* move center of footer to middle */
-        transform: translateX(-50%); /* pull it back so it’s centered */
-        border-radius: 0;         /* make sure corners aren’t rounded */
-      }
-    }
+          .custom-footer {
+            position: relative;
+            overflow: hidden;
+          }
 
-    .footer-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
+          /* Make footer full-width on mobile */
+          @media (max-width: 768px) {
+            .custom-footer {
+              width: 100vw;
+              margin-left: 50%;
+              transform: translateX(-50%);
+              border-radius: 0;
+            }
+          }
 
-    .footer-icons {
-      display: flex;
-      justify-content: center;
-      gap: 1.2rem;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
+          .footer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+          }
 
-    .footer-handle {
-      margin-bottom: 1.5rem;
-      font-size: 0.95rem;
-    }
+          .footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 0.5rem;
+          }
 
-    .footer-button {
-      display: inline-block;
-      background-color: white;
-      color: #1a1a1a;
-      padding: 0.4rem 1rem;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      text-decoration: none;
-      font-weight: bold;
-      transition: background-color 0.3s;
-      margin-bottom: 1.5rem;
-    }
+          .footer-handle {
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+          }
 
-    .footer-button:hover {
-      background-color: #e2e2e2;
-    }
+          .footer-button {
+            display: inline-block;
+            background-color: white;
+            color: #1a1a1a;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-bottom: 1.5rem;
+          }
 
-    .footer-share {
-      margin-top: 1.5rem;
-      font-size: 0.9rem;
-      color: #cccccc;
-      font-style: italic;
-    }
+          .footer-button:hover {
+            background-color: #e2e2e2;
+          }
 
-    .social-icon {
-      display: inline-block;
-      transition: transform 0.3s ease, filter 0.3s ease;
-    }
+          .footer-share {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #cccccc;
+            font-style: italic;
+          }
 
-    .social-icon:hover {
-      transform: scale(1.2);
-      filter: drop-shadow(0 0 5px white);
-    }
+          .social-icon {
+            display: inline-block;
+            transition: transform 0.3s ease, filter 0.3s ease;
+          }
 
-    @media (max-width: 600px) {
-      footer svg {
-        width: 24px;
-        height: 24px;
-      }
+          .social-icon:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px white);
+          }
 
-      footer a.social-icon {
-        margin-bottom: 10px;
-      }
-    }
-  `}
-</style>
+          @media (max-width: 600px) {
+            footer svg {
+              width: 24px;
+              height: 24px;
+            }
+
+            footer a.social-icon {
+              margin-bottom: 10px;
+            }
+          }
+        `}
+      </style>
 
       <footer
-  className="custom-footer"
-   style={{
-    background: 'linear-gradient(135deg, #C4A627 0%, #B9971B 70%, #A88810 100%)',
-
-    color: 'white',
-    padding: '1.5rem 1.5rem 1rem',
-    fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
-    direction: t.dir,    // 🔥 only affects text direction
-    textAlign: 'center', // 🔥 keeps visual center
-    
-    
-  }}
-  
->
-  <div className="footer-container">
-        <h2 style={{ fontWeight: '700', fontSize: '2rem', marginBottom: '0.5rem', color: 'white' }}>{t.logoText}</h2>
-        <p style={{ fontSize: '1rem', color: '#f0f0f0', marginBottom: '1rem' }}>{t.tagline}</p>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1.2rem',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            marginBottom: '0.5rem',
-          }}
-        >
-          {socials.map((s, i) => (
-            <a
-              key={i}
-              href={s.href}
-              target="_blank"
-              rel="noreferrer"
-              title={s.label}
-              className="social-icon"
-              style={{
-                display: 'inline-block',
-                transition: 'transform 0.3s ease, filter 0.3s ease',
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'scale(1.2)';
-                e.currentTarget.style.filter = 'drop-shadow(0 0 5px white)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.filter = 'none';
-              }}
-              
-            >
-              {s.svg}
-            </a>
-          ))}
-        </div>
-
-        <div
-          style={{
-            borderTop: '1px solid #eeeeee33',
-            marginTop: '1.5rem',
-            paddingTop: '1rem',
-            fontSize: '0.85rem',
-            color: '#cccccc',
-          }}
-        >
-          <span>{t.copyright}</span>
-          <span style={{ margin: '0 0.5rem' }}>|</span>
-          <Link
-            to={t.termsLink}
-            style={{ color: '#cccccc', textDecoration: 'none' }}
+        className="custom-footer"
+        style={{
+          background: 'linear-gradient(180deg, #D5B940 0%, #C4A627 50%, #B9971B 100%)',
+          color: 'white',
+          padding: '1.5rem 1.5rem 1rem',
+          fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
+          direction: t.dir,
+          textAlign: 'center',
+        }}
+      >
+        <div className="footer-container">
+          <h2
+            style={{
+              fontWeight: '700',
+              fontSize: '2rem',
+              marginBottom: '0.5rem',
+              color: 'white',
+            }}
           >
-            {t.terms}
-          </Link>
+            {t.logoText}
+          </h2>
+
+          <p
+            style={{
+              fontSize: '1rem',
+              color: '#f0f0f0',
+              marginBottom: '1rem',
+            }}
+          >
+            {t.tagline}
+          </p>
+
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '1.2rem',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              marginBottom: '0.5rem',
+            }}
+          >
+            {socials.map((s, i) => (
+              <a
+                key={i}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer"
+                title={s.label}
+                className="social-icon"
+                style={{
+                  display: 'inline-block',
+                  transition: 'transform 0.3s ease, filter 0.3s ease',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.2)';
+                  e.currentTarget.style.filter = 'drop-shadow(0 0 5px white)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.filter = 'none';
+                }}
+              >
+                {s.svg}
+              </a>
+            ))}
+          </div>
+
+          <div
+            style={{
+              borderTop: '1px solid #eeeeee33',
+              marginTop: '1.5rem',
+              paddingTop: '1rem',
+              fontSize: '0.85rem',
+              color: '#cccccc',
+            }}
+          >
+            <span>{t.copyright}</span>
+            <span style={{ margin: '0 0.5rem' }}>|</span>
+            <Link
+              to={t.termsLink}
+              style={{ color: '#cccccc', textDecoration: 'none' }}
+            >
+              {t.terms}
+            </Link>
+          </div>
         </div>
-         </div> {/* ✅ Close .footer-container */}
       </footer>
     </>
   );
