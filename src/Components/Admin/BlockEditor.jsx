@@ -1,5 +1,3 @@
-
-
 export default function BlockEditor({ block, onChange, onDelete }) {
   return (
     <div className="block-block">
@@ -15,6 +13,7 @@ export default function BlockEditor({ block, onChange, onDelete }) {
           <option value="quote">Quote</option>
         </select>
       </label>
+
       <label>Text
         <textarea
           rows={2}
@@ -22,26 +21,14 @@ export default function BlockEditor({ block, onChange, onDelete }) {
           onChange={e => onChange({ ...block, text: e.target.value })}
         />
       </label>
-      <label>Reference
-        <input
-          value={block.reference}
-          onChange={e => onChange({ ...block, reference: e.target.value })}
-        />
-      </label>
-      <label>Narrator
-        <input
-          value={block.narrator}
-          onChange={e => onChange({ ...block, narrator: e.target.value })}
-        />
-      </label>
-      <label>Commentary
-        <textarea
-          rows={1}
-          value={block.commentary}
-          onChange={e => onChange({ ...block, commentary: e.target.value })}
-        />
-      </label>
-      <button type="button" className="btn-delete" onClick={onDelete}>Remove Block</button>
+
+      <button
+        type="button"
+        className="btn-delete"
+        onClick={onDelete}
+      >
+        Remove Block
+      </button>
     </div>
   );
 }
