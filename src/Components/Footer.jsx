@@ -53,15 +53,19 @@ const Footer = ({ lang = 'en' }) => {
     <>
      <style>
   {`
-    .custom-footer {
-      background-color: var(--bg-color-header);
-      color: white;
-      padding: 2rem 1rem;
-      text-align: center;
-      font-family: "Arial", sans-serif;
-      margin-top: 3rem;
-      box-sizing: border-box;
-    }
+   .custom-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 15px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+}
+.custom-footer {
+  position: relative;
+  overflow: hidden;
+}
 
     /* Make footer full-width on mobile */
     @media (max-width: 768px) {
@@ -144,7 +148,8 @@ const Footer = ({ lang = 'en' }) => {
       <footer
   className="custom-footer"
    style={{
-    background: 'var(--bg-color-header)',
+    background: 'linear-gradient(135deg, #C4A627 0%, #B9971B 70%, #A88810 100%)',
+
     color: 'white',
     padding: '1.5rem 1.5rem 1rem',
     fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
