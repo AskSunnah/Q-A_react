@@ -67,15 +67,15 @@ const Footer = ({ lang = 'en' }) => {
             overflow: hidden;
           }
 
-          /* Make footer full-width on mobile */
-          @media (max-width: 768px) {
-            .custom-footer {
-              width: 100vw;
-              margin-left: 50%;
-              transform: translateX(-50%);
-              border-radius: 0;
-            }
-          }
+          /* Make footer full-width and RTL-safe on mobile */
+@media (max-width: 768px) {
+  .custom-footer {
+    width: 100%;
+    margin: 0;
+    transform: none;
+    border-radius: 0;
+  }
+}
 
           .footer-container {
             display: flex;
