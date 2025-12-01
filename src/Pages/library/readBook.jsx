@@ -320,16 +320,19 @@ const handleShare = async () => {
       background: #25603a;
     }
           .tashkeel-btn {
-      background: #0c0c0cff;
-      color: #fff;
-      border: none;
-      padding: 0.4rem 1.4rem;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      margin-bottom: 0.8rem;
-      margin-inline-start: 0.5rem;
-    }
+  background: #0c0c0cff;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+  margin-inline-start: 0; /* ❌ remove gap completely */
+  margin-inline-start: -3px;
+
+}
+
 
     .tashkeel-btn:hover {
       background: #ef0000f6;
@@ -413,21 +416,95 @@ top: -5.7px; /* Move up slightly — try -3px or -4px if needed */
           tocLabel={labels.toc}
         />
         <main>
+
   <div className="tashkeel-share-wrapper">
   {isArabic && (
-    <button className="tashkeel-btn" onClick={handleTashkeelToggle}>
-      {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
-    </button>
-  )}
+    <>
+      {/* 🕋 REMOVE TASHKEEL — FIRST */}
+      <button className="tashkeel-btn" onClick={handleTashkeelToggle}>
+        {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
+      </button>
 
+     {/* 🎧 AUDIO BUTTON — SECOND (only show if audio exists) */}
+{page.audioUrl && (
   <button
-    onClick={handleShare}
-    title={isArabic ? "شارك" : "Share"}
+    onClick={() => {
+      if (window.currentAudio && !window.currentAudio.paused) {
+        window.currentAudio.pause();
+        window.currentAudio = null;
+        const icon = document.getElementById("audio-icon");
+        if (icon)
+          icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round"
+            d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
+            M16.5 8.25a3.75 3.75 0 010 7.5
+            m2.25-10.5a7.5 7.5 0 010 13.5"/>
+          `;
+      } else {
+        if (window.currentAudio) window.currentAudio.pause();
+
+        const audio = new Audio(page.audioUrl);
+        window.currentAudio = audio;
+        audio.play();
+
+        const icon = document.getElementById("audio-icon");
+        if (icon)
+          icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round"
+            d="M10 9h2v6h-2zM14 9h2v6h-2z"/>
+          `;
+
+        audio.addEventListener("ended", () => {
+          const icon = document.getElementById("audio-icon");
+          if (icon)
+            icon.innerHTML = `
+              <path stroke-linecap="round" stroke-linejoin="round"
+              d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
+              M16.5 8.25a3.75 3.75 0 010 7.5
+              m2.25-10.5a7.5 7.5 0 010 13.5"/>
+            `;
+        });
+      }
+    }}
+    title="تشغيل الصوت"
     className="share-button"
   >
-    <FiShare2 size={18} />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.8"
+      stroke="currentColor"
+      width="18"
+      height="18"
+      style={{ transform: "scaleX(-1)" }}
+    >
+      <path
+        id="audio-icon"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
+        M16.5 8.25a3.75 3.75 0 010 7.5
+        m2.25-10.5a7.5 7.5 0 010 13.5"
+      />
+    </svg>
   </button>
+)}
+
+      {/* 📤 SHARE BUTTON — THIRD */}
+      <button
+        onClick={handleShare}
+        title={isArabic ? "شارك" : "Share"}
+        className="share-button"
+      >
+        <FiShare2 size={18} />
+      </button>
+    </>
+  )}
 </div>
+
+
+
 
 
 
