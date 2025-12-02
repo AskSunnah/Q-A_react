@@ -29,6 +29,18 @@ export default function AddBook() {
   const [modal, setModal] = useState({ show: false, title: "", message: "" });
   const [deletePageIndex, setDeletePageIndex] = useState(null);
 
+  // 🔢 Get global page number for a chapter/page index
+  const getGlobalPageNumber = (chapterIdx, pageIdx) => {
+    let counter = 1;
+    for (let i = 0; i < chapters.length; i++) {
+      for (let j = 0; j < chapters[i].pages.length; j++) {
+        if (i === chapterIdx && j === pageIdx) return counter;
+        counter++;
+      }
+    }
+    return counter;
+  };
+
   // --- Chapter Helpers ---
   const addChapter = () =>
     setChapters([...chapters, { title: "", pages: [] }]);
@@ -103,28 +115,37 @@ export default function AddBook() {
   const handleFormChange = e =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    const bookData = {
-      ...form,
-      chapters: chapters.map((ch, chIdx) => ({
+ const handleSubmit = async e => {
+  e.preventDefault();
+
+  let pageCounter = 1; // global counter across all chapters
+
+  const bookData = {
+    ...form,
+    chapters: chapters.map((ch, chIdx) => {
+      const pagesWithNumbers = ch.pages.map(pg => ({
+        ...pg,
+        number: pageCounter++,  // 1,2,3,4,... globally
+      }));
+
+      return {
         ...ch,
-        number: chIdx + 1,
-        pages: ch.pages.map((pg, pgIdx) => ({
-          ...pg,
-          number: pgIdx + 1,
-        })),
-      })),
-    };
-    try {
-      await submitBook(bookData);
-      setModal({ show: true, title: "Success", message: "Book added successfully!" });
-      setForm({ title: "", author: "", description: "", category: "", language: "en" });
-      setChapters([]);
-    } catch (err) {
-      setModal({ show: true, title: "Error", message: err.message });
-    }
+        number: chIdx + 1,      // chapter number is still per chapter
+        pages: pagesWithNumbers,
+      };
+    }),
   };
+
+  try {
+    await submitBook(bookData);
+    setModal({ show: true, title: "Success", message: "Book added successfully!" });
+    setForm({ title: "", author: "", description: "", category: "", language: "en" });
+    setChapters([]);
+  } catch (err) {
+    setModal({ show: true, title: "Error", message: err.message });
+  }
+};
+
 
   // --- Modal Helper ---
   const closeModal = () => setModal({ ...modal, show: false });
@@ -287,7 +308,8 @@ export default function AddBook() {
                 {ch.pages.map((pg, pgIdx) => (
                   <div className="page-block" style={{ background: "#f9f9f9" }} key={pgIdx}>
                     <button type="button" className="remove-btn" onClick={() => setDeletePageIndex({ chapter: chIdx, page: pgIdx })}>Delete Page</button>
-                    <h4>Page {pgIdx + 1}</h4>
+                   <h4>Page {getGlobalPageNumber(chIdx, pgIdx)}</h4>
+
                     {/* <label>References:</label>
                     {pg.references.map((ref, refIdx) => (
                       <div key={refIdx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
