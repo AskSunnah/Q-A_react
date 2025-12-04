@@ -148,7 +148,10 @@ const Footer = ({ lang = 'en' }) => {
       <footer
         className="custom-footer"
         style={{
-          background: 'linear-gradient(180deg, #D5B940 0%, #C4A627 50%, #B9971B 100%)',
+          background: 'linear-gradient(180deg, #e1cb57 0%, #d0b640 30%, #c3a421 65%, #a67f0f 100%)',
+
+
+
           color: 'white',
           padding: '1.5rem 1.5rem 1rem',
           fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
