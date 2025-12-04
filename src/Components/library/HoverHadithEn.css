@@ -15,6 +15,22 @@
   color: #c3a421;
 }
 
+/* English text styling inside hadith box */
+.hadith-text-en {
+  direction: ltr;
+  unicode-bidi: normal;
+  text-align: left;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #fff;
+  text-align: justify;
+text-justify: inter-word;
+
+}
+
+
 .hadith-box {
   position: fixed;
   top: 60%;
@@ -32,8 +48,8 @@
   /* ✅ Text layout fixes */
   direction: ltr;               /* force left-to-right text flow */
   unicode-bidi: bidi-override;  /* prevent inherited RTL direction */
-  text-align: justify;          /* ✅ full justification */
-  text-justify: inter-word;     /* ✅ evenly distribute word spacing */
+  text-align: left;
+   /* ✅ evenly distribute word spacing */
   line-height: 1.6;             /* ✅ make justified text more readable */
 
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
