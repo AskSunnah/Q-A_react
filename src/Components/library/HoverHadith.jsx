@@ -27,9 +27,17 @@ export default function HoverHadith({ text }) {
   };
 
 
-  return (
-    <div className="hover-hadith-container" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-      <h2 className="hover-hadith-text">{text}</h2>
+   return (
+    <div
+      className="hover-hadith-container"
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+    >
+      <div className="hover-wrapper-ar">
+        <h2 className="hover-hadith-text">{text}</h2>
+        <span className="hover-tooltip-ar">تفاعلي</span>
+      </div>
+
       {show && (
         <div className="hadith-box">
           <p dir="rtl">

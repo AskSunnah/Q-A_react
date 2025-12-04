@@ -1,0 +1,152 @@
+.hover-hadith-container {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+}
+
+.hover-hadith-text {
+  font-size: 2rem;
+  color: #2b2b2b;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.hover-hadith-text:hover {
+  color: #c3a421;
+}
+
+.hadith-box {
+  position: fixed;
+  top: 60%;
+  right: 40px;
+  transform: translateY(-50%);
+  width: 400px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(195, 164, 33, 0.5);
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+  font-size: 1rem;
+
+  /* ✅ Text layout fixes */
+  direction: ltr;               /* force left-to-right text flow */
+  unicode-bidi: bidi-override;  /* prevent inherited RTL direction */
+  text-align: justify;          /* ✅ full justification */
+  text-justify: inter-word;     /* ✅ evenly distribute word spacing */
+  line-height: 1.6;             /* ✅ make justified text more readable */
+
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  animation: fadeInLeft 0.6s ease forwards;
+}
+
+
+.highlight-green {
+  position: relative;
+  color: #3cb371;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+/* Tooltip */
+.highlight-green::after {
+  content: "interactive";
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  direction: ltr;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  text-align: left; /* ✅ ensure left-aligned English text */
+  direction: ltr;   /* ✅ ensure left-to-right flow */
+}
+
+.highlight-green::before {
+  content: "";
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.highlight-green:hover::after,
+.highlight-green:hover::before {
+  opacity: 1;
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+.hadith-box.fade-out {
+  animation: fadeOutLeft 0.4s ease forwards;
+}
+
+@keyframes fadeOutLeft {
+  from {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-60px);
+  }
+}
+
+/* Tooltip for main heading */
+.hover-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-tooltip {
+  position: absolute;
+  bottom: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+text-align: left; /* ✅ ensure left-aligned English text */
+  direction: ltr;   /* ✅ ensure left-to-right flow */
+
+}
+
+.hover-wrapper:hover .hover-tooltip {
+  opacity: 1;
+}
+
+
+@media (max-width: 768px) {
+  .hadith-box {
+    display: none !important;
+  }
+}

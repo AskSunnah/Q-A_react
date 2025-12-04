@@ -90,3 +90,28 @@
     transform: translateY(0) translateX(50%);
   }
 }
+/* Tooltip for Arabic heading */
+.hover-wrapper-ar {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-tooltip-ar {
+  position: absolute;
+  bottom: 90%;
+  right: 50%;
+  transform: translateX(50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.hover-wrapper-ar:hover .hover-tooltip-ar {
+  opacity: 1;
+}
