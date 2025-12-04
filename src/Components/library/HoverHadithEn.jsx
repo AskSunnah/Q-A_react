@@ -34,7 +34,7 @@ export default function HoverHadithEn({ text }) {
   >
     <div className="hover-wrapper">
       <h2 className="hover-hadith-text">{text}</h2>
-      <span className="hover-tooltip">Interactive</span>
+      <span className="hover-tooltip">Hover to read</span>
     </div>
       {!isMobile && show && (
   <div className="hadith-box">

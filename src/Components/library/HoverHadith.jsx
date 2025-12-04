@@ -35,7 +35,7 @@ export default function HoverHadith({ text }) {
     >
       <div className="hover-wrapper-ar">
         <h2 className="hover-hadith-text">{text}</h2>
-        <span className="hover-tooltip-ar">تفاعلي</span>
+        <span className="hover-tooltip-ar">مرّر المؤشر للقراءة</span>
       </div>
 
       {show && (
