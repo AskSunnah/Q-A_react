@@ -1,0 +1,92 @@
+.hover-hadith-container {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+}
+
+.hover-hadith-text {
+  font-size: 2rem;
+  color: #2b2b2b;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.hover-hadith-text:hover {
+  color: #c3a421;
+}
+
+.hadith-box {
+  position: fixed;
+  top: 60%;
+  right: 40px; /* stays on the right side of the screen */
+  transform: translateY(-50%);
+  width: 400px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(195, 164, 33, 0.5);
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+  font-size: 1rem;
+  text-align: right;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  animation: fadeInLeft 0.6s ease forwards;
+}
+.highlight-green {
+  color: #3cb371; /* A soothing green (you can change it if you want) */
+  font-weight: bold;
+}
+
+.hadith-box.fade-out {
+  animation: fadeOutLeft 0.4s ease forwards;
+}
+
+@keyframes fadeOutLeft {
+  from {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-60px);
+  }
+}
+
+
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-60px); /* slide in from left */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) translateX(50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(50%);
+  }
+}

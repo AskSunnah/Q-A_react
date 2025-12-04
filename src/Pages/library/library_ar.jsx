@@ -1,6 +1,8 @@
 import LibraryMain from "../../Components/library/LibraryMain";
 import Footer from "../../Components/Footer"
 import Navbar from "../../Components/Navbar";
+import HoverHadith from "../../Components/library/HoverHadith";
+
 
 export default function LibraryAr() {
   return (
@@ -22,7 +24,8 @@ export default function LibraryAr() {
 />
       <div className='lib-content'>
       <LibraryMain
-        heading="مرحبًا بكم في المكتبة، يا طلاب العلم!"
+        heading={<HoverHadith text="مرحبًا بطالبِ العِلْمِ" />}
+
         firstButtonLabel="الكتب العربية"
         firstButtonLink="/library/arabicbooks"
         secondButtonLabel="الكتب الإنجليزية"

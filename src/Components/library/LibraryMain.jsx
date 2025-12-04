@@ -54,7 +54,7 @@ const LibraryMain = ({
       main button {
         color: var(--button-text-color);
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 1.2rem;
         background: var(--button-gradient);
         border: none;
         border-radius: 6px;
