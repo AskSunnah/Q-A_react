@@ -1,8 +1,9 @@
 // src/pages/AddQA.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import AdminHeader from "../../Components/Admin/Header";
 import { submitQA, editQA, getQA } from "../../api/qa";
+import AdminLayout from "../../Components/Admin/AdminLayout";
+import { updateQuestionStatus } from "../../api/questions";
 
 const sectionOptions = [
   { value: "quran", label: "From Quran" },
@@ -52,6 +53,32 @@ export default function AddQA() {
         });
     }
   }, [isEdit, editSlug, editLang]);
+
+
+  // Pre-fill question from URL params when creating new (not editing)
+  useEffect(() => {
+    if (isEdit) return; // don't override edit mode
+
+    const params = new URLSearchParams(window.location.search);
+    const urlQuestion = params.get("question");
+    const urlName = params.get("name");
+    const urlLang = params.get("lang");
+
+  if (urlQuestion) {
+    const cleanQuestion = decodeURIComponent(urlQuestion).trim();
+
+      setForm((prev) => ({
+        ...prev,
+        question: cleanQuestion,
+        language: urlLang || "en",
+      }));
+    }
+
+    if (urlName) {
+      const name = decodeURIComponent(urlName);
+      setMessage(`Answering question from: ${name}`);
+    }
+  }, [isEdit]); // dependency array is correct
 
   // Input handlers
   const handleInput = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -103,42 +130,96 @@ export default function AddQA() {
     );
 
   // Submission
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setMessage("");
+  //   const qa = {
+  //     title: form.title,
+  //     slug: form.slug,
+  //     question: form.question,
+  //     answer: form.answer,
+  //     conclusion: form.conclusion,
+  //     content: sections,
+  //   };
+  //   try {
+  //     if (isEdit) {
+  //       await editQA(qa, editSlug, editLang);
+  //     } else {
+  //       await submitQA(qa, form.language);
+  //     }
+  //     setMessage("Saved successfully!");
+  //     if (!isEdit) {
+  //       setForm({ language: "en", title: "", slug: "", question: "", answer: "", conclusion: "" });
+  //       setSections([]);
+  //     }
+  //   } catch (err) {
+  //     setMessage("Failed to save. " + err.message);
+  //   }
+  //   setLoading(false);
+  // };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    const qa = {
-      title: form.title,
-      slug: form.slug,
-      question: form.question,
-      answer: form.answer,
-      conclusion: form.conclusion,
-      content: sections,
-    };
-    try {
-      if (isEdit) {
-        await editQA(qa, editSlug, editLang);
-      } else {
-        await submitQA(qa, form.language);
-      }
-      setMessage("Saved successfully!");
-      if (!isEdit) {
-        setForm({ language: "en", title: "", slug: "", question: "", answer: "", conclusion: "" });
-        setSections([]);
-      }
-    } catch (err) {
-      setMessage("Failed to save. " + err.message);
-    }
-    setLoading(false);
+  e.preventDefault();
+  setLoading(true);
+  setMessage(""); // clear previous message
+
+  const qa = {
+    title: form.title,
+    slug: form.slug,
+    question: form.question,
+    answer: form.answer,
+    conclusion: form.conclusion,
+    content: sections,
   };
 
+  try {
+    if (isEdit) {
+      await editQA(qa, editSlug, editLang);
+      setMessage("Q&A updated successfully!");
+    } else {
+      await submitQA(qa, form.language);
+
+      // Only after successful save, check if it's from a user question
+      const questionId = searchParams.get("questionId");
+      if (questionId) {
+        try {
+          await updateQuestionStatus(questionId, "answered", form.language);
+          setMessage("Q&A saved and question marked as answered!");
+        } catch (statusErr) {
+          console.error("Failed to mark question as answered:", statusErr);
+          setMessage("Q&A saved, but failed to mark question as answered.");
+        }
+      } else {
+        setMessage("Q&A saved successfully!");
+      }
+
+      // Reset form only on new creation
+      setForm({
+        language: form.language, // keep language
+        title: "",
+        slug: "",
+        question: "",
+        answer: "",
+        conclusion: "",
+      });
+      setSections([]);
+    }
+  } catch (err) {
+    console.error("Save failed:", err);
+    setMessage("Failed to save Q&A: " + (err.message || "Unknown error"));
+  } finally {
+    setLoading(false);
+  }
+};
   // --- Styles ---
   return (
-    <div style={{ background: "#f7f8fa", minHeight: "100vh" }}>
-      <AdminHeader />
+    <AdminLayout>
       <style>{`
       body{
-      margin: 0;}
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      }
         #qa-box {
           font-family: 'Segoe UI', sans-serif;
           background: #fff;
@@ -150,7 +231,7 @@ export default function AddQA() {
         }
         #qa-box h2 {
           text-align: center;
-          color: #1d5834ff;
+          color: var(--bg-color-header);
           font-size: 2rem;
           margin-bottom: 1.2rem;
           font-family: 'Montserrat', Arial, sans-serif;
@@ -158,7 +239,7 @@ export default function AddQA() {
         #qa-form label {
           margin: 8px 0 3px 0;
           display: block;
-          color: #1d5834ff;
+          color:var(--bg-color-header);
               font-size: 17px;
     font-weight: bold;
         }
@@ -180,7 +261,7 @@ export default function AddQA() {
         }
         #section-type { flex: 1; }
         #add-section-btn {
-          background: #287346;
+          background:var(--bg-color-header);
           color: #fff;
           border: none;
           border-radius: 8px;
@@ -189,7 +270,7 @@ export default function AddQA() {
           cursor: pointer;
           margin-top:-7px
         }
-        #add-section-btn:hover { background: #155e32; }
+        #add-section-btn:hover { background: var(--bg-color-header) }
         .section-block {
           border: 1px solid #cfe7d8;
           border-radius: 10px;
@@ -211,15 +292,15 @@ export default function AddQA() {
         .section-btns button {
           border: none;
           background: #d9ede2;
-          color: #287346;
+          color: var(--bg-color-header);
           font-size: 1rem;
           padding: 6px 12px;
           border-radius: 7px;
           cursor: pointer;
         }
-        .section-btns button:hover { background: #c2d6cc; }
+        .section-btns button:hover { background: #c3a421; }
         #save-btn {
-          background: #287346;
+          background:var(--bg-color-header);
           color: #fff;
           border: none;
           border-radius: 10px;
@@ -230,7 +311,7 @@ export default function AddQA() {
           margin-top: 9px;
           cursor: pointer;
         }
-        #save-btn:hover { background: #155e32; }
+        #save-btn:hover { background:var(--bg-color-header); }
         #save-message { text-align: center; margin-top: 1rem; min-height: 18px; font-weight: 600; }
         @media (max-width: 700px) {
           #qa-box { max-width: 96vw; padding: 1.2rem 0.5rem 2rem 0.5rem;}
@@ -242,7 +323,18 @@ export default function AddQA() {
         {loading ? <p>Loading...</p> : (
           <form id="qa-form" onSubmit={handleSubmit} autoComplete="off">
             <label htmlFor="qa-language">Submission Language:</label>
-            <select id="qa-language" name="language" value={form.language} onChange={handleInput} required>
+            {/* <select id="qa-language" name="language" value={form.language} onChange={handleInput} required>
+              <option value="en">English Question</option>
+              <option value="ar">Arabic Question</option>
+            </select> */}
+
+            <select
+              id="qa-language"
+              name="language"
+              value={form.language}
+              onChange={handleInput}
+              required
+            >
               <option value="en">English Question</option>
               <option value="ar">Arabic Question</option>
             </select>
@@ -344,14 +436,15 @@ export default function AddQA() {
         )}
         <div id="save-message" style={{ color: message.includes("success") ? "#287346" : "#b71010" }}>{message}</div>
       </div>
-    </div>
+    </AdminLayout>
+
   );
 
 }
 
 const greenButtonStyle = {
   padding: '10px 22px',
-  background: '#287346',
+  background: '#c3a421',
   color: '#fff',
   fontSize: '1.02rem',
   border: 'none',
