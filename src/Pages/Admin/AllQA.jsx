@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminHeader from "../../Components/Admin/Header";
 import { getAllQuestions, deleteQuestion } from "../../api/qa";
+import AdminLayout from "../../Components/Admin/AdminLayout";
 
 export default function AllQA() {
   const [englishQuestions, setEnglishQuestions] = useState([]);
@@ -43,11 +44,14 @@ export default function AllQA() {
   };
 
   return (
-    <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
-      <AdminHeader />
+
+
+    <AdminLayout>
       <style>{`
       body{
-      margin: 0;}
+      margin: 0;
+       font-family: 'Segoe UI', sans-serif;
+      }
 
         .allqa-container {
 
@@ -61,11 +65,11 @@ export default function AllQA() {
         }
         h1 {
           text-align: center;
-          color: #1f6f3e;
+          color: var(--bg-color-header);
           margin-bottom: 2rem;
         }
         h2 {
-          color: #287346;
+          color: var(--bg-color-header);
           margin-top: 2.5rem;
         }
         ul {
@@ -76,7 +80,7 @@ export default function AllQA() {
           background-color: #fff;
           margin: 0.5rem 0;
           padding: 1rem;
-          border-left: 5px solid #287346;
+          border-left: 5px solid var(--bg-color-header);
           border-radius: 4px;
           box-shadow: 0 2px 5px rgba(0,0,0,0.05);
           display: flex;
@@ -150,6 +154,6 @@ export default function AllQA() {
           </ul>
         </section>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
