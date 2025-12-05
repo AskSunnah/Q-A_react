@@ -22,6 +22,7 @@ import AddQA from './Pages/Admin/AddQA';
 import AllQA from './Pages/Admin/AllQA';
 import AddBook from './Pages/Admin/AddBook';
 import AllBooks from './Pages/Admin/AllBooks';
+import UserQuestions from './Pages/Admin/UserQuestions';
 import EditBook from './Pages/Admin/EditBook';
 //payment imports
 import ManageSubscription from './Pages/ManageSubscription';
@@ -74,6 +75,9 @@ function App() {
           <Route path="/supervised/books/edit/:lang/:slug" element={
             <ProtectedRoute><EditBook /></ProtectedRoute>
           } />
+          <Route path="/supervised/user-questions" element={
+            <ProtectedRoute><UserQuestions /></ProtectedRoute>
+          } />
           <Route path="/managesubscription" element={<ManageSubscription />} />
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
@@ -82,12 +86,12 @@ function App() {
           <Route path="/ar/terms" element={<TermsArabic />} />
 
           <Route path="/contribute" element={<ContributePage />} />
-        <Route path="/managesubscription" element={<ManageSubscription />} />
-        <Route path="/success" element={<Success />} />
-        <Route path="/cancel" element={<Cancel />} />
-        <Route path = "/feedback" element={<FeedbackFormPage />}/>
-        <Route path = "/feedback-ar" element={<FeedbackFormArabicPage />}/>
-          <Route path="/contribute" element={<ContributePage  />} />
+          <Route path="/managesubscription" element={<ManageSubscription />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
+          <Route path="/feedback" element={<FeedbackFormPage />} />
+          <Route path="/feedback-ar" element={<FeedbackFormArabicPage />} />
+          <Route path="/contribute" element={<ContributePage />} />
           <Route path="/ar/contribute" element={<ContributePageAr />} />
 
         </Routes>

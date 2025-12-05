@@ -13,3 +13,8 @@ export async function adminLogin(username, password) {
     return { success: false, message: "Network error" };
   }
 }
+
+// src/api/adminAuth.js
+export function logoutUser() {
+  localStorage.removeItem("adminToken");
+}

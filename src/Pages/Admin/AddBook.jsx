@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import AdminHeader from "../../Components/Admin/Header";
 import { submitBook } from "../../api/adminBook";
+import AdminLayout from "../../Components/Admin/AdminLayout";
 
 const CATEGORIES = [
   { value: "", label: "-- Select Category --" },
@@ -14,8 +15,6 @@ const LANGS = [
   { value: "en", label: "English" },
   { value: "ar", label: "Arabic" },
 ];
-
-
 
 export default function AddBook() {
   const [form, setForm] = useState({
@@ -115,36 +114,36 @@ export default function AddBook() {
   const handleFormChange = e =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
- const handleSubmit = async e => {
-  e.preventDefault();
+  const handleSubmit = async e => {
+    e.preventDefault();
 
-  let pageCounter = 1; // global counter across all chapters
+    let pageCounter = 1; // global counter across all chapters
 
-  const bookData = {
-    ...form,
-    chapters: chapters.map((ch, chIdx) => {
-      const pagesWithNumbers = ch.pages.map(pg => ({
-        ...pg,
-        number: pageCounter++,  // 1,2,3,4,... globally
-      }));
+    const bookData = {
+      ...form,
+      chapters: chapters.map((ch, chIdx) => {
+        const pagesWithNumbers = ch.pages.map(pg => ({
+          ...pg,
+          number: pageCounter++,  // 1,2,3,4,... globally
+        }));
 
-      return {
-        ...ch,
-        number: chIdx + 1,      // chapter number is still per chapter
-        pages: pagesWithNumbers,
-      };
-    }),
+        return {
+          ...ch,
+          number: chIdx + 1,      // chapter number is still per chapter
+          pages: pagesWithNumbers,
+        };
+      }),
+    };
+
+    try {
+      await submitBook(bookData);
+      setModal({ show: true, title: "Success", message: "Book added successfully!" });
+      setForm({ title: "", author: "", description: "", category: "", language: "en" });
+      setChapters([]);
+    } catch (err) {
+      setModal({ show: true, title: "Error", message: err.message });
+    }
   };
-
-  try {
-    await submitBook(bookData);
-    setModal({ show: true, title: "Success", message: "Book added successfully!" });
-    setForm({ title: "", author: "", description: "", category: "", language: "en" });
-    setChapters([]);
-  } catch (err) {
-    setModal({ show: true, title: "Error", message: err.message });
-  }
-};
 
 
   // --- Modal Helper ---
@@ -152,8 +151,10 @@ export default function AddBook() {
 
   // --- Inline Styles ---
   return (
-    <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
-      <AdminHeader />
+
+
+    <AdminLayout>
+
       <style>{`
 
         body{
@@ -174,7 +175,7 @@ export default function AddBook() {
             font-size: 2rem;
             margin-bottom: 1.5rem;
             text-align: center;
-            color: #1f6f3e;
+            color:var(--bg-color-header);
         }
 
         form {
@@ -203,7 +204,7 @@ export default function AddBook() {
             font-weight: bold;
             margin-top: 1rem;
             display: block;
-            color: #1f6f3e;
+            color:var(--bg-color-header);
         }
 
         .page-block {
@@ -226,7 +227,7 @@ export default function AddBook() {
         }
 
         button.add-btn {
-            background: #287346;
+            background:var(--bg-color-header);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
@@ -254,7 +255,7 @@ export default function AddBook() {
         }
 
         form button[type="submit"] {
-            background-color: #287346;
+            background-color:var(--bg-color-header);
             color: white;
             border: none;
             padding: 0.7rem 1.4rem;
@@ -308,7 +309,7 @@ export default function AddBook() {
                 {ch.pages.map((pg, pgIdx) => (
                   <div className="page-block" style={{ background: "#f9f9f9" }} key={pgIdx}>
                     <button type="button" className="remove-btn" onClick={() => setDeletePageIndex({ chapter: chIdx, page: pgIdx })}>Delete Page</button>
-                   <h4>Page {getGlobalPageNumber(chIdx, pgIdx)}</h4>
+                    <h4>Page {getGlobalPageNumber(chIdx, pgIdx)}</h4>
 
                     {/* <label>References:</label>
                     {pg.references.map((ref, refIdx) => (
@@ -326,29 +327,29 @@ export default function AddBook() {
                       </div>
                     ))}
                     <button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button> */}
-<label>References:</label>
-{pg.references.length === 0 && (
-  <p style={{ fontStyle: "italic", color: "#888" }}>No references added yet.</p>
-)}
-{pg.references.map((ref, refIdx) => (
-  <div key={refIdx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-    <input
-      style={{ flex: 1 }}
-      value={ref}
-      onChange={e => updateReference(chIdx, pgIdx, refIdx, e.target.value)}
-      placeholder="Reference"
-    />
-    <button
-      type="button"
-      className="remove-btn"
-      style={{ position: "static" }}
-      onClick={() => removeReference(chIdx, pgIdx, refIdx)}
-    >
-      Delete reference
-    </button>
-  </div>
-))}
-<button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button>
+                    <label>References:</label>
+                    {pg.references.length === 0 && (
+                      <p style={{ fontStyle: "italic", color: "#888" }}>No references added yet.</p>
+                    )}
+                    {pg.references.map((ref, refIdx) => (
+                      <div key={refIdx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                        <input
+                          style={{ flex: 1 }}
+                          value={ref}
+                          onChange={e => updateReference(chIdx, pgIdx, refIdx, e.target.value)}
+                          placeholder="Reference"
+                        />
+                        <button
+                          type="button"
+                          className="remove-btn"
+                          style={{ position: "static" }}
+                          onClick={() => removeReference(chIdx, pgIdx, refIdx)}
+                        >
+                          Delete reference
+                        </button>
+                      </div>
+                    ))}
+                    <button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button>
 
 
                     <hr style={{ margin: "1.5rem 0", borderTop: "1px solid #ccc" }} />
@@ -404,68 +405,68 @@ export default function AddBook() {
                     ))}
                     <button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>+ Add Content on Page</button> */}
                     <label>Content:</label>
-{pg.blocks.length === 0 && (
-  <p style={{ fontStyle: "italic", color: "#888" }}>No content on this page yet.</p>
-)}
-{pg.blocks.map((block, blockIdx) => (
-  <div className="block" key={blockIdx}>
-    <button type="button" className="remove-btn" onClick={() => removeBlock(chIdx, pgIdx, blockIdx)}>
-      Delete Content
-    </button>
+                    {pg.blocks.length === 0 && (
+                      <p style={{ fontStyle: "italic", color: "#888" }}>No content on this page yet.</p>
+                    )}
+                    {pg.blocks.map((block, blockIdx) => (
+                      <div className="block" key={blockIdx}>
+                        <button type="button" className="remove-btn" onClick={() => removeBlock(chIdx, pgIdx, blockIdx)}>
+                          Delete Content
+                        </button>
 
-    <label>Type</label>
-    <select
-      value={block.type}
-      onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, type: e.target.value })}
-    >
-      <option value="heading">Heading</option>
-      <option value="paragraph">Paragraph</option>
-      <option value="hadith">Hadith</option>
-      <option value="ayah">Ayah</option>
-      <option value="quote">Quote</option>
-    </select>
+                        <label>Type</label>
+                        <select
+                          value={block.type}
+                          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, type: e.target.value })}
+                        >
+                          <option value="heading">Heading</option>
+                          <option value="paragraph">Paragraph</option>
+                          <option value="hadith">Hadith</option>
+                          <option value="ayah">Ayah</option>
+                          <option value="quote">Quote</option>
+                        </select>
 
-    <label>Text</label>
-    <textarea
-      value={block.text}
-      onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, text: e.target.value })}
-      required
-    />
+                        <label>Text</label>
+                        <textarea
+                          value={block.text}
+                          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, text: e.target.value })}
+                          required
+                        />
 
-    {["hadith", "ayah", "quote"].includes(block.type) && (
-      <>
-        <label>Reference</label>
-        <input
-          value={block.reference}
-          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, reference: e.target.value })}
-        />
-      </>
-    )}
+                        {["hadith", "ayah", "quote"].includes(block.type) && (
+                          <>
+                            <label>Reference</label>
+                            <input
+                              value={block.reference}
+                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, reference: e.target.value })}
+                            />
+                          </>
+                        )}
 
-    {block.type === "hadith" && (
-      <>
-        <label>Narrator</label>
-        <input
-          value={block.narrator}
-          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, narrator: e.target.value })}
-        />
-      </>
-    )}
+                        {block.type === "hadith" && (
+                          <>
+                            <label>Narrator</label>
+                            <input
+                              value={block.narrator}
+                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, narrator: e.target.value })}
+                            />
+                          </>
+                        )}
 
-    {["hadith", "ayah", "quote"].includes(block.type) && (
-      <>
-        <label>Commentary</label>
-        <textarea
-          value={block.commentary}
-          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, commentary: e.target.value })}
-        />
-      </>
-    )}
-  </div>
-))}
-<button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>
-  + Add Content on Page
-</button>
+                        {["hadith", "ayah", "quote"].includes(block.type) && (
+                          <>
+                            <label>Commentary</label>
+                            <textarea
+                              value={block.commentary}
+                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, commentary: e.target.value })}
+                            />
+                          </>
+                        )}
+                      </div>
+                    ))}
+                    <button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>
+                      + Add Content on Page
+                    </button>
 
 
                   </div>
@@ -517,6 +518,6 @@ export default function AddBook() {
           }} onClick={() => setDeletePageIndex(null)}>No</button>
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 }

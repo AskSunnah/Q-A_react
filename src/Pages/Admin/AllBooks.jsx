@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import AdminHeader from "../../Components/Admin/Header";
 import { fetchBooksAdmin, deleteBookAdmin } from "../../api/adminBook"; // implement these
 import { useNavigate } from "react-router-dom";
+import AdminLayout from "../../Components/Admin/AdminLayout";
 
 const LANGS = [
   { value: "en", label: "English" },
@@ -72,16 +73,17 @@ export default function AllBooks() {
 
   // --- Render ---
   return (
-    <div style={{ background: "#f4f6f8", minHeight: "100vh", fontFamily: "Segoe UI, sans-serif" }}>
-      <style>{`
+   
+    
+    <AdminLayout>
+<style>{`
         body {
           margin: 0;
           font-family: 'Segoe UI', sans-serif;
         }
       `}</style>
-      <AdminHeader />
       <div style={{ maxWidth: 900, margin: "2rem auto" }}>
-        <h1 style={{ textAlign: "center", color: "#1f6f3e" }}>Manage Books</h1>
+        <h1 style={{ textAlign: "center", color: "#c3a421" }}>Manage Books</h1>
         <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginBottom: "2rem" }}>
           {LANGS.map(l => (
             <button
@@ -92,7 +94,7 @@ export default function AllBooks() {
                 borderRadius: "5px",
                 fontWeight: "bold",
                 cursor: "pointer",
-                background: lang === l.value ? "#287346" : "#e2e8f0",
+                background: lang === l.value ? "#c3a421" : "#e2e8f0",
                 color: lang === l.value ? "white" : "#1e293b"
               }}
               onClick={() => setLang(l.value)}
@@ -104,7 +106,7 @@ export default function AllBooks() {
         {loading ? (
           <div style={{ textAlign: "center" }}>Loading books...</div>
         ) : (
-          <ul style={{ listStyle: "none", padding: 0, maxWidth: 700, margin: "0 auto" }}>
+          <ul style={{ listStyle: "none", padding: 0, maxWidth: 840, margin: "0 auto" }}>
             {books.length === 0 ? (
               <li>No books found in {lang === "en" ? "English" : "Arabic"}.</li>
             ) : (
@@ -114,7 +116,7 @@ export default function AllBooks() {
                     background: "#fff",
                     margin: "0.5rem 0",
                     padding: "1rem",
-                    borderLeft: "5px solid #287346",
+                    borderLeft: "5px solid #c3a421",
                     borderRadius: 6,
                     boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
                     display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem"
@@ -210,7 +212,7 @@ export default function AllBooks() {
           )}
         </div>
       )}
-    </div>
+    </AdminLayout>
   );
 }
 
