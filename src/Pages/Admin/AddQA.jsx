@@ -275,7 +275,7 @@ export default function AddQA() {
           border: 1px solid #cfe7d8;
           border-radius: 10px;
           margin-bottom: 18px;
-          background: #f0faf5;
+          background: white;
           padding: 1rem;
         }
         .grouped-item {
@@ -290,8 +290,8 @@ export default function AddQA() {
           gap: 7px;
         }
         .section-btns button {
-          border: none;
-          background: #d9ede2;
+          border: 1px solid grey;
+          background: white;
           color: var(--bg-color-header);
           font-size: 1rem;
           padding: 6px 12px;
@@ -425,7 +425,7 @@ export default function AddQA() {
               </button>
             </div>
 
-            <label>Conclusion:</label>
+            <label>Summary:</label>
             <textarea id="qa-conclusion" name="conclusion" value={form.conclusion} onChange={handleInput} required />
 
             <br />

@@ -4,6 +4,7 @@ import AdminHeader from "../../Components/Admin/Header";
 import { useParams } from "react-router-dom";
 import { fetchBookAdmin, saveBookAdmin } from "../../api/adminBook";
 import BookEditor from "../../Components/Admin/BookEditor";
+import AdminLayout from "../../Components/Admin/AdminLayout";
 
 export default function EditBook() {
   const { lang, slug } = useParams();
@@ -32,22 +33,22 @@ export default function EditBook() {
   if (!book) return <div>Loading...</div>;
 
   return (
+      <AdminLayout>
     <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
-      <AdminHeader />
       <style>{`
         body {
         margin: 0;
           font-family: 'Segoe UI', sans-serif;}
         .form-row { margin-bottom: 1rem; }
         input, textarea, select { width: 100%; margin-top: 0.3rem; padding: 0.4rem; border-radius: 4px; border: 1px solid #b8bbc6;}
-        .chapter-block, .page-block, .block-block { border: 1px solid #28734633; border-radius: 6px; background: #fff; margin-bottom: 1rem; padding: 1rem; }
+        .chapter-block, .page-block, .block-block { border: 1px solid #c3a421; border-radius: 6px; background: #fff; margin-bottom: 1rem; padding: 1rem; }
         .page-block, .block-block { margin-left: 1.5rem; }
         .block-block { margin-left: 2.5rem; background: #f8fafc;}
         button { padding: 0.4rem 1rem; border: none; border-radius: 4px; margin-top: 0.3rem; margin-right: 0.5rem; cursor: pointer;}
-        .btn-add { background: #287346; color: white;}
+        .btn-add { background: #c3a421; color: white;}
         .btn-delete { background: #e53e3e; color: white;}
         .btn-main { background: #1f6f3e; color: white;}
-        h2 { color: #287346; }
+        h2 { color: #c3a421; }
         label { font-size: 0.95rem; font-weight: bold; }
       `}</style>
       <div style={{ maxWidth: 900, margin: "2rem auto" }}>
@@ -82,5 +83,6 @@ export default function EditBook() {
         </form>
       </div>
     </div>
+    </AdminLayout>
   );
 }
