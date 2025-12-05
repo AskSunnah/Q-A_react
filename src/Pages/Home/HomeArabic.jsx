@@ -188,7 +188,7 @@ function Home() {
             <main aria-label="Main Content Area">
                 <IntroSection
                     heading="أرسل سؤالك"
-                    description="هل لديك سؤال عن الإسلام؟ أرسله الآن وستتلقى الرد من الشيخ فلاح كركولي وفق رأي موثوق من العلماء."
+                    description="هل لديك سؤال عن الإسلام؟ أرسله الآن وستتلقى الرد من د. الشيخ فلاح كركولي وفق رأي موثوق من العلماء."
                     buttonLabel="أرسل سؤالك"
                     buttonLangLink="/"
                     onOpenModal={() => setIsModalOpen(true)}
