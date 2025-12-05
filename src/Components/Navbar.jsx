@@ -3,25 +3,25 @@ import { Link } from 'react-router-dom';
 
 const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dark, setDark] = useState(false);
+/*   const [dark, setDark] = useState(false); */
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
 
   // Dark mode on first load
-  useEffect(() => {
+  /* useEffect(() => {
     const saved = localStorage.getItem('mode');
     if (saved === 'dark') {
       document.body.classList.add('dark');
       setDark(true);
     }
-  }, []);
+  }, []); */
 
-  const toggleDarkMode = () => {
+  /* const toggleDarkMode = () => {
     document.body.classList.toggle('dark');
     const isDarkNow = document.body.classList.contains('dark');
     localStorage.setItem('mode', isDarkNow ? 'dark' : 'light');
     setDark(isDarkNow);
-  };
+  }; */
 
   // Hide on scroll logic
   useEffect(() => {
@@ -194,7 +194,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
               </li>
             )}
 
-            <li className="nav-darkmode" style={{ marginTop: '10px' }}>
+            {/* <li className="nav-darkmode" style={{ marginTop: '10px' }}>
               <i
                 className={`dark-toggle-icon fa-solid ${
                   dark ? 'fa-sun' : 'fa-moon'
@@ -209,7 +209,7 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
                   color: dark ? 'white' : 'var(--bg-color-header)',
                 }}
               ></i>
-            </li>
+            </li> */}
           </ul>
         </div>
       </nav>

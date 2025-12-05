@@ -102,7 +102,6 @@ const ContributePageAr = () => {
             {/* <Header lang="ar" /> */}
              <Header
                 title="ساهم معنا"
-                // subtitle="احصل على إجابات شرعية موثوقة من الشيخ الدكتور فلاح كركولي — مستندة من القرآن والسنة (نسخة تجريبية)"
                 dir="rtl"
             />
             <Navbar

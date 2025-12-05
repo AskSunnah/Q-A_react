@@ -333,7 +333,7 @@ const pageStyles = `
   }
   .question-end {
   height: 1px;
-  background-color: #2b2b2b;
+  background-color: #c3a421;
   margin: 2rem 0;
   opacity: 0.6;
 }
