@@ -14,7 +14,7 @@ function QuestionPage({
   labels = {
     question: 'Question:',
     answer: 'Answer:',
-    conclusion: 'Conclusion:',
+    conclusion: 'Summary:',
     back: '← Back to Questions',
     andAllahKnowsBest: 'And Allah knows best.',
     fromQuran: 'From the Qur’an:',
@@ -167,24 +167,22 @@ function QuestionPage({
     />
 
     <style>{pageStyles}</style>
-
+      
     <div className="content" dir={direction} lang={language}>
         <h1>{data.heading}</h1>
         <p><strong>{labels.question}</strong> <span>{data.question}</span></p>
-        {/* <p><strong>{labels.answer}</strong> <span>{data.answer}</span></p> */}
-        {/* <div style={{ marginBottom: '1.5rem' }}>
-          <strong>{labels.answer}</strong>
-          {data.answer &&
-            data.answer
-              .split(/\n\s*\n/) // splits at empty lines
-              .map((paragraph, idx) => (
-                <p key={idx} style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6', marginBottom: '1rem' }}>
-                  {paragraph}
-                </p>
-              ))}
-        </div> */}
+       {data.conclusion && (
+    <div className="">
+      <h2 className="summary-title">{labels.conclusion}</h2>
+      <div className='summary-box'>
+      
+      <p className="summary-text">
+        {data.conclusion}
+      </p>
+    </div></div>
+  )}
         <div style={{ marginBottom: '1.5rem' }}>
-          <strong>{labels.answer}</strong>
+           <p><strong>{labels.answer}</strong></p>
           {data.answer && renderAnswer(data.answer)}
         </div>
 
@@ -222,14 +220,7 @@ function QuestionPage({
             );
           })}
         </div>
-
-        {data.conclusion && (
-          <div id="conclusion">
-            <h2>{labels.conclusion}</h2>
-            <p style={{ whiteSpace: 'pre-wrap' }}>{data.conclusion}</p>
-          </div>
-        )}
-
+        <div className="question-end" ></div>
         <p><strong>{labels.andAllahKnowsBest}</strong></p>
         <Link to={language === 'ar' ? '/ar' : '/'} className="back-link">{labels.back}</Link>
         
@@ -258,7 +249,30 @@ const pageStyles = `
   max-width: 887px;
   margin: auto;
 }
+ .summary-box {
+    margin: 1rem 0 1rem;
+    padding: 20px;
+    border-radius: 16px;
+    background: none;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid rgba(195, 164, 33, 0.5); /* gold-ish like your hadith box */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    position: relative;
+  }
 
+  .summary-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #c3a421; /* same vibe as hover gold */
+  }
+
+  .summary-text {
+    margin: 0;
+    line-height: 1.7;
+    color: #2b2b2b;
+    white-space: pre-wrap;
+  }
 
   h1 {
     color: var(--bg-color-header);
@@ -317,7 +331,12 @@ const pageStyles = `
     padding-inline-end: 1.2rem;
     padding-inline-start: 0;
   }
-
+  .question-end {
+  height: 1px;
+  background-color: #2b2b2b;
+  margin: 2rem 0;
+  opacity: 0.6;
+}
 
   /* ============================
      RESPONSIVE STYLES
