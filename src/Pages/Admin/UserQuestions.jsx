@@ -488,6 +488,7 @@ import {
     Calendar,
     Filter,
     AlertCircle,
+    Mail
 } from "lucide-react";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 import { useNavigate } from "react-router-dom";   // ← ADD THIS
@@ -949,6 +950,7 @@ export default function UserQuestions() {
                                     <div className="user-name">
                                         <User size={18} /> {q.name}
                                     </div>
+                                    
                                     <div className="meta">
                                         <Calendar size={16} />
                                         {new Date(q.createdAt).toLocaleDateString("en-US", {
@@ -957,6 +959,11 @@ export default function UserQuestions() {
                                             year: "numeric",
                                         })}
                                     </div>
+
+                                      <div className="meta">
+        <Mail size={16} />
+        {q.email || "No email provided"}
+    </div>
                                 </div>
                                 <div className="status-actions">
                                     <span
