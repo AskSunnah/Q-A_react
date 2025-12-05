@@ -337,19 +337,20 @@ export default function AdminDashboard() {
         if (!res.ok) throw new Error("Failed");
         return res.json();
       })
-      .then((data) => {
-        setStats({
-          totalBooks: data.totalBooks?.books || 0,
-          totalAnswers: data.totalBooks?.answers || 0,
-          pendingQuestions: data.totalBooks?.pendingQuestions || 0,
-          breakdown: {
-            booksEn: data.breakdown?.books?.en || 0,
-            booksAr: data.breakdown?.books?.ar || 0,
-            answersEn: data.breakdown?.answers?.en || 0,
-            answersAr: data.breakdown?.answers?.ar || 0,
-          },
-        });
-      })
+   .then((data) => {
+  setStats({
+    totalBooks: data.totalBooks || 0,
+    totalAnswers: data.totalAnswers || 0,
+    pendingQuestions: data.pendingQuestions || 0,
+    breakdown: {
+      booksEn: data.booksEn || 0,
+      booksAr: data.booksAr || 0,
+      answersEn: data.answersEn || 0,
+      answersAr: data.answersAr || 0,
+    },
+  });
+})
+
       .catch(() => {
         setStats({
           totalBooks: "—",
