@@ -11,7 +11,7 @@ const QuestionPageEnglish = () => {
       labels={{
         question: 'Question:',
         answer: 'Answer:',
-        conclusion: 'Conclusion:',
+        conclusion: 'Summary:',
         back: '← Back to Questions',
         andAllahKnowsBest: 'And Allah knows best.',
         fromQuran: 'From the Qur’an:',
