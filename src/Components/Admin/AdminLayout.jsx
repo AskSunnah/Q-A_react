@@ -144,6 +144,7 @@ export default function AdminLayout({ children }) {
           display: "flex",
           flexDirection: "column",
           marginLeft: isMobile ? "0" : "260px",
+          overflowX: isMobile ? "hidden" : "visible",
           transition: "0.3s",
         }}
       >

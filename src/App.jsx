@@ -57,6 +57,7 @@ function App() {
           <Route path="/library/arabicbooks" element={<ArabicBooksPage />} />
           <Route path="/library/read/:lang/:slug" element={<ReadBookPage />} />
           <Route path="/books/:lang/:slug" element={<BookDetails />} />
+          
           <Route path="/supervised" element={<AdminLogin />} />
           <Route path="/supervised/dashboard" element={
             <ProtectedRoute><AdminDashboard /></ProtectedRoute>
