@@ -21,8 +21,9 @@ const SearchResults = () => {
       setError("");
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/search?q=${encodeURIComponent(query)}&page=${page}`
+          `https://asksunnah-backend-hno9.onrender.com/api/search?q=${encodeURIComponent(query)}&page=${page}`
         );
+
         console.log("Search API response:", res.data);
 
         setResults(res.data.results || []);
