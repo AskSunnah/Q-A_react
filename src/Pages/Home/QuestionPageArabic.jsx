@@ -11,7 +11,7 @@ const QuestionPageArabic = () => {
       labels={{
         question: 'السؤال:',
         answer: 'الجواب:',
-        conclusion: 'الخلاصة:',
+        conclusion: 'ملخص الجواب:',
         back: '← العودة إلى الأسئلة',
         andAllahKnowsBest: 'والله أعلم.',
         fromQuran: 'من القرآن الكريم:',
