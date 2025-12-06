@@ -315,9 +315,7 @@ const StatCard = ({ title, value, breakdown, icon: Icon, color }) => {
           </p>
         )}
       </div>
-      {isPending && count > 0 && (
-        <div className="pending-tag">{count}</div>
-      )}
+      
     </div>
   );
 };
