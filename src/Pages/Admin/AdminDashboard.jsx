@@ -124,7 +124,7 @@
 //   const pendingCount = Number(stats.pendingQuestions) || 0;
 
 //   return (<AdminLayout>
-    
+
 //       <style>{`
 //         body {
 //           margin: 0;
@@ -315,7 +315,7 @@ const StatCard = ({ title, value, breakdown, icon: Icon, color }) => {
           </p>
         )}
       </div>
-      
+
     </div>
   );
 };
@@ -335,19 +335,19 @@ export default function AdminDashboard() {
         if (!res.ok) throw new Error("Failed");
         return res.json();
       })
-   .then((data) => {
-  setStats({
-    totalBooks: data.totalBooks || 0,
-    totalAnswers: data.totalAnswers || 0,
-    pendingQuestions: data.pendingQuestions || 0,
-    breakdown: {
-      booksEn: data.booksEn || 0,
-      booksAr: data.booksAr || 0,
-      answersEn: data.answersEn || 0,
-      answersAr: data.answersAr || 0,
-    },
-  });
-})
+      .then((data) => {
+        setStats({
+          totalBooks: data.totalBooks || 0,
+          totalAnswers: data.totalAnswers || 0,
+          pendingQuestions: data.pendingQuestions || 0,
+          breakdown: {
+            booksEn: data.booksEn || 0,
+            booksAr: data.booksAr || 0,
+            answersEn: data.answersEn || 0,
+            answersAr: data.answersAr || 0,
+          },
+        });
+      })
 
       .catch(() => {
         setStats({
@@ -364,7 +364,7 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-     
+
 
       <style jsx>{`
         body { font-family: "Segoe UI", sans-serif; margin: 0; }
