@@ -36,6 +36,7 @@ import FeedbackFormPage from './Pages/FeedbackFormPage';
 import FeedbackFormArabicPage from './Pages/FeedbackFormPageArabic';
 import TermsArabic from "./Pages/Terms/TermsArabic";
 import TermsEnglish from "./Pages/Terms/TermsEnglish";
+import SearchResults from "./Pages/Home/SearchResults";
 
 import './App.css';
 function App() {
@@ -93,7 +94,7 @@ function App() {
           <Route path="/feedback-ar" element={<FeedbackFormArabicPage />} />
           <Route path="/contribute" element={<ContributePage />} />
           <Route path="/ar/contribute" element={<ContributePageAr />} />
-
+          <Route path="/search" element={<SearchResults />} />
         </Routes>
 
       </div>
