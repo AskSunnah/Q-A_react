@@ -170,7 +170,9 @@ export default function AddBook() {
             margin: 0 auto;
               font-family: 'Segoe UI', sans-serif;
         }
-
+        header button{
+          margin-bottom:0;
+        }
         h1 {
             font-size: 2rem;
             margin-bottom: 1.5rem;
@@ -270,6 +272,22 @@ export default function AddBook() {
         form button[type="submit"]:hover {
             background-color: #1f5c38;
         }
+
+        .admin-sidebar-header{
+        font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    color:#323232;
+    white-space: nowrap;
+        }
+
+        .admin-sidebar-cross{
+          margin-bottom:0;
+        }
+
     `}</style>
       <div className="container">
         <h1>Add a New Book</h1>

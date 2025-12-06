@@ -149,7 +149,7 @@ export default function AdminLayout({ children }) {
       >
 
         {/* HEADER */}
-        <header
+        {/* <header
           style={{
             background: "#faf9f5",
             color: "black",
@@ -160,7 +160,7 @@ export default function AdminLayout({ children }) {
             position: "relative",
           }}
         >
-          {/* Left area */}
+   
           <div
             style={{
               width: isMobile ? "33%" : "auto",
@@ -181,7 +181,6 @@ export default function AdminLayout({ children }) {
               </button>
             )}
 
-            {/* Desktop Title */}
             {!isMobile && (
               <span
                 style={{
@@ -195,7 +194,6 @@ export default function AdminLayout({ children }) {
             )}
           </div>
 
-          {/* Centered Title for Mobile */}
           {isMobile && (
             <div
               style={{
@@ -211,9 +209,71 @@ export default function AdminLayout({ children }) {
             </div>
           )}
 
-          {/* Right area (empty for balance) */}
           <div style={{ width: "33%" }}></div>
-        </header>
+        </header> */}
+
+<header
+  style={{
+    background: "#faf9f5",
+    color: "black",
+    padding: "0 20px",        // remove vertical padding
+    height: "60px",           // fix header height
+    borderBottom: "1px solid #dfd7d7ff",
+    display: "flex",
+    alignItems: "center",
+    position: "relative",
+  }}
+>
+  {/* Left area */}
+  <div
+    style={{
+      width: isMobile ? "33%" : "auto",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "flex-start",
+    }}
+  >
+    {isMobile && (
+      <button
+        onClick={() => setOpen(true)}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          padding: 0,
+          marginRight: "90px",
+        }}
+      >
+        <Menu size={28} color="#323232" />
+      </button>
+    )}
+  </div>
+
+  {/* Centered title */}
+  {isMobile && (
+    <div
+      style={{
+        width: "33%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center", // important
+        fontWeight: 700,
+        whiteSpace: "nowrap",
+        fontSize: "18px",
+        height: "100%",        // align with header
+      }}
+    >
+      Ask Sunnah Admin Panel
+    </div>
+  )}
+
+  {/* Right area */}
+  <div style={{ width: "33%" }}></div>
+</header>
 
         {/* MAIN CONTENT */}
         <main style={{ padding: "20px", maxWidth: "1100px" }}>{children}</main>
