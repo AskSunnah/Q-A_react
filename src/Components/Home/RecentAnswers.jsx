@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import QuestionItem from './QuestionItem';
 import Pagination from './Pagination';
+import { useNavigate } from "react-router-dom";
+
 
 const RecentAnswers = ({
   fetchFatwas,
@@ -31,14 +33,26 @@ const RecentAnswers = ({
     loadFatwas();
   }, [fetchFatwas]);
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    const results = fatwas.filter(fatwa =>
-      fatwa.heading.toLowerCase().includes(query)
-    );
-    setFilteredFatwas(results);
-    setCurrentPage(1);
-  };
+  //const handleSearch = (e) => {
+    //const query = e.target.value.toLowerCase();
+    //const results = fatwas.filter(fatwa =>
+      //fatwa.heading.toLowerCase().includes(query)
+   // );
+    //setFilteredFatwas(results);
+   // setCurrentPage(1);
+ // };
+ const navigate = useNavigate();
+
+const handleSearch = (e) => {
+  if (e.key === "Enter") {
+    const query = e.target.value.trim();
+    if (query) {
+      navigate(`/search?q=${encodeURIComponent(query)}`);
+      e.target.value = ""; // optional clear
+    }
+  }
+};
+
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedFatwas = filteredFatwas.slice(startIndex, startIndex + itemsPerPage);
@@ -62,7 +76,7 @@ const RecentAnswers = ({
           type="text"
           id="fatwaSearch"
           placeholder={searchPlaceholder}
-          onChange={handleSearch}
+           onKeyDown={handleSearch}  
           style={{
             width: '100%',
             padding: '0.75rem',
