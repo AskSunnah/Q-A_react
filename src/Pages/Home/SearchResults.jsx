@@ -54,7 +54,11 @@ const SearchResults = () => {
     <div className={`search-page ${isArabic ? "rtl" : "ltr"}`}>
       <div className="search-container">
         <h1 className="search-title">
-          {isArabic ? "نتائج البحث عن:" : "Search results for:"} “{query}”
+          <h1 className="search-title">
+  {isArabic ? "نتائج البحث عن:" : "Search results for:"} 
+  &nbsp;<span dir="ltr">&ldquo;{query}&rdquo;</span>
+</h1>
+
         </h1>
 
         {loading && (
