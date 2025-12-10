@@ -7,19 +7,24 @@ import {
   Mail,
   Phone,
   Calendar,
-  AlertCircle,
   Star,
+  Copy,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 
 export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState("en");
+  const [copiedId, setCopiedId] = useState(null);
+
+  const isArabic = language === "ar";
 
   const fetchFeedbacks = async () => {
     setLoading(true);
     try {
-      const res = await getAllFeedback(language); // { success, feedbacks }
+      const res = await getAllFeedback(language);
       setFeedbacks(res.feedbacks || []);
     } catch (err) {
       console.error("Failed to load feedback:", err);
@@ -28,33 +33,38 @@ export default function Feedback() {
       setLoading(false);
     }
   };
-
+  const sectionTranslations = {
+    "Q&A": "قسم الأسئلة والأجوبة",
+    "Books": "قسم الكتب",
+    "Search / Library": "البحث / المكتبة",
+    "Other": "أخرى",
+  };
   useEffect(() => {
     fetchFeedbacks();
   }, [language]);
 
+  const copyToClipboard = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
     <AdminLayout>
       <style jsx>{`
-        * {
-          box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
           margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-            Helvetica, Arial, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           background: #f1f5f9;
           color: #334155;
         }
-
         .page-wrapper {
           min-height: 100vh;
           padding: 2rem 1rem;
+          direction: ${isArabic ? "rtl" : "ltr"};
         }
-        .container {
-          max-width: 1100px;
-          margin: 0 auto;
-        }
+        .container { max-width: 1100px; margin: 0 auto; }
 
         /* Header */
         .header {
@@ -63,11 +73,6 @@ export default function Feedback() {
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
-          gap: 1rem;
-        }
-        .title-wrapper {
-          display: flex;
-          align-items: center;
           gap: 1rem;
         }
         .title {
@@ -96,9 +101,7 @@ export default function Feedback() {
           gap: 0.5rem;
           transition: all 0.2s ease;
         }
-        .lang-toggle:hover {
-          background: #334155;
-        }
+        .lang-toggle:hover { background: #334155; }
 
         /* Feedback Card */
         .card {
@@ -123,10 +126,11 @@ export default function Feedback() {
           flex-wrap: wrap;
           gap: 1rem;
         }
+
         .user-info {
           display: flex;
           flex-direction: column;
-          gap: 0.4rem;
+          gap: 0.5rem;
         }
         .user-name {
           font-weight: 600;
@@ -144,29 +148,29 @@ export default function Feedback() {
           gap: 0.4rem;
         }
 
-        .rating-pill {
+        .rating-badge {
+          background: #fffbeb;
+          color: #92400e;
+          padding: 0.4rem 0.8rem;
+          border-radius: 30px;
+          font-size: 0.85rem;
+          font-weight: 600;
           display: inline-flex;
           align-items: center;
           gap: 0.4rem;
-          background: #fef3c7;
-          color: #92400e;
-          padding: 0.35rem 0.75rem;
-          border-radius: 999px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          margin-top: 0.35rem;
+          border: 1.5px solid #fbbf24;
         }
 
-        .sections-badge {
-          margin-top: 0.35rem;
-          display: inline-flex;
+        .sections {
+          display: flex;
           flex-wrap: wrap;
-          gap: 0.3rem;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
         }
-        .section-chip {
+        .section-tag {
           background: #eff6ff;
-          color: #1d4ed8;
-          padding: 0.2rem 0.6rem;
+          color: #1e40af;
+          padding: 0.25rem 0.7rem;
           border-radius: 999px;
           font-size: 0.8rem;
           font-weight: 500;
@@ -181,8 +185,16 @@ export default function Feedback() {
           font-size: 1.02rem;
           line-height: 1.65;
           color: #334155;
-          margin: 0.75rem 0 0.25rem;
+          margin: 0.75rem 0;
           white-space: pre-line;
+        }
+
+        .copy-btn {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          color: #64748b;
+          padding: 4px;
         }
 
         /* Empty & Loading */
@@ -202,144 +214,137 @@ export default function Feedback() {
           margin: 0 auto 1.5rem;
         }
 
-        .skeleton {
-          background: #f1f5f9;
-          border-radius: 8px;
-          animation: pulse 1.8s infinite ease-in-out;
-        }
-        @keyframes pulse {
-          0%,
-          100% {
-            opacity: 0.6;
-          }
-          50% {
-            opacity: 1;
-          }
-        }
         .skeleton-line {
           height: 20px;
-          margin-bottom: 14px;
+          background: #f1f5f9;
           border-radius: 6px;
+          margin-bottom: 14px;
+          animation: pulse 1.8s infinite ease-in-out;
         }
-        .skeleton-line.short {
-          width: 70%;
+        .skeleton-line.short { width: 70%; }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
         }
       `}</style>
 
       <div className="page-wrapper">
-        <div className="container">
+        <div class="container">
           {/* Header */}
           <div className="header">
-            <div className="title-wrapper">
-              <div>
-                <h1 className="title">User Feedback</h1>
-                <p className="subtitle">
-                  Review feedback submitted by users about AskSunnah
-                </p>
-              </div>
+            <div>
+              <h1 className="title">
+                {isArabic ? "آراء المستخدمين" : "User Feedback"}
+              </h1>
+              <p className="subtitle">
+                {isArabic
+                  ? "مراجعة تقييمات وآراء مستخدمي AskSunnah"
+                  : "Review feedback and ratings from AskSunnah users"}
+              </p>
             </div>
             <button
               className="lang-toggle"
-              onClick={() => setLanguage((l) => (l === "en" ? "ar" : "en"))}
+              onClick={() => setLanguage(l => l === "en" ? "ar" : "en")}
             >
               <Globe size={18} />
-              {language === "en" ? "العربية" : "English"}
+              {isArabic ? "English" : "العربية"}
             </button>
           </div>
 
-          {/* Loading skeleton */}
+          {/* Loading */}
           {loading && (
             <div>
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3].map(i => (
                 <div key={i} className="card">
-                  <div
-                    className="skeleton-line"
-                    style={{ width: "35%" }}
-                  ></div>
+                  <div className="skeleton-line" style={{ width: "35%" }}></div>
                   <div className="skeleton-line"></div>
                   <div className="skeleton-line short"></div>
-                  <div
-                    className="skeleton-line"
-                    style={{ width: "50%", marginTop: "1rem" }}
-                  ></div>
+                  <div className="skeleton-line" style={{ height: "60px", marginTop: "1rem" }}></div>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Empty state */}
+          {/* Empty */}
           {!loading && feedbacks.length === 0 && (
             <div className="empty-state">
               <div className="empty-icon">
                 <AlertCircle size={44} color="#94a3b8" />
               </div>
               <h3 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>
-                No feedback found
+                {isArabic ? "لا توجد آراء بعد" : "No feedback yet"}
               </h3>
-              <p>Once users start submitting feedback, it will appear here.</p>
+              <p>{isArabic ? "ستظهر الآراء هنا عندما يرسلها المستخدمون" : "Feedback will appear here once submitted."}</p>
             </div>
           )}
 
-          {/* Feedback list */}
-          {!loading &&
-            feedbacks.map((fb) => (
-              <div key={fb._id} className="card">
-                <div className="card-header">
-                  <div className="user-info">
-                    <div className="user-name">
-                      <User size={18} />
-                      {fb.name || "Anonymous"}
-                    </div>
+          {/* Feedback List */}
+          {!loading && feedbacks.map((fb) => (
+            <div key={fb._id} className="card">
+              <div className="card-header">
+                <div className="user-info">
+                  <div className="user-name">
+                    <User size={18} />
+                    {fb.name || (isArabic ? "مجهول" : "Anonymous")}
+                  </div>
 
-                    <div className="meta">
-                      <Mail size={16} />
-                      {fb.email || "No email provided"}
-                    </div>
-
-                    <div className="meta">
-                      <Phone size={16} />
-                      {fb.phone || "No phone provided"}
-                    </div>
-
-                    <div className="meta">
-                      <Calendar size={16} />
-                      {fb.createdAt
-                        ? new Date(fb.createdAt).toLocaleDateString("en-US", {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          })
-                        : "No date"}
-                    </div>
-
-                    <div className="rating-pill">
-                      <span>Rating:</span>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={16}
-                          fill={i < (fb.rating || 0) ? "#facc15" : "none"}
-                          stroke="#facc15"
-                        />
-                      ))}
-                      <span>{fb.rating || "-"}/5</span>
-                    </div>
-
-                    {Array.isArray(fb.section) && fb.section.length > 0 && (
-                      <div className="sections-badge">
-                        {fb.section.map((s) => (
-                          <span key={s} className="section-chip">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
+                  <div className="meta">
+                    <Mail size={16} />
+                    {fb.email || (isArabic ? "لا يوجد بريد" : "No email")}
+                    {fb.email && (
+                      <button className="copy-btn" onClick={() => copyToClipboard(fb.email, fb._id)}>
+                        {copiedId === fb._id ? <Check size={16} color="#16a34a" /> : <Copy size={16} />}
+                      </button>
                     )}
                   </div>
-                </div>
 
-                <div className="feedback-text">{fb.feedback}</div>
+                  {fb.phone && (
+                    <div className="meta">
+                      <Phone size={16} />
+                      {fb.phone}
+                    </div>
+                  )}
+
+                  <div className="meta">
+                    <Calendar size={16} />
+                    {new Date(fb.createdAt).toLocaleDateString(
+                      isArabic ? "ar-EG" : "en-US",
+                      { month: "long", day: "numeric", year: "numeric" }
+                    )}
+                  </div>
+
+                  <div className="rating-badge">
+                    <Star size={16} fill="#fbbf24" stroke="#fbbf24" />
+                    Rating {fb.rating}/5 
+                  </div>
+
+                {fb.section?.length > 0 && (
+                <div style={{ marginTop: "0.8rem" }}>
+                <div style={{
+                fontSize: "0.85rem",
+                color: "#64748b",
+                marginBottom: "0.5rem",
+                fontWeight: "600"
+                }}>
+              {isArabic ? "الأقسام المختارة:" : "Selected sections:"}
               </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+              {fb.section.map((value, i) => (
+              <span key={i} className="section-tag">
+              {isArabic ? sectionTranslations[value] || value : value}
+              </span>
             ))}
+    </div>
+  </div>
+)}
+                </div>
+              </div>
+
+              <div className="feedback-text">
+                {fb.feedback}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </AdminLayout>
