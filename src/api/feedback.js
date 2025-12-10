@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";   // same as backend route prefix
+const API_BASE = "https://asksunnah-backend-hno9.onrender.com/api";  
 
 // GET all feedback
 export async function getAllFeedback(lang = "en") {
