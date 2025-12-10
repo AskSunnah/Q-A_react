@@ -101,14 +101,15 @@ export default function FeedbackForm({ lang = "en" }) {
     setSubmitting(true);
 
     try {
-      const res = await fetch("https://formspree.io/f/mrbwreqj", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      const res = await fetch("http://localhost:5000/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...formData,
+      lang, // pass en / ar
+      }),
       });
+
 
       if (res.ok) {
         setSubmitted(true);
