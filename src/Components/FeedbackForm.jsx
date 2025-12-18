@@ -5,14 +5,14 @@ const STRINGS = {
     dir: "ltr",
     isArabic: false,
     title: "We Value Your Feedback",
-    subtitle: "Help us improve AskSunnah for everyone",
+    subtitle: "Help us improve Ask Sunnah for everyone",
     nameLabel: "Your Name *",
     emailLabel: "Email Address *",
     phoneLabel: "Phone Number",
     phoneOptional: "(optional)",
     ratingQuestion: "1. How was your experience? *",
     ratingHint: "1 star = Very bad, 5 stars = Excellent",
-    sectionQuestion: "2. What part of AskSunnah were you using? *",
+    sectionQuestion: "2. What part of Ask Sunnah were you using? *",
     feedbackQuestion: "3. What went wrong or what should we improve? *",
     feedbackHint: "Tell us briefly about your experience",
     submit: "Submit Feedback",
@@ -36,15 +36,15 @@ const STRINGS = {
   ar: {
     dir: "rtl",
     isArabic: true,
-    title: "نُقدِّر رأيك في AskSunnah",
+    title: "نقدر رأيك في أسأل سنة",
     subtitle: "ساعدنا على تحسين المنصة لجميع المستخدمين",
     nameLabel: "الاسم الكريم *",
     emailLabel: "البريد الإلكتروني *",
     phoneLabel: "رقم الجوال",
     phoneOptional: "(اختياري)",
-    ratingQuestion: "١. كيف تُقيِّم تجربتك مع AskSunnah؟ *",
+    ratingQuestion: "١. كيف تُقيِّم تجربتك مع أسأل سنة؟ *",
     ratingHint: "١ نجمة = سيئة جدًا ، ٥ نجوم = ممتازة",
-    sectionQuestion: "٢. أي جزء من AskSunnah كنتَ تستخدم؟ *",
+    sectionQuestion: "٢. أي جزء من أسأل سنة كنتَ تستخدم؟ *",
     feedbackQuestion: "٣. ما المشكلة التي واجهتها أو ماذا تقترح لتحسين المنصة؟ *",
     feedbackHint: "اكتب لنا بإيجاز رأيك أو ملاحظاتك أو أي صعوبات واجهتها",
     submit: "إرسال الملاحظة",
@@ -77,7 +77,7 @@ export default function FeedbackForm({ lang = "en" }) {
     email: "",
     phone: "",
     rating: 0,
-    section: "",
+    section: [],
     feedback: "",
   });
   const [submitted, setSubmitted] = useState(false);
@@ -91,6 +91,7 @@ export default function FeedbackForm({ lang = "en" }) {
       !formData.email ||
       !formData.rating ||
       !formData.section ||
+      formData.section.length === 0 ||
       !formData.feedback
     ) {
       alert(t.requiredAlert);
@@ -100,14 +101,15 @@ export default function FeedbackForm({ lang = "en" }) {
     setSubmitting(true);
 
     try {
-      const res = await fetch("https://formspree.io/f/mrbwreqj", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      const res = await fetch("https://asksunnah-backend-hno9.onrender.com/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...formData,
+      lang, // pass en / ar
+      }),
       });
+
 
       if (res.ok) {
         setSubmitted(true);
@@ -118,7 +120,7 @@ export default function FeedbackForm({ lang = "en" }) {
             email: "",
             phone: "",
             rating: 0,
-            section: "",
+            section: [],
             feedback: "",
           });
           setSubmitted(false);
@@ -142,6 +144,17 @@ export default function FeedbackForm({ lang = "en" }) {
       [name]: value,
     }));
   };
+const toggleSection = (value) => {
+  setFormData((prev) => {
+    const exists = prev.section.includes(value);
+    return {
+      ...prev,
+      section: exists
+        ? prev.section.filter((v) => v !== value) 
+        : [...prev.section, value],              
+    };
+  });
+};
 
   const handleRating = (rating) => {
     setFormData((prev) => ({
@@ -379,72 +392,82 @@ export default function FeedbackForm({ lang = "en" }) {
             </div>
 
             {/* Section */}
-            <div style={{ marginBottom: "32px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "12px",
-                }}
-              >
-                {t.sectionQuestion}
-              </label>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "12px",
-                }}
-              >
-                {t.sections.map((option) => (
-                  <label
-                    key={option.value}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "14px 16px",
-                      border: "2px solid",
-                      borderColor:
-                        formData.section === option.value
-                          ? "#667eea"
-                          : "#e5e7eb",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                      background:
-                        formData.section === option.value
-                          ? "#f3f4f6"
-                          : "white",
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name="section"
-                      value={option.value}
-                      checked={formData.section === option.value}
-                      onChange={handleInputChange}
-                      style={{
-                        marginRight: isArabic ? 0 : "12px",
-                        marginLeft: isArabic ? "12px" : 0,
-                        width: "18px",
-                        height: "18px",
-                        cursor: "pointer",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: "15px",
-                        color: "#374151",
-                      }}
-                    >
-                      {option.label}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            {/* Section (multi-select) */}
+<div style={{ marginBottom: "32px" }}>
+  <label
+    style={{
+      display: "block",
+      fontSize: "16px",
+      fontWeight: 600,
+      color: "#374151",
+      marginBottom: "8px",
+    }}
+  >
+    {t.sectionQuestion}
+  </label>
+  <p
+    style={{
+      fontSize: "13px",
+      color: "#6b7280",
+      marginBottom: "12px",
+    }}
+  >
+    {/* You can localize this later if you want */}
+    {isArabic
+      ? "يمكنك اختيار أكثر من قسم."
+      : "You can select more than one section."}
+  </p>
+
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: "12px",
+    }}
+  >
+    {t.sections.map((option) => {
+      const isSelected = formData.section.includes(option.value);
+
+      return (
+        <label
+          key={option.value}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "14px 16px",
+            border: "2px solid",
+            borderColor: isSelected ? "#667eea" : "#e5e7eb",
+            borderRadius: "8px",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            background: isSelected ? "#f3f4f6" : "white",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => toggleSection(option.value)}
+            style={{
+              marginRight: isArabic ? 0 : "12px",
+              marginLeft: isArabic ? "12px" : 0,
+              width: "18px",
+              height: "18px",
+              cursor: "pointer",
+            }}
+          />
+          <span
+            style={{
+              fontSize: "15px",
+              color: "#374151",
+            }}
+          >
+            {option.label}
+          </span>
+        </label>
+      );
+    })}
+  </div>
+</div>
 
             {/* Feedback */}
             <div style={{ marginBottom: "32px" }}>

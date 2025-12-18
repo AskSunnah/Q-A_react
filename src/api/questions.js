@@ -1,5 +1,4 @@
-const API_BASE = 'https://asksunnah-backend-hno9.onrender.com/api'; // adjust your backend URL
-// const API_BASE = 'http://localhost:5000/api'; // adjust your backend URL
+const API_BASE = 'https://asksunnah-backend-hno9.onrender.com/api'; 
 
 // Submit a question
 export const submitQuestion = async ({ name, email, question, language = 'en' }) => {
