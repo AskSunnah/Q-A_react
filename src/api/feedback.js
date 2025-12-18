@@ -4,8 +4,8 @@ const API_BASE = "https://asksunnah-backend-hno9.onrender.com/api";
 export async function getAllFeedback(lang = "en") {
   try {
     const res = await fetch(`${API_BASE}/feedback?lang=${lang}`, {
-      method: "GET",
-    });
+  method: "GET",
+});
 
     if (!res.ok) {
       throw new Error("Failed to fetch feedback");
