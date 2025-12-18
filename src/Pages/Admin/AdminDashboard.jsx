@@ -34,6 +34,7 @@ export default function AdminDashboard() {
     totalBooks: "Loading...",
     totalAnswers: "Loading...",
     pendingQuestions: "Loading...",
+    totalFeedback: "Loading...",
     breakdown: null,
   });
   const [loading, setLoading] = useState(true);
@@ -54,6 +55,8 @@ export default function AdminDashboard() {
             booksAr: data.booksAr || 0,
             answersEn: data.answersEn || 0,
             answersAr: data.answersAr || 0,
+            feedbackEn: data.feedbackEn || 0,
+            feedbackAr: data.feedbackAr || 0,
           },
         });
       })
@@ -204,6 +207,13 @@ export default function AdminDashboard() {
             value={stats.pendingQuestions}
             icon={pendingCount > 0 ? MessageSquare : CheckCircle}
             color={pendingCount > 0 ? "#ea580c" : "#6b7280"}
+          />
+          <StatCard
+          title="Total Feedback"
+          value={stats.totalFeedback}
+          breakdown={{ English: stats.breakdown?.feedbackEn, Arabic: stats.breakdown?.feedbackAr }}
+          icon={MessageSquare}
+          color="#2563eb"
           />
         </div>
 
