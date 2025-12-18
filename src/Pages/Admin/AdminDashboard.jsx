@@ -50,6 +50,7 @@ export default function AdminDashboard() {
           totalBooks: data.totalBooks || 0,
           totalAnswers: data.totalAnswers || 0,
           pendingQuestions: data.pendingQuestions || 0,
+          totalFeedback: data.feedbackTotal || 0,
           breakdown: {
             booksEn: data.booksEn || 0,
             booksAr: data.booksAr || 0,
