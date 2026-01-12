@@ -67,15 +67,6 @@ const Footer = ({ lang = 'en' }) => {
             overflow: hidden;
           }
 
-          /* Make footer full-width and RTL-safe on mobile */
-@media (max-width: 768px) {
-  .custom-footer {
-    width: 100%;
-    margin: 0;
-    transform: none;
-    border-radius: 0;
-  }
-}
 
           .footer-container {
             display: flex;
@@ -85,6 +76,15 @@ const Footer = ({ lang = 'en' }) => {
           }
 
           .footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 0.5rem;
+          }
+
+           .footer-icons {
             display: flex;
             justify-content: center;
             gap: 1.2rem;
