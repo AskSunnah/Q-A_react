@@ -152,6 +152,7 @@ function QuestionPage({
 
   return (
   <>
+    <style>{pageStyles}</style>
     <Navbar
       navItems={[
         { label: 'Home', href: '/', internal: true },
@@ -166,7 +167,6 @@ function QuestionPage({
       dir={direction}
     />
 
-    <style>{pageStyles}</style>
       
     <div className="content" dir={direction} lang={language}>
         <h1>{data.heading}</h1>
@@ -235,19 +235,23 @@ export default QuestionPage;
 
 
 const pageStyles = `
-  body {
+* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  
+body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f7f7f7;
   color: #2c3e50;
   line-height: 1.7;
-  margin: 0;
-  padding: 0;
 }
 
 .content {
   padding: 2rem;
   max-width: 887px;
-  margin: auto;
+  margin: 2rem auto;
 }
  .summary-box {
     margin: 1rem 0 1rem;
@@ -345,7 +349,6 @@ const pageStyles = `
   /* Tablets and small laptops (768px - 1024px) */
   @media (max-width: 1024px) {
     body {
-      padding: 1.5rem;
     }
 
     .content {
@@ -381,7 +384,6 @@ const pageStyles = `
    /* Phones and smaller tablets (≤768px) */
   @media (max-width: 900px) {
     body {
-      padding: 2rem;
     }
 
     .content {
@@ -417,12 +419,10 @@ const pageStyles = `
   /* Phones and smaller tablets (≤768px) */
   @media (max-width: 768px) {
     body {
-      padding: 1.4rem;
     }
 
     .content {
-      padding: 1rem;
-      max-width: 95%;
+      padding: 1.5rem;
     }
 
     h1 {
@@ -452,11 +452,10 @@ const pageStyles = `
 
 
     @media (max-width: 550px) {
-    body {
-      padding: 23px;
-      margin-top: -10px;
+    .content {
+    padding:1.5rem;
     }
-
+  
 
     h1 {
       font-size: 1.4rem;

@@ -20,15 +20,12 @@ function Home() {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-     
-
     }
 
     body {
       font-family: var(--font-family);
       background-color: white
       line-height: 1.6;
-
     }
     main {
       max-width: 900px;
