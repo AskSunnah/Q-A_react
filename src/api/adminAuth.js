@@ -2,7 +2,7 @@
 import { API_BASE } from "../../config";
 export async function adminLogin(username, password) {
   try {
-    const res = await fetch(`${API_BASE}`, {
+    const res = await fetch(`${API_BASE}/api/admin/login`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
