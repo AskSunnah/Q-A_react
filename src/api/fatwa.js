@@ -1,6 +1,7 @@
 //api calls for fatawa management
+import { API_BASE } from "../../config";
 export const fetchAllFatwas = async () => {
-  const response = await fetch('https://asksunnah-backend-hno9.onrender.com/api/all');
+  const response = await fetch(`${API_BASE}/api/all`);
   if (!response.ok) {
     throw new Error('Failed to fetch fatwas');
   }
@@ -10,7 +11,7 @@ export const fetchAllFatwas = async () => {
 
 export const fetchAllFatwasArabic = async () => {
   try {
-    const response = await fetch('https://asksunnah-backend-hno9.onrender.com/api/ar/all');
+    const response = await fetch(`${API_BASE}/api/ar/all`);
     if (!response.ok) throw new Error('Failed to fetch Arabic fatwas');
     const data = await response.json();
     return data;
@@ -23,7 +24,7 @@ export const fetchAllFatwasArabic = async () => {
 
 export const fetchFatwaBySlug = async (slug, lang = 'en') => {
   const langPrefix = lang === 'ar' ? '/ar' : '';
-  const url = `https://asksunnah-backend-hno9.onrender.com/api${langPrefix}/questions/${slug}`;
+  const url = `${API_BASE}/api${langPrefix}/questions/${slug}`;
 
   try {
     const response = await fetch(url);

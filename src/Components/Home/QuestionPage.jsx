@@ -1,7 +1,7 @@
 // src/Components/Home/QuestionPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Footer from '../Footer'; // 
+import Footer from '../Footer'; //
 import Navbar from '../Navbar';
 
 
