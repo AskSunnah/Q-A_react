@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { API_BASE } from "../../../config";
+
 import axios from "axios";
 import "./SearchResults.css";
 
@@ -26,7 +28,7 @@ const SearchResults = () => {
         // Pass lang param dynamically
         const lang = isArabic ? "ar" : "en";
         const res = await axios.get(
-          `https://asksunnah-backend-hno9.onrender.com/api/search?q=${encodeURIComponent(
+          `${API_BASE}/api/search?q=${encodeURIComponent(
             query
           )}&page=${page}&lang=${lang}`
         );

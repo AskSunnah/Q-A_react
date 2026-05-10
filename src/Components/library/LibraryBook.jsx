@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
 import Navbar from '../../Components/Navbar';
+import { API_BASE } from "../../../config";
+
 
 
 const CATEGORY_OPTIONS = {
@@ -65,7 +67,7 @@ export default function BookLibrary({ lang = "en" }) {
 const handleDownload = async (bookId) => {
   try {
     const res = await fetch(
-      `https://asksunnah-backend-hno9.onrender.com/api/books/${bookId}/download`
+      `${API_BASE}/api/books/${bookId}/download`
     );
     const data = await res.json();
 

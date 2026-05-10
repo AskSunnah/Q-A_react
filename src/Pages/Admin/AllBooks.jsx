@@ -4,6 +4,7 @@ import AdminHeader from "../../Components/Admin/Header";
 import { fetchBooksAdmin, deleteBookAdmin } from "../../api/adminBook"; // implement these
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../Components/Admin/AdminLayout";
+import { API_BASE } from "../../../config";
 
 const LANGS = [
   { value: "en", label: "English" },
@@ -39,7 +40,7 @@ export default function AllBooks() {
   const driveLink = prompt("Paste the Google Drive link here:");
 
   try {
-  const res = await fetch(`https://asksunnah-backend-hno9.onrender.com/api/admin/books/${bookId}/download`, {
+  const res = await fetch(`${API_BASE}/api/books/admin/${bookId}/download`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ driveLink }),
