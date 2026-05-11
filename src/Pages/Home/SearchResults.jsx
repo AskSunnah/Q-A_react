@@ -14,14 +14,21 @@ const SearchResults = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 🧠 Detect if search query is Arabic
+  const isArabic = /[\u0600-\u06FF]/.test(query);
+
   useEffect(() => {
     if (!query) return;
     const fetchResults = async () => {
       setLoading(true);
       setError("");
       try {
+        // Pass lang param dynamically
+        const lang = isArabic ? "ar" : "en";
         const res = await axios.get(
-          `https://asksunnah-backend-hno9.onrender.com/api/search?q=${encodeURIComponent(query)}&page=${page}`
+          `https://asksunnah-backend-hno9.onrender.com/api/search?q=${encodeURIComponent(
+            query
+          )}&page=${page}&lang=${lang}`
         );
 
         console.log("Search API response:", res.data);
@@ -44,15 +51,33 @@ const SearchResults = () => {
   };
 
   return (
-    <div className="search-page">
+    <div className={`search-page ${isArabic ? "rtl" : "ltr"}`}>
       <div className="search-container">
-        <h1 className="search-title">Search results for: “{query}”</h1>
+        <h1 className="search-title">
+          <h1 className="search-title">
+  {isArabic ? "نتائج البحث عن:" : "Search results for:"} 
+  &nbsp;<span dir="ltr">&ldquo;{query}&rdquo;</span>
+</h1>
 
-        {loading && <p className="search-loading">Loading results...</p>}
-        {error && <p className="search-error">{error}</p>}
+        </h1>
+
+        {loading && (
+          <p className="search-loading">
+            {isArabic ? "جارٍ تحميل النتائج..." : "Loading results..."}
+          </p>
+        )}
+        {error && (
+          <p className="search-error">
+            {isArabic ? "حدث خطأ أثناء تحميل النتائج." : error}
+          </p>
+        )}
 
         {!loading && results.length === 0 && !error && (
-          <p className="search-empty">No results found for “{query}”.</p>
+          <p className="search-empty">
+            {isArabic
+              ? `لم يتم العثور على نتائج لـ “${query}”.`
+              : `No results found for “${query}”.`}
+          </p>
         )}
 
         {results.length > 0 && (
@@ -62,10 +87,12 @@ const SearchResults = () => {
                 <h2>{item.heading || item.question}</h2>
                 <p>{item.answer?.slice(0, 200)}...</p>
                 <button
-                  onClick={() => navigate(`/questions/${item.slug}`)}
+                 onClick={() =>
+  navigate(`/questions/${item.slug}${isArabic ? "?lang=ar" : ""}`)
+}
                   className="read-more-btn"
                 >
-                  Read More →
+                  {isArabic ? "اقرأ مزيدًا ←" : "Read More →"}
                 </button>
               </div>
             ))}
@@ -75,18 +102,20 @@ const SearchResults = () => {
                 disabled={page <= 1}
                 onClick={() => handlePageChange(page - 1)}
               >
-                ← Previous
+                {isArabic ? "← السابق" : "← Previous"}
               </button>
 
               <p>
-                Page {page} of {totalPages}
+                {isArabic
+                  ? `الصفحة ${page} من ${totalPages}`
+                  : `Page ${page} of ${totalPages}`}
               </p>
 
               <button
                 disabled={page >= totalPages}
                 onClick={() => handlePageChange(page + 1)}
               >
-                Next →
+                {isArabic ? "التالي →" : "Next →"}
               </button>
             </div>
           </>

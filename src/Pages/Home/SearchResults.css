@@ -111,3 +111,55 @@
   color: #6a4c0f;
   font-weight: 500;
 }
+
+.rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+}
+
+/* Ensure normal layout for English */
+.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Arabic card content alignment */
+.rtl .search-result-item {
+  text-align: right;
+}
+
+/* Arabic titles and paragraphs */
+.rtl .search-result-item h2 {
+  font-size: 1.1rem;
+  color: #3a2c0f;
+  margin-bottom: 0.5rem;
+}
+
+.rtl .search-result-item p {
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Move 'Iqra Mazeed' button to the left side */
+.rtl .read-more-btn {
+  float: left;
+  background: linear-gradient(to left, #b8912f, #d4b45a);
+  padding: 0.45rem 1.3rem;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+/* Reverse pagination layout for Arabic */
+.rtl .pagination {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+/* Fix for Arabic card layout flow */
+.rtl .search-result-item::after {
+  content: "";
+  display: block;
+  clear: both;
+}
