@@ -111,6 +111,8 @@ export default function AllQA() {
           background: #e53e3e;
           color: white;
         }
+
+        
       `}</style>
       <div className="allqa-container">
         <h1>All Questions (English &amp; Arabic)</h1>

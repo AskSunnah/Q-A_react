@@ -246,6 +246,7 @@ return (
                         lineHeight: "1",
                         display: "flex",
                         alignItems: "center",
+                        color:"#323232"
                     }}
                 >
                     Ask Sunnah

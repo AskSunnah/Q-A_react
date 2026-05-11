@@ -252,6 +252,18 @@ export default function AdminLayout({ children }) {
         <Menu size={28} color="#323232" />
       </button>
     )}
+
+     {!isMobile && (
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontSize: "20px", // smaller font for desktop
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Ask Sunnah Admin Panel
+              </span>
+            )}
   </div>
 
   {/* Centered title */}
