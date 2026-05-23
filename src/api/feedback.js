@@ -20,7 +20,7 @@ export async function getAllFeedback(lang = "en") {
 // (Optional) POST feedback if needed in the future
 export async function createFeedback(data) {
   try {
-    const res = await fetch(`${API_BASE}/feedback`, {
+    const res = await fetch(`${API_BASE}/api/feedback`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
