@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { API_BASE } from "../../config";
+
 
 const STRINGS = {
   en: {
@@ -101,7 +103,7 @@ export default function FeedbackForm({ lang = "en" }) {
     setSubmitting(true);
 
     try {
-      const res = await fetch("https://asksunnah-backend-hno9.onrender.com/api/feedback", {
+      const res = await fetch(`${API_BASE}/api/feedback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -1,8 +1,8 @@
 // api call for admin authentication
+import { API_BASE } from "../../config";
 export async function adminLogin(username, password) {
   try {
-    const API_URL = "https://asksunnah-backend-hno9.onrender.com/admin/login";
-    const res = await fetch(API_URL, {
+    const res = await fetch(`${API_BASE}/api/admin/login`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })

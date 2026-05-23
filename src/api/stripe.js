@@ -1,9 +1,7 @@
-
-
 // src/api/stripe.js
-
+import { API_BASE } from "../../config";
 export const createCheckoutSession = async (data) => {
-  const res = await fetch('https://asksunnah-backend-hno9.onrender.com/api/create-checkout-session', {
+  const res = await fetch(`${API_BASE}/api/create-checkout-session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -22,7 +20,7 @@ export const createCheckoutSession = async (data) => {
 };
 
 export const createPortalSession = async (customerId) => {
-  const res = await fetch('https://asksunnah-backend-hno9.onrender.com/api/create-portal-session', {
+  const res = await fetch(`${API_BASE}/api/create-portal-session`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ customerId }),
