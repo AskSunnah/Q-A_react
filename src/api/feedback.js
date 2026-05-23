@@ -2,7 +2,7 @@ import { API_BASE } from "../../config";
 // GET all feedback
 export async function getAllFeedback(lang = "en") {
   try {
-    const res = await fetch(`${API_BASE}/feedback?lang=${lang}`, {
+    const res = await fetch(`${API_BASE}/api/feedback?lang=${lang}`, {
   method: "GET",
 });
 
