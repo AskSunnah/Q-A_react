@@ -1,69 +1,21 @@
-const Header = ({ title, subtitle, dir = 'ltr' }) => {
+const Header = ({ title, subtitle, dir = "ltr" }) => {
   return (
-    <>
-      <style>
-        {`
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
+    <header
+      dir={dir}
+      className="
+        text-white text-center
+        py-8 px-[1.25rem] 
+        font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]
+        bg-[linear-gradient(180deg,#e1cb57_0%,#d0b640_30%,#c3a421_65%,#a67f0f_110%)]
+        max-md:py-[40px] max-md:px-[1rem]
+      "
+    >
+      <h1 className="text-[2.5rem] font-bold max-md:text-[1.8rem]">{title}</h1>
 
-          header {
-            /* 🌟 Replace solid background with gradient = background: linear-gradient(180deg, #D5B940 0%, #C4A627 50%, #B9971B 100%);*/
-            background: linear-gradient(
-  180deg,
-  #e1cb57 0%,
-  #d0b640 30%,
-  #c3a421 65%,
-  #a67f0f 110%
-);
-
-            color: #fff;
-            padding: 2.5rem 1.25rem;
-            text-align: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          }
-
-          header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-          }
-
-          header p {
-            margin-top: 0.5rem;
-            font-size: 1.1rem;
-            color: #f9f9f9;
-          }
-
-         
-
-          @media (max-width: 768px) {
-            header h1 {
-              font-size: 1.8rem;
-            }
-
-            header {
-              padding: 2rem 1rem;
-            }
-
-            header p {
-              font-size: 1rem;
-            }
-
-            a.btn {
-              padding: 0.6rem 1.2rem;
-              font-size: 0.95rem;
-            }
-          }
-        `}
-      </style>
-
-      <header className="hero" dir={dir}>
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
-      </header>
-    </>
+      <p className="mt-[0.5rem] text-[1.1rem] text-[#f9f9f9] max-md:text-[1rem]">
+        {subtitle}
+      </p>
+    </header>
   );
 };
 

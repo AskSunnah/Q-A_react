@@ -1,13 +1,12 @@
-// src/components/BookEditor/ChapterEditor.jsx
 import React from "react";
-import PageEditor from "../../Components/Admin/PageEditor";
+import PageEditor from "./PageEditor";
 
 export default function ChapterEditor({
   chapter,
   onChange,
   onDelete,
   onAddPage,
-  bookId,              // <- take bookId as a prop
+  bookId,
 }) {
   const pages = chapter.pages || [];
 
@@ -26,21 +25,23 @@ export default function ChapterEditor({
     onChange({ ...chapter, [field]: value });
 
   return (
-    <div className="chapter-block">
-      <label>
-        Chapter Title
+    <div className="border border-[#bbb] rounded-xl p-5 mb-5 bg-white">
+      <label className="block mb-3">
+        <span className="block text-sm font-semibold mb-1">Chapter Title</span>
         <input
           value={chapter.title || ""}
           onChange={(e) => updateField("title", e.target.value)}
+          className="w-full border border-[#ccc] rounded px-2 py-1 text-sm font-normal"
         />
       </label>
 
-      <label>
-        Chapter #
+      <label className="block mb-4">
+        <span className="block text-sm font-semibold mb-1">Chapter #</span>
         <input
           type="number"
           value={chapter.number || ""}
           onChange={(e) => updateField("number", Number(e.target.value))}
+          className="border border-[#ccc] rounded px-2 py-1 text-sm w-24 font-normal"
         />
       </label>
 
@@ -49,7 +50,7 @@ export default function ChapterEditor({
           <PageEditor
             key={idx}
             page={page}
-            bookId={bookId}                        // <- use prop, not chapter.bookId
+            bookId={bookId}
             onChange={(newPage) => updatePage(idx, newPage)}
             onDelete={() => deletePage(idx)}
             onAddBlock={() =>
@@ -72,8 +73,8 @@ export default function ChapterEditor({
 
         <button
           type="button"
-          className="btn-add"
           onClick={onAddPage}
+          className="bg-[#c3a421] text-white text-sm px-3 py-1 rounded cursor-pointer border-none mr-2"
         >
           Add Page
         </button>
@@ -81,8 +82,8 @@ export default function ChapterEditor({
 
       <button
         type="button"
-        className="btn-delete"
         onClick={onDelete}
+        className="bg-red-500 text-white text-sm px-3 py-1 rounded cursor-pointer border-none mt-3"
       >
         Delete Chapter
       </button>

@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import QuestionItem from './QuestionItem';
-import Pagination from './Pagination';
+import React, { useEffect, useState } from "react";
+import QuestionItem from "./QuestionItem";
+import Pagination from "./Pagination";
 import { useNavigate } from "react-router-dom";
-
 
 const RecentAnswers = ({
   fetchFatwas,
-  sectionTitle = 'Recent Answers',
-  searchPlaceholder = 'Search...',
-  questionLabel = 'Q',
-  direction = 'ltr',
+  sectionTitle = "Recent Answers",
+  searchPlaceholder = "Search...",
+  questionLabel = "Q",
+  direction = "ltr",
 }) => {
   const [fatwas, setFatwas] = useState([]);
   const [filteredFatwas, setFilteredFatwas] = useState([]);
@@ -24,68 +23,70 @@ const RecentAnswers = ({
         setFatwas(reversed);
         setFilteredFatwas(reversed);
       } catch (error) {
-        console.error('Failed to load fatwas:', error);
+        console.error("Failed to load fatwas:", error);
         setFatwas([]);
         setFilteredFatwas([]);
       }
     };
-
     loadFatwas();
   }, [fetchFatwas]);
 
-  //const handleSearch = (e) => {
-    //const query = e.target.value.toLowerCase();
-    //const results = fatwas.filter(fatwa =>
-      //fatwa.heading.toLowerCase().includes(query)
-   // );
-    //setFilteredFatwas(results);
-   // setCurrentPage(1);
- // };
- const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const handleSearch = (e) => {
-  if (e.key === "Enter") {
-    const query = e.target.value.trim();
-    if (query) {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
-      e.target.value = ""; // optional clear
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      const query = e.target.value.trim();
+      if (query) {
+        navigate(`/search?q=${encodeURIComponent(query)}`);
+        e.target.value = "";
+      }
     }
-  }
-};
-
+  };
+  const isRTL = direction === "rtl";
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedFatwas = filteredFatwas.slice(startIndex, startIndex + itemsPerPage);
-
-  const isRTL = direction === 'rtl';
+  const paginatedFatwas = filteredFatwas.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
 
   return (
     <section aria-labelledby="recent-answers" dir={direction}>
-      <div style={{ textAlign: isRTL ? 'right' : 'left' }}>
-        <h3 id="recent-answers" style={{ margin: 0}}>{sectionTitle}</h3>
-        <span
-          id="answerCount"
-          style={{ fontSize: '0.95rem', display: 'block', marginTop: '0.5rem' }}
+      <div className={isRTL ? "text-right" : "text-left"}>
+        <h3
+          id="recent-answers"
+          className="m-0 text-[1.15rem] font-bold text-[var(--bg-color-header)]"
         >
-          {isRTL ? 'عدد الإجابات:' : 'Total Answers:'} {filteredFatwas.length}
+          {sectionTitle}
+        </h3>
+        <span className="text-[0.95rem] block mt-2">
+          {isRTL ? "عدد الإجابات:" : "Total Answers:"} {filteredFatwas.length}
         </span>
       </div>
 
-      <div style={{ margin: '2rem 0' }}>
+      <div className="my-8">
         <input
           type="text"
           id="fatwaSearch"
           placeholder={searchPlaceholder}
-           onKeyDown={handleSearch}  
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            border: '1px solid #ccc',
-            borderRadius: '6px',
-            fontSize: '1rem',
-            direction: direction,
-            textAlign: isRTL ? 'right' : 'left',
-          }}
+          onKeyDown={handleSearch}
+          dir={direction}
+          className={`
+    w-full
+
+    px-3 sm:px-4
+    py-2.5 sm:py-3
+
+    border border-[#ccc]
+    rounded-[6px]
+
+    text-[0.9rem] sm:text-base
+
+    outline-none
+    focus:border-[var(--bg-color-header)]
+
+    ${isRTL ? "text-right" : "text-left"}
+  `}
         />
       </div>
 
@@ -97,12 +98,12 @@ const handleSearch = (e) => {
               index={startIndex + index}
               item={item}
               labelPrefix={questionLabel}
-              direction={direction} // ✅ Pass direction to each item
+              direction={direction}
             />
           ))
         ) : (
-          <p style={{ color: 'red', textAlign: isRTL ? 'right' : 'left' }}>
-            {/* {isRTL ? '❌ لم يتم العثور على أسئلة.' : '❌ No questions found.'} */}
+          <p className="text-red-600">
+            {isRTL ? "❌ لم يتم العثور على إجابات." : "❌ No answers found."}
           </p>
         )}
       </div>

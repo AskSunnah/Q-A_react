@@ -1,34 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
-const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
+const Navbar = ({ navItems, languageSwitcher, dir = "ltr" }) => {
   const [isOpen, setIsOpen] = useState(false);
-/*   const [dark, setDark] = useState(false); */
   const [hidden, setHidden] = useState(false);
   const lastScrollY = useRef(0);
 
-  // Dark mode on first load
-  /* useEffect(() => {
-    const saved = localStorage.getItem('mode');
-    if (saved === 'dark') {
-      document.body.classList.add('dark');
-      setDark(true);
-    }
-  }, []); */
-
-  /* const toggleDarkMode = () => {
-    document.body.classList.toggle('dark');
-    const isDarkNow = document.body.classList.contains('dark');
-    localStorage.setItem('mode', isDarkNow ? 'dark' : 'light');
-    setDark(isDarkNow);
-  }; */
-
-  // Hide on scroll logic
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
       const goingDown = currentY > lastScrollY.current;
-      const pastThreshold = currentY > 80; // ignore tiny scrolls at top
+      const pastThreshold = currentY > 80;
 
       if (goingDown && pastThreshold) {
         setHidden(true);
@@ -39,181 +21,91 @@ const Navbar = ({ navItems, languageSwitcher, dir = 'ltr' }) => {
       lastScrollY.current = currentY;
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const linkClass = `
+    text-[var(--text-main)] no-underline font-medium
+    px-4 py-2 rounded-[4px] inline-block
+    transition-all duration-200
+    hover:text-white hover:[background:var(--button-hover)]
+  `;
+
   return (
-    <>
-      <style>
-        {`
-    .navbar {
-      background: white;
-      padding: 1rem 1.5rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      font-family: var(--font-family);
-      color: var(--text-main);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-      border-bottom: 1px solid #f0f0f0;
-      transform: translateY(0);
-      transition: transform 0.3s ease;
-    }
-
-    .navbar.nav-hidden {
-      transform: translateY(-100%);
-    }
-
-    .navbar ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1.5rem;
-    }
-
-    .nav-link {
-      color: var(--text-main);
-      text-decoration: none;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      transition: background 0.2s;
-      display: inline-block;
-    }
-
-    .nav-link:hover,
-    .nav-link:focus {
-      color: #fff;
-      background: var(--button-hover);
-    }
-
-    .nav-toggle {
-      display: none;
-      font-size: 1.3rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-main);
-      position: absolute;
-      top: 9px;
-      right: 1rem;
-      z-index: 1100;
-    }
-
-    @media (max-width: 768px) {
-      .navbar {
-        padding: 1.5rem 0;
-      }
-
-      .nav-toggle {
-        display: block;
-      }
-
-      .nav-menu {
-        display: none;
-        width: 100%;
-      }
-
-      .nav-menu.open {
-        display: block;
-      }
-
-      .navbar ul {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-      }
-    }
-
-    body.dark .navbar {
-      background: var(--bg-color-header);
-    }
-
-    body.dark .nav-link:hover,
-    body.dark .nav-link:focus {
-      background: var(--bg-color-header);
-    }
-
-    body.dark .nav-link {
-      color: white;
-    }
-  `}
-      </style>
-
-      <nav
-        className={`navbar ${hidden ? 'nav-hidden' : ''}`}
-        aria-label="Main Navigation"
-        dir={dir}
+    <nav
+      aria-label="Main Navigation"
+      dir={dir}
+      className={`
+        relative
+        bg-white sticky top-0 z-[1000]
+        py-6 px-4 md:py-4 md:px-0
+        shadow-[0_2px_6px_rgba(0,0,0,0.05)]
+        border-b border-[#f0f0f0]
+        font-[var(--font-family)]
+        text-[var(--text-main)]
+        transition-transform duration-300 ease-in-out
+        ${hidden ? "-translate-y-full" : "translate-y-0"}
+      `}
+    >
+      {/* Hamburger — mobile only, top-aligned */}
+      <button
+        aria-label="Toggle Navigation"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen(!isOpen)}
+        className="
+          text-[1.3rem] bg-transparent border-none cursor-pointer
+          text-[var(--text-main)] absolute top-2 right-4 z-[1100]
+          md:hidden
+        "
       >
-        <button
-          className="nav-toggle"
-          aria-label="Toggle Navigation"
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen(!isOpen)}
+        ☰
+      </button>
+
+      {/* Menu */}
+      <div className={`w-full ${isOpen ? "block" : "hidden"} md:block`}>
+        <ul
+          className={`
+            list-none m-0 p-0
+            flex flex-col items-center gap-4
+            md:flex-row md:flex-wrap md:justify-center md:gap-6
+          `}
+          style={{
+            direction: dir,
+            textAlign: dir === "rtl" ? "right" : "left",
+          }}
         >
-          ☰
-        </button>
-
-        <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
-          <ul
-            style={{
-              direction: dir,
-              textAlign: dir === 'rtl' ? 'right' : 'left',
-            }}
-          >
-            {navItems.map((item, index) =>
-              item.internal ? (
-                <li key={index}>
-                  <Link to={item.href} className="nav-link">
-                    {item.label}
-                  </Link>
-                </li>
-              ) : (
-                <li key={index}>
-                  <a
-                    href={item.href}
-                    className="nav-link"
-                    target="_blank"
-                    rel="noopener"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              )
-            )}
-
-            {languageSwitcher && (
-              <li>
-                <a href={languageSwitcher.href} className="nav-link">
-                  {languageSwitcher.label}
+          {navItems.map((item, index) =>
+            item.internal ? (
+              <li key={index}>
+                <Link to={item.href} className={linkClass}>
+                  {item.label}
+                </Link>
+              </li>
+            ) : (
+              <li key={index}>
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener"
+                  className={linkClass}
+                >
+                  {item.label}
                 </a>
               </li>
-            )}
+            ),
+          )}
 
-            {/* <li className="nav-darkmode" style={{ marginTop: '10px' }}>
-              <i
-                className={`dark-toggle-icon fa-solid ${
-                  dark ? 'fa-sun' : 'fa-moon'
-                }`}
-                title="Toggle dark mode"
-                tabIndex={0}
-                onClick={toggleDarkMode}
-                style={{
-                  cursor: 'pointer',
-                  fontSize: '1.3rem',
-                  display: 'inline-block',
-                  color: dark ? 'white' : 'var(--bg-color-header)',
-                }}
-              ></i>
-            </li> */}
-          </ul>
-        </div>
-      </nav>
-    </>
+          {languageSwitcher && (
+            <li>
+              <a href={languageSwitcher.href} className={linkClass}>
+                {languageSwitcher.label}
+              </a>
+            </li>
+          )}
+        </ul>
+      </div>
+    </nav>
   );
 };
 

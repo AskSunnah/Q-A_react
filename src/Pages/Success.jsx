@@ -1,71 +1,71 @@
-import React from 'react';
-import {  Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Success() {
-
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.card}>
-        <div style={styles.checkmark}>✓</div>
-        <h1 style={styles.title}>Thank you!</h1>
-        <p style={styles.message}>Your donation has been successfully processed.</p>
-        <Link to="/" style={styles.homeLink}>
+    <div
+      className="
+        font-[var(--font-family)]
+        bg-[var(--page-background)]
+        min-h-[90vh]
+        flex justify-center items-center
+        p-5
+      "
+    >
+      <div
+        className="
+          bg-white
+          p-[40px_30px]
+          rounded-[10px]
+          text-center
+          shadow-[0_4px_12px_rgba(0,0,0,0.1)]
+          max-w-[450px]
+          w-full
+        "
+      >
+        <div
+          className="
+            text-[60px]
+            text-[#1f6f3e]
+            mb-[20px]
+          "
+        >
+          ✓
+        </div>
+
+        <h1
+          className="
+            text-[28px]
+            text-[#2c3e50]
+            mb-[10px]
+          "
+        >
+          Thank you!
+        </h1>
+
+        <p
+          className="
+            text-[16px]
+            text-[#555]
+            mb-[25px]
+          "
+        >
+          Your donation has been successfully processed.
+        </p>
+
+        <Link
+          to="/"
+          className="
+            inline-block
+            mt-[10px]
+            text-[#1f6f3e]
+            font-bold
+            no-underline
+          "
+        >
           ← Go back to AskSunnah
         </Link>
       </div>
     </div>
   );
 }
-
-const styles = {
-  wrapper: {
-    fontFamily: "Segoe UI, sans-serif",
-    backgroundColor: "#f7f7f7",
-    minHeight: "90vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "20px",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    padding: "40px 30px",
-    borderRadius: "10px",
-    textAlign: "center",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-    maxWidth: "450px",
-    width: "100%",
-  },
-  checkmark: {
-    fontSize: "60px",
-    color: "#1f6f3e",
-    marginBottom: "20px",
-  },
-  title: {
-    fontSize: "28px",
-    color: "#2c3e50",
-    marginBottom: "10px",
-  },
-  message: {
-    fontSize: "16px",
-    color: "#555",
-    marginBottom: "25px",
-  },
-  subscriptionBtn: {
-    display: "inline-block",
-    backgroundColor: "#1f6f3e",
-    color: "white",
-    padding: "12px 20px",
-    borderRadius: "5px",
-    textDecoration: "none",
-    fontSize: "16px",
-    marginBottom: "20px",
-  },
-  homeLink: {
-    display: "inline-block",
-    marginTop: "10px",
-    color: "#1f6f3e",
-    textDecoration: "none",
-    fontWeight: "bold",
-  },
-};

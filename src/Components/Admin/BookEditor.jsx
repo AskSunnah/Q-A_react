@@ -1,49 +1,27 @@
-import ChapterEditor from "../../Components/Admin/ChapterEditor";
+import ChapterEditor from "./ChapterEditor";
 
 export default function BookEditor({ book, onChange }) {
-  // Helper: renumber all pages globally across all chapters
   const renumberPagesGlobally = (bookDraft) => {
     let counter = 1;
-
     const newChapters = (bookDraft.chapters || []).map((ch) => {
       const newPages = (ch.pages || []).map((p) => ({
         ...p,
-        number: counter++, // page numbers: 1,2,3,4... globally
+        number: counter++,
       }));
-
-      return {
-        ...ch,
-        pages: newPages,
-      };
+      return { ...ch, pages: newPages };
     });
-
-    return {
-      ...bookDraft,
-      chapters: newChapters,
-    };
+    return { ...bookDraft, chapters: newChapters };
   };
 
   const updateChapter = (idx, newChapter) => {
     const chapters = [...(book.chapters || [])];
     chapters[idx] = newChapter;
-
-    const updatedBook = renumberPagesGlobally({
-      ...book,
-      chapters,
-    });
-
-    onChange(updatedBook);
+    onChange(renumberPagesGlobally({ ...book, chapters }));
   };
 
   const deleteChapter = (idx) => {
     const chapters = (book.chapters || []).filter((_, i) => i !== idx);
-
-    const updatedBook = renumberPagesGlobally({
-      ...book,
-      chapters,
-    });
-
-    onChange(updatedBook);
+    onChange(renumberPagesGlobally({ ...book, chapters }));
   };
 
   const addChapter = () => {
@@ -51,17 +29,11 @@ export default function BookEditor({ book, onChange }) {
       ...(book.chapters || []),
       {
         title: "",
-        number: (book.chapters?.length || 0) + 1, // chapter number is still per chapter
-        pages: [], // new chapter starts empty, pages will be numbered later
+        number: (book.chapters?.length || 0) + 1,
+        pages: [],
       },
     ];
-
-    const updatedBook = renumberPagesGlobally({
-      ...book,
-      chapters,
-    });
-
-    onChange(updatedBook);
+    onChange(renumberPagesGlobally({ ...book, chapters }));
   };
 
   return (
@@ -74,9 +46,7 @@ export default function BookEditor({ book, onChange }) {
           onChange={(newCh) => updateChapter(idx, newCh)}
           onDelete={() => deleteChapter(idx)}
           onAddPage={() => {
-            // Add a new page to this chapter
             const newPage = {
-              // number will be overwritten by renumberPagesGlobally
               number: 1,
               blocks: [
                 {
@@ -90,18 +60,19 @@ export default function BookEditor({ book, onChange }) {
               references: [],
               audioUrl: "",
             };
-
-            const newChapter = {
+            updateChapter(idx, {
               ...ch,
               pages: [...(ch.pages || []), newPage],
-            };
-
-            updateChapter(idx, newChapter); // updateChapter will renumber globally
+            });
           }}
         />
       ))}
 
-      <button type="button" className="btn-add" onClick={addChapter}>
+      <button
+        type="button"
+        onClick={addChapter}
+        className="bg-[#c3a421] text-white text-sm px-3 py-1 rounded cursor-pointer border-none"
+      >
         Add Chapter
       </button>
     </div>
