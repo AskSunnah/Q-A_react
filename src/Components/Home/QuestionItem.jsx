@@ -1,51 +1,59 @@
-import { Link } from 'react-router-dom';
-import React from 'react';
+import { Link } from "react-router-dom";
+import React from "react";
 
-// Inline <style> tag (scoped)
-const styles = `
-  .question-item {
-    display: block;
-    margin-top: 1.5rem;
-    padding: 1rem;
-    border-left: 5px solid var(--bg-color-header);
-     background-color: #fefefe;
-      border: 1px solid #eee;
-    border-radius: 5px;
-    text-decoration: none;
-    color: inherit;
-    transition: background-color 0.2s;
-    color: var(--text-main);
-  }
-
-.question-item:hover {
-  background-color: #f9f9f9;
-     background-color:var(--bg-secondary);
-      cursor: pointer;
-}
-
-`;
-
-const QuestionItem = ({ item, index, labelPrefix = 'Q', direction = 'ltr' }) => {
-  const isRTL = direction === 'rtl';
-
-  const dynamicStyle = {
-    direction: direction,
-    textAlign: isRTL ? 'right' : 'left',
-    borderLeft: !isRTL ? '5px solid var(--bg-color-header)' : 'none',
-    borderRight: isRTL ? '5px solid var(--bg-color-header)' : 'none',
-  };
+const QuestionItem = ({
+  item,
+  index,
+  labelPrefix = "Q",
+  direction = "ltr",
+}) => {
+  const isRTL = direction === "rtl";
 
   return (
-    <>
-      <style>{styles}</style>
-      <Link
-        to={`/${isRTL ? 'ar/' : ''}questions/${item.slug}`}
-        className="question-item"
-        style={dynamicStyle}
-      >
-        <strong>{labelPrefix}{index + 1}:</strong> {item.heading}
-      </Link>
-    </>
+    <Link
+      to={`/${isRTL ? "ar/" : ""}questions/${item.slug}`}
+      dir={direction}
+      className={`
+        block
+        mt-4 sm:mt-6
+
+        p-3 sm:p-4
+
+        rounded-[5px]
+        no-underline
+
+        transition-all duration-200
+
+        border border-[#eee]
+        bg-[#fefefe]
+
+        text-[var(--text-main)]
+
+        hover:bg-[var(--bg-secondary)]
+        hover:cursor-pointer
+
+        text-[0.9rem]
+        leading-6
+
+        sm:text-[1rem]
+
+        break-words
+
+        ${
+          isRTL
+            ? "border-r-[5px] border-r-[var(--bg-color-header)] text-right"
+            : "border-l-[5px] border-l-[var(--bg-color-header)] text-left"
+        }
+      `}
+    >
+      <strong className="text-[0.9rem] sm:text-[1rem]">
+        {labelPrefix}
+        {index + 1}:
+      </strong>{" "}
+      <span className="text-[0.88rem] sm:text-[1rem] leading-6">
+        {item.heading}
+      </span>
+    </Link>
   );
 };
 

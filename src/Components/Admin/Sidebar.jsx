@@ -1,174 +1,132 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, FilePlus, Files, BookPlus, Library, LogOut, MessageSquare, X,MessageCircleHeart } from "lucide-react";
+import {
+  Home,
+  FilePlus,
+  Files,
+  BookPlus,
+  Library,
+  LogOut,
+  MessageSquare,
+  X,
+  MessageCircleHeart,
+} from "lucide-react";
 
 const MENU = [
-{ label: "Dashboard", icon: Home, route: "/supervised/dashboard" },
-{ label: "Add Q&A", icon: FilePlus, route: "/supervised/add-qa" },
-{ label: "All Q&As", icon: Files, route: "/supervised/all-qa" },
-{ label: "User Questions", icon: MessageSquare, route: "/supervised/user-questions" },
-{ label: "Add Book", icon: BookPlus, route: "/supervised/add-book" },
-{ label: "All Books", icon: Library, route: "/supervised/all-books" },
-{ label: "User Feedback", icon: MessageCircleHeart, route: "/supervised/user-feedback" },
+  { label: "Dashboard", icon: Home, route: "/supervised/dashboard" },
+  { label: "Add Q&A", icon: FilePlus, route: "/supervised/add-qa" },
+  { label: "All Q&As", icon: Files, route: "/supervised/all-qa" },
+  {
+    label: "User Questions",
+    icon: MessageSquare,
+    route: "/supervised/user-questions",
+  },
+  { label: "Add Book", icon: BookPlus, route: "/supervised/add-book" },
+  { label: "All Books", icon: Library, route: "/supervised/all-books" },
+  {
+    label: "User Feedback",
+    icon: MessageCircleHeart,
+    route: "/supervised/user-feedback",
+  },
 ];
 
 export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
-const { pathname } = useLocation();
-const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+  const { pathname } = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
 
-useEffect(() => {
+  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 900);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-}, []);
+  }, []);
 
-const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("adminToken");
     navigate("/supervised", { replace: true });
-};
+  };
 
-return (
+  return (
     <>
-        {/* MOBILE OVERLAY */}
-        {mobileOpen && (
-            <div
-                onClick={() => setMobileOpen(false)}
-                style={{
-                    position: "fixed",
-                    inset: 0,
-                    background: "rgba(0,0,0,0.4)",
-                    zIndex: 98,
-                }}
-            />
-        )}
-
-        {/* SIDEBAR */}
+      {/* MOBILE OVERLAY */}
+      {mobileOpen && (
         <div
-            style={{
-                width: "260px",
-                background: "#faf9f5",
-                color: "#323232",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-                position: "fixed",
-                top: 0,
-                left: mobileOpen ? "0" : isMobile ? "-260px" : "0",
-                paddingTop: "2px",
-                borderRight: "1px solid #dfd7d7ff",
-                zIndex: 99,
-                transition: "left 0.3s",
-                overflow: "hidden", // hide overflow on container
-            }}
-        >
-            {/* Top: Logo + Close */}
-            <div
-                style={{
-                    padding: "0 20px",
-                    height: "60px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    borderBottom: "1px solid #dfd7d7ff",
-                    flexShrink: 0,
-                }}
-            >
-                <h1
-                    className="admin-sidebar-header"
-                    style={{
-                        fontSize: "1.1rem",
-                        fontWeight: "bold",
-                        margin: 0,
-                        lineHeight: "1",
-                        display: "flex",
-                        alignItems: "center",
-                        color:"#323232"
-                    }}
-                >
-                    Ask Sunnah
-                </h1>
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 bg-black/40 z-[98]"
+        />
+      )}
 
-                {isMobile && (
-                    <button
-                        className="admin-sidebar-cross"
-                        onClick={() => setMobileOpen(false)}
-                        style={{
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "flex-end",
-                            height: "100%",
-                            padding: 0,
-                        }}
-                    >
-                        <X size={24} />
-                    </button>
-                )}
-            </div>
-
-            {/* Menu */}
-            <nav
-                style={{
-                    flex: 1,
-                    overflowY: "auto", // makes menu scrollable
-                    marginTop: "10px",
-                    paddingBottom: "80px", // space for sticky logout
-                }}
+      {/* SIDEBAR */}
+      <div
+        className={`
+          w-[260px] bg-[#faf9f5] text-[#323232]
+          flex flex-col h-full
+          fixed top-0 z-[99]
+          border-r border-[#dfd7d7]
+          transition-[left] duration-300
+          overflow-hidden
+          ${mobileOpen ? "left-0" : isMobile ? "left-[-260px]" : "left-0"}
+        `}
+        style={{ paddingTop: "2px" }}
+      >
+        {/* Top: Logo + Close */}
+        <div className="px-5 h-[60px] flex items-center justify-between border-b border-[#dfd7d7] shrink-0">
+          <h1 className="text-[1.1rem] font-bold m-0 leading-none flex items-center text-[#323232]">
+            Ask Sunnah
+          </h1>
+          {isMobile && (
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="bg-transparent border-none cursor-pointer flex items-center justify-end h-full p-0"
             >
-                {MENU.map(({ label, icon: Icon, route }) => {
-                    const isActive = pathname.includes(route);
-                    return (
-                        <NavLink
-                            key={label}
-                            to={route}
-                            onClick={() => setMobileOpen(false)}
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
-                                padding: "12px 20px",
-                                textDecoration: "none",
-                                fontWeight: isActive ? "600" : "500",
-                                fontSize: "0.92rem",
-                                background: isActive ? "#c3a421" : "transparent",
-                                color: isActive ? "white" : "#323232",
-                                margin: "6px",
-                                borderRadius: "8px",
-                                transition: "0.2s",
-                            }}
-                        >
-                            <Icon size={18} />
-                            <span>{label}</span>
-                        </NavLink>
-                    );
-                })}
-            </nav>
-
-            {/* Sticky Logout */}
-            <div
-                onClick={handleLogout}
-                style={{
-                    position: "sticky",
-                    bottom: 0,
-                    padding: "14px 20px",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    borderTop: "1px solid #dfd7d7ff",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    background: "#faf9f5",
-                    zIndex: 100,
-                }}
-            >
-                <LogOut size={18} />
-                Logout
-            </div>
+              <X size={24} />
+            </button>
+          )}
         </div>
+
+        {/* Menu */}
+        <nav className="flex-1 overflow-y-auto mt-[10px] pb-[80px]">
+          {MENU.map(({ label, icon: Icon, route }) => {
+            const isActive = pathname.includes(route);
+            return (
+              <NavLink
+                key={label}
+                to={route}
+                onClick={() => setMobileOpen(false)}
+                className={`
+                  flex items-center gap-[10px]
+                  px-5 py-3 mx-[6px] rounded-lg
+                  no-underline font-medium text-[0.92rem]
+                  transition-all duration-200
+                  ${
+                    isActive
+                      ? "bg-[#c3a421] text-white font-semibold"
+                      : "bg-transparent text-[#323232] hover:bg-[#f0ece0]"
+                  }
+                `}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* Sticky Logout */}
+        <div
+          onClick={handleLogout}
+          className="
+            sticky bottom-0 px-5 py-[14px]
+            font-medium cursor-pointer
+            border-t border-[#dfd7d7]
+            flex items-center gap-[10px]
+            bg-[#faf9f5] z-[100]
+            hover:bg-[#f0ece0] transition-colors duration-200
+          "
+        >
+          <LogOut size={18} />
+          Logout
+        </div>
+      </div>
     </>
-);
-
-
+  );
 }

@@ -1,34 +1,44 @@
 import React from "react";
-import donateBanner from "../../assets/banner.jpg"; // Adjust path as needed
+import donateBanner from "../../assets/banner.jpg";
 
 const Header = ({ lang = "en" }) => {
   const headingText = lang === "ar" ? "ساهم معنا" : "Contribute";
 
   return (
-    <div style={{ position: "relative", width: "100%", textAlign: "center" }}>
+    <div className="relative w-full text-center">
       <img
         src={donateBanner}
         alt={headingText}
-        style={{
-          width: "100%",
-          maxHeight: "170px",
-          objectFit: "cover",
-          filter: "brightness(0.5)", // dim the image
-        }}
+        className="
+          w-full
+          max-h-[170px]
+          object-cover
+          brightness-50
+        "
       />
 
       <h1
+        className="
+          absolute
+          top-1/2
+          left-1/2
+          -translate-x-1/2
+          -translate-y-1/2
+
+          text-white
+          font-bold
+          font-[Segoe_UI,sans-serif]
+
+          text-[1.5rem]
+          sm:text-[2rem]
+          md:text-[2.25rem]
+
+          m-0
+          text-center
+
+          drop-shadow-[1px_1px_4px_rgba(0,0,0,0.6)]
+        "
         style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          color: "white",
-          fontSize: "32px",
-          fontWeight: "bold",
-          fontFamily: `"Segoe UI", sans-serif`,
-          textShadow: "1px 1px 4px rgba(0, 0, 0, 0.6)",
-          margin: 0,
           direction: lang === "ar" ? "rtl" : "ltr",
         }}
       >

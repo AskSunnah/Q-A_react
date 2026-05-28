@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 const STRINGS = {
   en: {
     dir: "ltr",
@@ -20,12 +19,14 @@ const STRINGS = {
     successTitle: "Jazakallah Khairan!",
     successText: "Your feedback has been submitted successfully.",
     requiredAlert: "Please fill in all required fields",
-    errorGeneric: "Something went wrong sending your feedback. Please try again.",
+    errorGeneric:
+      "Something went wrong sending your feedback. Please try again.",
     errorNetwork: "Network error. Please check your connection and try again.",
     placeholderName: "Enter your name",
     placeholderEmail: "your.email@example.com",
     placeholderPhone: "+1 (555) 000-0000",
-    placeholderFeedback: "Share your thoughts, suggestions, or issues you encountered...",
+    placeholderFeedback:
+      "Share your thoughts, suggestions, or issues you encountered...",
     sections: [
       { value: "Q&A", label: "Q&A" },
       { value: "Books", label: "Books" },
@@ -45,7 +46,8 @@ const STRINGS = {
     ratingQuestion: "١. كيف تُقيِّم تجربتك مع أسأل سنة؟ *",
     ratingHint: "١ نجمة = سيئة جدًا ، ٥ نجوم = ممتازة",
     sectionQuestion: "٢. أي جزء من أسأل سنة كنتَ تستخدم؟ *",
-    feedbackQuestion: "٣. ما المشكلة التي واجهتها أو ماذا تقترح لتحسين المنصة؟ *",
+    feedbackQuestion:
+      "٣. ما المشكلة التي واجهتها أو ماذا تقترح لتحسين المنصة؟ *",
     feedbackHint: "اكتب لنا بإيجاز رأيك أو ملاحظاتك أو أي صعوبات واجهتها",
     submit: "إرسال الملاحظة",
     sending: "جاري الإرسال…",
@@ -58,7 +60,7 @@ const STRINGS = {
     placeholderEmail: "your.email@example.com",
     placeholderPhone: "+966 5x xxx xxxx",
     placeholderFeedback: "اكتب ملاحظاتك أو اقتراحاتك هنا...",
-    // values stay EN for backend/db, labels are AR
+   
     sections: [
       { value: "Q&A", label: "قسم الأسئلة والأجوبة" },
       { value: "Books", label: "قسم الكتب" },
@@ -67,7 +69,6 @@ const STRINGS = {
     ],
   },
 };
-
 export default function FeedbackForm({ lang = "en" }) {
   const t = STRINGS[lang] || STRINGS.en;
   const isArabic = t.isArabic;
@@ -80,6 +81,7 @@ export default function FeedbackForm({ lang = "en" }) {
     section: [],
     feedback: "",
   });
+
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -101,19 +103,18 @@ export default function FeedbackForm({ lang = "en" }) {
     setSubmitting(true);
 
     try {
-      const res = await fetch("https://asksunnah-backend-hno9.onrender.com/api/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...formData,
-      lang, // pass en / ar
-      }),
-      });
-
+      const res = await fetch(
+        "https://asksunnah-backend-hno9.onrender.com/api/feedback",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...formData, lang }),
+        },
+      );
 
       if (res.ok) {
         setSubmitted(true);
-        // reset after 3s
+
         setTimeout(() => {
           setFormData({
             name: "",
@@ -126,11 +127,9 @@ export default function FeedbackForm({ lang = "en" }) {
           setSubmitted(false);
         }, 3000);
       } else {
-        console.error("Formspree error:", await res.json().catch(() => null));
         alert(t.errorGeneric);
       }
-    } catch (err) {
-      console.error("Network error:", err);
+    } catch {
       alert(t.errorNetwork);
     } finally {
       setSubmitting(false);
@@ -139,251 +138,186 @@ export default function FeedbackForm({ lang = "en" }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((p) => ({ ...p, [name]: value }));
   };
-const toggleSection = (value) => {
-  setFormData((prev) => {
-    const exists = prev.section.includes(value);
-    return {
-      ...prev,
-      section: exists
-        ? prev.section.filter((v) => v !== value) 
-        : [...prev.section, value],              
-    };
-  });
-};
+
+  const toggleSection = (value) => {
+    setFormData((prev) => {
+      const exists = prev.section.includes(value);
+      return {
+        ...prev,
+        section: exists
+          ? prev.section.filter((v) => v !== value)
+          : [...prev.section, value],
+      };
+    });
+  };
 
   const handleRating = (rating) => {
-    setFormData((prev) => ({
-      ...prev,
-      rating,
-    }));
+    setFormData((p) => ({ ...p, rating }));
   };
 
   return (
     <div
       dir={t.dir}
-      style={{
-        minHeight: "100vh",
-        background: "white",
-        padding: "40px 20px",
-        fontFamily: isArabic
-          ? '"Tajawal", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
-          : '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}
+      className="
+        min-h-screen
+        bg-white
+        px-4 sm:px-6 lg:px-8
+        py-8 sm:py-12
+        font-sans
+      "
     >
       <div
-        style={{
-          maxWidth: "600px",
-          margin: "0 auto",
-          background: "var(--bg-light)",
-          borderRadius: "16px",
-          padding: "40px",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-        }}
+        className="
+          w-full
+          max-w-[640px]
+          mx-auto
+          bg-[var(--bg-light)]
+          rounded-xl sm:rounded-2xl
+          p-5 sm:p-8 md:p-10
+          shadow-[0_15px_40px_rgba(0,0,0,0.2)]
+        "
       >
-        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+        {/* HEADER */}
+        <div className="text-center mb-6 sm:mb-8">
           <h1
-            style={{
-              fontSize: "28px",
-              fontWeight: 700,
-              color: "#1a202c",
-              marginBottom: "8px",
-            }}
+            className="
+              text-lg sm:text-2xl md:text-3xl
+              font-bold
+              text-[#1a202c]
+              mb-2
+              leading-tight
+            "
           >
             {t.title}
           </h1>
-          <p style={{ color: "#718096", fontSize: "15px" }}>{t.subtitle}</p>
+
+          <p className="text-xs sm:text-sm md:text-base text-[#718096]">
+            {t.subtitle}
+          </p>
         </div>
 
+        {/* SUCCESS */}
         {submitted ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "60px 20px",
-              animation: "fadeIn 0.5s ease-in",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "48px",
-                marginBottom: "16px",
-              }}
-            >
-              ✓
-            </div>
-            <h2
-              style={{
-                fontSize: "24px",
-                color: "#10b981",
-                marginBottom: "8px",
-              }}
-            >
+          <div className="text-center py-10 sm:py-14 animate-[fadeIn_0.5s_ease-in]">
+            <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">✓</div>
+            <h2 className="text-lg sm:text-2xl text-green-500 mb-2">
               {t.successTitle}
             </h2>
-            <p style={{ color: "#718096" }}>{t.successText}</p>
+            <p className="text-sm sm:text-base text-[#718096]">
+              {t.successText}
+            </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
-            {/* Name */}
-            <div style={{ marginBottom: "24px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "8px",
-                }}
-              >
+            {/* NAME */}
+            <div className="mb-5 sm:mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t.nameLabel}
               </label>
+
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "15px",
-                  transition: "border-color 0.2s",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  textAlign: isArabic ? "right" : "left",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                 placeholder={t.placeholderName}
+                className={`
+                  w-full
+                  px-3 sm:px-4
+                  py-2.5 sm:py-3
+                  border-2 border-gray-200
+                  rounded-lg
+                  text-sm sm:text-base
+                  outline-none
+                  focus:border-indigo-500
+                  transition
+                  bg-white
+                  ${isArabic ? "text-right" : "text-left"}
+                `}
               />
             </div>
 
-            {/* Email */}
-            <div style={{ marginBottom: "24px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "8px",
-                }}
-              >
+            {/* EMAIL */}
+            <div className="mb-5 sm:mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t.emailLabel}
               </label>
+
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "15px",
-                  transition: "border-color 0.2s",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  textAlign: isArabic ? "right" : "left",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                 placeholder={t.placeholderEmail}
+                className={`
+                  w-full
+                  px-3 sm:px-4
+                  py-2.5 sm:py-3
+                  border-2 border-gray-200
+                  rounded-lg
+                  text-sm sm:text-base
+                  outline-none
+                  focus:border-indigo-500
+                  bg-white
+                  ${isArabic ? "text-right" : "text-left"}
+                `}
               />
             </div>
 
-            {/* Phone */}
-            <div style={{ marginBottom: "32px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "8px",
-                }}
-              >
+            {/* PHONE */}
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 {t.phoneLabel}{" "}
-                <span
-                  style={{
-                    color: "#9ca3af",
-                    fontWeight: 400,
-                  }}
-                >
+                <span className="text-gray-400 font-normal">
                   {t.phoneOptional}
                 </span>
               </label>
+
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "15px",
-                  transition: "border-color 0.2s",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  textAlign: isArabic ? "right" : "left",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
                 placeholder={t.placeholderPhone}
+                className={`
+                  w-full
+                  px-3 sm:px-4
+                  py-2.5 sm:py-3
+                  border-2 border-gray-200
+                  rounded-lg
+                  text-sm sm:text-base
+                  outline-none
+                  focus:border-indigo-500
+                  bg-white
+                  ${isArabic ? "text-right" : "text-left"}
+                `}
               />
             </div>
 
-            {/* Rating */}
-            <div style={{ marginBottom: "32px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "8px",
-                }}
-              >
+            {/* RATING */}
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
                 {t.ratingQuestion}
               </label>
-              <p
-                style={{
-                  fontSize: "13px",
-                  color: "#6b7280",
-                  marginBottom: "8px",
-                }}
-              >
+
+              <p className="text-xs sm:text-sm text-gray-500 mb-3">
                 {t.ratingHint}
               </p>
+
               <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  marginTop: "12px",
-                  direction: "ltr",                          // ignore RTL for this row
-      justifyContent: isArabic ? "flex-end" : "flex-start",
-                }}
+                className={`flex gap-1 sm:gap-2 text-2xl sm:text-4xl ${
+                  isArabic ? "justify-end" : "justify-start"
+                }`}
+                dir="ltr"
               >
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
                     onClick={() => handleRating(star)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      fontSize: "40px",
-                      cursor: "pointer",
-                      padding: "4px",
-                    }}
+                    className="p-1 cursor-pointer sm:p-1"
                   >
                     {star <= formData.rating ? "★" : "☆"}
                   </button>
@@ -391,148 +325,94 @@ const toggleSection = (value) => {
               </div>
             </div>
 
-            {/* Section */}
-            {/* Section (multi-select) */}
-<div style={{ marginBottom: "32px" }}>
-  <label
-    style={{
-      display: "block",
-      fontSize: "16px",
-      fontWeight: 600,
-      color: "#374151",
-      marginBottom: "8px",
-    }}
-  >
-    {t.sectionQuestion}
-  </label>
-  <p
-    style={{
-      fontSize: "13px",
-      color: "#6b7280",
-      marginBottom: "12px",
-    }}
-  >
-    {/* You can localize this later if you want */}
-    {isArabic
-      ? "يمكنك اختيار أكثر من قسم."
-      : "You can select more than one section."}
-  </p>
+            {/* SECTION */}
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
+                {t.sectionQuestion}
+              </label>
 
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      gap: "12px",
-    }}
-  >
-    {t.sections.map((option) => {
-      const isSelected = formData.section.includes(option.value);
+              <p className="text-xs sm:text-sm text-gray-500 mb-3">
+                {isArabic
+                  ? "يمكنك اختيار أكثر من قسم."
+                  : "You can select more than one section."}
+              </p>
 
-      return (
-        <label
-          key={option.value}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "14px 16px",
-            border: "2px solid",
-            borderColor: isSelected ? "#667eea" : "#e5e7eb",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "all 0.2s",
-            background: isSelected ? "#f3f4f6" : "white",
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => toggleSection(option.value)}
-            style={{
-              marginRight: isArabic ? 0 : "12px",
-              marginLeft: isArabic ? "12px" : 0,
-              width: "18px",
-              height: "18px",
-              cursor: "pointer",
-            }}
-          />
-          <span
-            style={{
-              fontSize: "15px",
-              color: "#374151",
-            }}
-          >
-            {option.label}
-          </span>
-        </label>
-      );
-    })}
-  </div>
-</div>
+              <div className="flex flex-col gap-2 sm:gap-3">
+                {t.sections.map((option) => {
+                  const isSelected = formData.section.includes(option.value);
 
-            {/* Feedback */}
-            <div style={{ marginBottom: "32px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "#374151",
-                  marginBottom: "8px",
-                }}
-              >
+                  return (
+                    <label
+                      key={option.value}
+                      className={`
+                        flex items-center
+                        p-3 sm:p-4
+                        border-2
+                        rounded-lg
+                        cursor-pointer
+                        transition
+                        text-sm sm:text-base
+                        ${
+                          isSelected
+                            ? "border-indigo-500 bg-gray-100"
+                            : "border-gray-200 bg-white"
+                        }
+                      `}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSection(option.value)}
+                        className={`w-4 h-4 ${isArabic ? "ml-3" : "mr-3"}`}
+                      />
+
+                      <span className="text-gray-700">{option.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* FEEDBACK */}
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm sm:text-base font-semibold text-gray-700 mb-2">
                 {t.feedbackQuestion}
               </label>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "#6b7280",
-                  marginBottom: "12px",
-                }}
-              >
+
+              <p className="text-xs sm:text-sm text-gray-500 mb-3">
                 {t.feedbackHint}
               </p>
+
               <textarea
                 name="feedback"
                 value={formData.feedback}
                 onChange={handleInputChange}
-                rows="5"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "15px",
-                  transition: "border-color 0.2s",
-                  outline: "none",
-                  resize: "vertical",
-                  fontFamily: "inherit",
-                  boxSizing: "border-box",
-                  textAlign: isArabic ? "right" : "left",
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#667eea")}
-                onBlur={(e) => (e.target.style.borderColor = "#e5e7eb")}
+                rows={5}
                 placeholder={t.placeholderFeedback}
+                className={`
+                  w-full
+                  bg-white
+                  px-3 sm:px-4
+                  py-2.5 sm:py-3
+                  border-2 border-gray-200
+                  rounded-lg
+                  text-sm sm:text-base
+                  outline-none
+                  resize-y
+                  focus:border-indigo-500
+                  ${isArabic ? "text-right" : "text-left"}
+                `}
               />
             </div>
 
-            {/* Submit Button */}
+            {/* BUTTON */}
             <button
               type="submit"
               disabled={submitting}
+              className="w-full py-[14px] bg-[var(--button-gradient)] text-white border-none rounded-lg text-[16px] font-semibold transition-transform duration-200 shadow-[0_4px_12px_rgba(102,126,234,0.4)]"
               style={{
-                width: "100%",
-                padding: "14px",
-                background: submitting
-                  ? "var(--button-gradient)"
-                  : "var(--button-gradient)",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "16px",
-                fontWeight: 600,
                 cursor: submitting ? "not-allowed" : "pointer",
-                transition: "transform 0.2s, box-shadow 0.2s",
-                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+                background: "var(--button-gradient)",
               }}
               onMouseEnter={(e) => {
                 if (submitting) return;
@@ -554,14 +434,8 @@ const toggleSection = (value) => {
 
       <style>{`
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

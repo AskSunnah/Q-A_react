@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 
-const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => {
+const Pagination = ({
+  totalItems,
+  itemsPerPage,
+  currentPage,
+  onPageChange,
+}) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsSmallScreen(window.innerWidth < 500);
     handleResize();
+
     window.addEventListener("resize", handleResize);
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -20,11 +27,42 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
       onClick={(e) => {
         e.preventDefault();
         onPageChange(page);
-        document.getElementById('fatwaList')?.scrollIntoView({ behavior: 'smooth' });
+
+        document.getElementById("fatwaList")?.scrollIntoView({
+          behavior: "smooth",
+        });
       }}
-      className={`pagination-btn ${isActive ? 'active' : ''}`}
-      aria-current={isActive ? 'page' : undefined}
+      aria-current={isActive ? "page" : undefined}
       style={{ whiteSpace: "nowrap" }}
+      className={`
+        inline-block
+        rounded-md
+        no-underline
+        font-medium
+        transition-all
+        duration-200
+        mx-[0.15rem]
+        shrink-0
+
+        px-3
+        py-2
+        text-sm
+
+        sm:px-3
+        sm:py-2
+        sm:text-base
+
+        text-[var(--bg-color-header)]
+
+        hover:bg-[var(--bg-color-header)]
+        hover:text-white
+
+        ${
+          isActive
+            ? "bg-[var(--bg-color-header)] text-white font-bold pointer-events-none"
+            : ""
+        }
+      `}
     >
       {label}
     </a>
@@ -33,7 +71,21 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
   const renderButtons = () => {
     const buttons = [];
 
-    const showDots = (key) => <span key={key} style={{ padding: "0.4rem" }}>...</span>;
+    const showDots = (key) => (
+      <span
+        key={key}
+        className="
+          inline-block
+          px-2
+          text-[#555]
+          shrink-0
+          text-sm
+          sm:text-base
+        "
+      >
+        ...
+      </span>
+    );
 
     // Previous
     if (currentPage > 1) {
@@ -75,7 +127,9 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
 
     // Always show last
     if (totalPages > 1) {
-      buttons.push(createBtn(totalPages, totalPages, currentPage === totalPages, "last"));
+      buttons.push(
+        createBtn(totalPages, totalPages, currentPage === totalPages, "last"),
+      );
     }
 
     // Next
@@ -87,83 +141,45 @@ const Pagination = ({ totalItems, itemsPerPage, currentPage, onPageChange }) => 
   };
 
   return (
-
-    <>
-    <style>
-      {`
-         
-    .pagination a,
-    .pagination span {
-      display: inline-block;
-      padding: 0.5rem 0.75rem;
-      margin: 0 0.15rem;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: 500;
-      font-family: inherit;
-      color: var(--bg-color-header);
-      transition: background 0.2s, color 0.2s;
-    }
-
-    .pagination a[aria-current="page"],
-    .pagination a.active,
-    .pagination a.selected {
-      background: var(--bg-color-header);
-      color: #fff;
-      font-weight: bold;
-      pointer-events: none;
-    }
-
-    .pagination a:hover:not([aria-current="page"]):not(.active) {
-      background: var(--bg-color-header);
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .pagination span {
-      background: transparent !important;
-      color: #555 !important;
-      border: none !important;
-      cursor: default;
-    }
-
-      @media (max-width: 500px) {
-  .pagination {
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    scrollbar-width: none; /* Firefox */
-  }
-
-  .pagination::-webkit-scrollbar {
-    display: none; /* Chrome, Safari */
-  }
-
-  .pagination a,
-  .pagination span {
-    font-size: 0.75rem !important;
-    padding: 0.4rem 0.4rem !important;
-    flex-shrink: 0; /* prevent shrinking text */
-  }
-}
-
-      `}
-    </style>
     <div
-      className="pagination"
+      className="
+        flex
+        justify-center
+        gap-1
+        mt-8
+        flex-nowrap
+        px-2
+        max-w-full
+        overflow-x-auto
+        overflow-y-hidden
+
+        sm:overflow-hidden
+      "
       style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: "0.3rem",
-        marginTop: "2rem",
-        flexWrap: "nowrap",
-        padding: "0 0.5rem",
-        maxWidth: "100%",
-        overflow: "hidden",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
       }}
     >
-      {renderButtons()}
+      <style>
+        {`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+
+          @media (max-width: 500px) {
+            .pagination-mobile a,
+            .pagination-mobile span {
+              font-size: 0.75rem;
+              padding: 0.4rem;
+            }
+          }
+        `}
+      </style>
+
+      <div className="pagination-mobile flex flex-nowrap">
+        {renderButtons()}
+      </div>
     </div>
-    </>
   );
 };
 

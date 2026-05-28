@@ -41,36 +41,29 @@ export default function AddBook() {
   };
 
   // --- Chapter Helpers ---
-  const addChapter = () =>
-    setChapters([...chapters, { title: "", pages: [] }]);
+  const addChapter = () => setChapters([...chapters, { title: "", pages: [] }]);
   const updateChapter = (idx, newChapter) =>
     setChapters(chapters.map((ch, i) => (i === idx ? newChapter : ch)));
-  const removeChapter = idx =>
+  const removeChapter = (idx) =>
     setChapters(chapters.filter((_, i) => i !== idx));
 
-  // --- Page Helpers ---
-  // const addPage = chapterIdx => {
-  //   const chs = [...chapters];
-  //   chs[chapterIdx].pages.push({
-  //     references: [""],
-  //     blocks: [{ type: "heading", text: "", reference: "", narrator: "", commentary: "" }]
-  //   });
-  //   setChapters(chs);
-  // };
-
-  const addPage = chapterIdx => {
+  const addPage = (chapterIdx) => {
     const chs = [...chapters];
     chs[chapterIdx].pages.push({
       references: [],
-      blocks: []
+      blocks: [],
     });
     setChapters(chs);
   };
 
   const removePage = (chapterIdx, pageIdx) => {
-    setChapters(chapters.map((ch, i) =>
-      i !== chapterIdx ? ch : { ...ch, pages: ch.pages.filter((_, j) => j !== pageIdx) }
-    ));
+    setChapters(
+      chapters.map((ch, i) =>
+        i !== chapterIdx
+          ? ch
+          : { ...ch, pages: ch.pages.filter((_, j) => j !== pageIdx) },
+      ),
+    );
     setDeletePageIndex(null);
   };
 
@@ -95,7 +88,11 @@ export default function AddBook() {
   const addBlock = (chapterIdx, pageIdx) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].blocks.push({
-      type: "heading", text: "", reference: "", narrator: "", commentary: ""
+      type: "heading",
+      text: "",
+      reference: "",
+      narrator: "",
+      commentary: "",
     });
     setChapters(chs);
   };
@@ -111,25 +108,24 @@ export default function AddBook() {
   };
 
   // --- Form Handlers ---
-  const handleFormChange = e =>
+  const handleFormChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let pageCounter = 1; // global counter across all chapters
+    let pageCounter = 1;
 
     const bookData = {
       ...form,
       chapters: chapters.map((ch, chIdx) => {
-        const pagesWithNumbers = ch.pages.map(pg => ({
+        const pagesWithNumbers = ch.pages.map((pg) => ({
           ...pg,
-          number: pageCounter++,  // 1,2,3,4,... globally
+          number: pageCounter++,
         }));
-
         return {
           ...ch,
-          number: chIdx + 1,      // chapter number is still per chapter
+          number: chIdx + 1,
           pages: pagesWithNumbers,
         };
       }),
@@ -137,305 +133,229 @@ export default function AddBook() {
 
     try {
       await submitBook(bookData);
-      setModal({ show: true, title: "Success", message: "Book added successfully!" });
-      setForm({ title: "", author: "", description: "", category: "", language: "en" });
+      setModal({
+        show: true,
+        title: "Success",
+        message: "Book added successfully!",
+      });
+      setForm({
+        title: "",
+        author: "",
+        description: "",
+        category: "",
+        language: "en",
+      });
       setChapters([]);
     } catch (err) {
       setModal({ show: true, title: "Error", message: err.message });
     }
   };
 
-
-  // --- Modal Helper ---
   const closeModal = () => setModal({ ...modal, show: false });
 
-  // --- Inline Styles ---
+  // Shared input/select/textarea classes (mirrors original: block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border)
+  const fieldCls =
+    "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
+  const labelCls = "font-bold mt-4 block text-[var(--bg-color-header)]";
+
   return (
-
-
     <AdminLayout>
+      {/* .container */}
+      <div className="w-full max-w-[850px] flex flex-col items-center mx-auto font-[Segoe_UI,sans-serif]">
+        {/* h1 */}
+        <h1 className="text-[2rem] mb-6 text-center text-[var(--bg-color-header)]">
+          Add a New Book
+        </h1>
 
-      <style>{`
+        {/* form */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-8 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.08)] w-full"
+        >
+          <label className={labelCls}>Title:</label>
+          <input
+            className={fieldCls}
+            name="title"
+            value={form.title}
+            onChange={handleFormChange}
+            required
+          />
 
-        body{
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        }
-        .container {
-            width: 100%;
-            max-width: 850px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0 auto;
-              font-family: 'Segoe UI', sans-serif;
-        }
-        header button{
-          margin-bottom:0;
-        }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            color:var(--bg-color-header);
-        }
+          <label className={labelCls}>Author:</label>
+          <input
+            className={fieldCls}
+            name="author"
+            value={form.author}
+            onChange={handleFormChange}
+          />
 
-        form {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            width: 100%;
-        }
+          <label className={labelCls}>Description (if any):</label>
+          <textarea
+            className={fieldCls}
+            name="description"
+            value={form.description}
+            onChange={handleFormChange}
+          />
 
-        input,
-        textarea,
-        select,
-        button {
-            display: block;
-            width: 100%;
-            margin-bottom: 1rem;
-            padding: 0.6rem 0.8rem;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        label {
-            font-weight: bold;
-            margin-top: 1rem;
-            display: block;
-            color:var(--bg-color-header);
-        }
-
-        .page-block {
-            border: 1px solid #ccc;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            background: #fefefe;
-            position: relative;
-            border-radius: 8px;
-        }
-
-        .block {
-            border: 1px dashed #999;
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #f9f9f9;
-            position: relative;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        button.add-btn {
-            background:var(--bg-color-header);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            margin-top: 0.5rem;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 8px;
-            width: fit-content;
-        }
-
-        .remove-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #e53e3e;
-            color: white;
-            border: none;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.85rem;
-            border-radius: 6px;
-            cursor: pointer;
-            width: fit-content;
-            height: auto;
-            white-space: nowrap;
-        }
-
-        form button[type="submit"] {
-            background-color:var(--bg-color-header);
-            color: white;
-            border: none;
-            padding: 0.7rem 1.4rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 1.5rem;
-        }
-
-        form button[type="submit"]:hover {
-            background-color: #1f5c38;
-        }
-
-        .admin-sidebar-header{
-        font-size: 1.1rem;
-    font-weight: bold;
-    margin: 0px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    color:#323232;
-    white-space: nowrap;
-        }
-
-        .admin-sidebar-cross{
-          margin-bottom:0;
-        }
-
-    `}</style>
-      <div className="container">
-        <h1>Add a New Book</h1>
-        <form onSubmit={handleSubmit}>
-          <label>Title:</label>
-          <input name="title" value={form.title} onChange={handleFormChange} required />
-
-          <label>Author:</label>
-          <input name="author" value={form.author} onChange={handleFormChange} />
-
-          <label>Description (if any):</label>
-          <textarea name="description" value={form.description} onChange={handleFormChange} />
-
-          <label>Category:</label>
-          <select name="category" value={form.category} onChange={handleFormChange} required>
-            {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          <label className={labelCls}>Category:</label>
+          <select
+            className={fieldCls}
+            name="category"
+            value={form.category}
+            onChange={handleFormChange}
+            required
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
           </select>
 
-          <label>Language:</label>
-          <select name="language" value={form.language} onChange={handleFormChange} required>
-            {LANGS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+          <label className={labelCls}>Language:</label>
+          <select
+            className={fieldCls}
+            name="language"
+            value={form.language}
+            onChange={handleFormChange}
+            required
+          >
+            {LANGS.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
           </select>
 
           {/* Chapters */}
           {chapters.map((ch, chIdx) => (
-            <div className="page-block" key={chIdx}>
-              <button type="button" className="remove-btn" onClick={() => removeChapter(chIdx)}>Delete Chapter</button>
-              <h3>Chapter {chIdx + 1}</h3>
-              <label>Chapter Title:</label>
+            // .page-block
+            <div
+              key={chIdx}
+              className="border border-[#ccc] p-4 mb-8 bg-[#fefefe] relative rounded-lg"
+            >
+              {/* .remove-btn */}
+              <button
+                type="button"
+                className="absolute top-[10px] right-[10px] bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
+                onClick={() => removeChapter(chIdx)}
+              >
+                Delete Chapter
+              </button>
+
+              <h3 className="text-base font-bold mt-0">Chapter {chIdx + 1}</h3>
+
+              <label className={labelCls}>Chapter Title:</label>
               <input
+                className={fieldCls}
                 value={ch.title}
-                onChange={e => updateChapter(chIdx, { ...ch, title: e.target.value, pages: ch.pages })}
+                onChange={(e) =>
+                  updateChapter(chIdx, {
+                    ...ch,
+                    title: e.target.value,
+                    pages: ch.pages,
+                  })
+                }
                 required
               />
+
               {/* Pages */}
               <div>
                 {ch.pages.map((pg, pgIdx) => (
-                  <div className="page-block" style={{ background: "#f9f9f9" }} key={pgIdx}>
-                    <button type="button" className="remove-btn" onClick={() => setDeletePageIndex({ chapter: chIdx, page: pgIdx })}>Delete Page</button>
-                    <h4>Page {getGlobalPageNumber(chIdx, pgIdx)}</h4>
+                  // .page-block (nested)
+                  <div
+                    key={pgIdx}
+                    className="border border-[#ccc] p-4 mb-8 bg-[#f9f9f9] relative rounded-lg"
+                  >
+                    <button
+                      type="button"
+                      className="absolute top-[10px] right-[10px] bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
+                      onClick={() =>
+                        setDeletePageIndex({ chapter: chIdx, page: pgIdx })
+                      }
+                    >
+                      Delete Page
+                    </button>
 
-                    {/* <label>References:</label>
-                    {pg.references.map((ref, refIdx) => (
-                      <div key={refIdx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                        <input
-                          style={{ flex: 1 }}
-                          value={ref}
-                          onChange={e => updateReference(chIdx, pgIdx, refIdx, e.target.value)}
-                          placeholder="Reference"
-                        />
-                        <button type="button" className="remove-btn" style={{ position: "static" }}
-                          onClick={() => removeReference(chIdx, pgIdx, refIdx)}>
-                          Delete reference
-                        </button>
-                      </div>
-                    ))}
-                    <button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button> */}
-                    <label>References:</label>
+                    <h4 className="text-sm font-bold mt-0">
+                      Page {getGlobalPageNumber(chIdx, pgIdx)}
+                    </h4>
+
+                    <label className={labelCls}>References:</label>
                     {pg.references.length === 0 && (
-                      <p style={{ fontStyle: "italic", color: "#888" }}>No references added yet.</p>
+                      <p className="italic text-[#888]">
+                        No references added yet.
+                      </p>
                     )}
                     {pg.references.map((ref, refIdx) => (
-                      <div key={refIdx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                      <div
+                        key={refIdx}
+                        className="flex items-center gap-2 mb-2"
+                      >
                         <input
-                          style={{ flex: 1 }}
+                          className="flex-1 mb-0 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
                           value={ref}
-                          onChange={e => updateReference(chIdx, pgIdx, refIdx, e.target.value)}
+                          onChange={(e) =>
+                            updateReference(
+                              chIdx,
+                              pgIdx,
+                              refIdx,
+                              e.target.value,
+                            )
+                          }
                           placeholder="Reference"
                         />
                         <button
                           type="button"
-                          className="remove-btn"
-                          style={{ position: "static" }}
+                          className="bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
                           onClick={() => removeReference(chIdx, pgIdx, refIdx)}
                         >
                           Delete reference
                         </button>
                       </div>
                     ))}
-                    <button type="button" className="add-btn" onClick={() => addReference(chIdx, pgIdx)}>+ Add Reference</button>
+                    {/* .add-btn */}
+                    <button
+                      type="button"
+                      className="bg-[var(--bg-color-header)] text-white border-none py-2 px-4 mt-2 cursor-pointer font-bold rounded-lg w-fit"
+                      onClick={() => addReference(chIdx, pgIdx)}
+                    >
+                      + Add Reference
+                    </button>
 
+                    <hr className="my-6 border-t border-[#ccc]" />
 
-                    <hr style={{ margin: "1.5rem 0", borderTop: "1px solid #ccc" }} />
-                    {/* <label>Content:</label>
-                    {pg.blocks.map((block, blockIdx) => (
-                      <div className="block" key={blockIdx}>
-                        <button type="button" className="remove-btn" onClick={() => removeBlock(chIdx, pgIdx, blockIdx)}>Delete Content</button>
-                        <label>Type</label>
-                        <select
-                          value={block.type}
-                          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, type: e.target.value })}
-                        >
-                          <option value="heading">Heading</option>
-                          <option value="paragraph">Paragraph</option>
-                          <option value="hadith">Hadith</option>
-                          <option value="ayah">Ayah</option>
-                          <option value="quote">Quote</option>
-                        </select>
-                        <label>Text</label>
-                        <textarea
-                          value={block.text}
-                          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, text: e.target.value })}
-                          required
-                        />
-                        {["hadith", "ayah", "quote"].includes(block.type) && (
-                          <>
-                            <label>Reference</label>
-                            <input
-                              value={block.reference}
-                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, reference: e.target.value })}
-                            />
-                          </>
-                        )}
-                        {block.type === "hadith" && (
-                          <>
-                            <label>Narrator</label>
-                            <input
-                              value={block.narrator}
-                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, narrator: e.target.value })}
-                            />
-                          </>
-                        )}
-                        {["hadith", "ayah", "quote"].includes(block.type) && (
-                          <>
-                            <label>Commentary</label>
-                            <textarea
-                              value={block.commentary}
-                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, commentary: e.target.value })}
-                            />
-                          </>
-                        )}
-                      </div>
-                    ))}
-                    <button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>+ Add Content on Page</button> */}
-                    <label>Content:</label>
+                    <label className={labelCls}>Content:</label>
                     {pg.blocks.length === 0 && (
-                      <p style={{ fontStyle: "italic", color: "#888" }}>No content on this page yet.</p>
+                      <p className="italic text-[#888]">
+                        No content on this page yet.
+                      </p>
                     )}
+
                     {pg.blocks.map((block, blockIdx) => (
-                      <div className="block" key={blockIdx}>
-                        <button type="button" className="remove-btn" onClick={() => removeBlock(chIdx, pgIdx, blockIdx)}>
+                      // .block
+                      <div
+                        key={blockIdx}
+                        className="border border-dashed border-[#999] my-4 p-4 bg-[#f9f9f9] relative rounded-lg box-border"
+                      >
+                        <button
+                          type="button"
+                          className="absolute top-[10px] right-[10px] bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
+                          onClick={() => removeBlock(chIdx, pgIdx, blockIdx)}
+                        >
                           Delete Content
                         </button>
 
-                        <label>Type</label>
+                        <label className={labelCls}>Type</label>
                         <select
+                          className={fieldCls}
                           value={block.type}
-                          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, type: e.target.value })}
+                          onChange={(e) =>
+                            updateBlock(chIdx, pgIdx, blockIdx, {
+                              ...block,
+                              type: e.target.value,
+                            })
+                          }
                         >
                           <option value="heading">Heading</option>
                           <option value="paragraph">Paragraph</option>
@@ -444,96 +364,151 @@ export default function AddBook() {
                           <option value="quote">Quote</option>
                         </select>
 
-                        <label>Text</label>
+                        <label className={labelCls}>Text</label>
                         <textarea
+                          className={fieldCls}
                           value={block.text}
-                          onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, text: e.target.value })}
+                          onChange={(e) =>
+                            updateBlock(chIdx, pgIdx, blockIdx, {
+                              ...block,
+                              text: e.target.value,
+                            })
+                          }
                           required
                         />
 
                         {["hadith", "ayah", "quote"].includes(block.type) && (
                           <>
-                            <label>Reference</label>
+                            <label className={labelCls}>Reference</label>
                             <input
+                              className={fieldCls}
                               value={block.reference}
-                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, reference: e.target.value })}
+                              onChange={(e) =>
+                                updateBlock(chIdx, pgIdx, blockIdx, {
+                                  ...block,
+                                  reference: e.target.value,
+                                })
+                              }
                             />
                           </>
                         )}
 
                         {block.type === "hadith" && (
                           <>
-                            <label>Narrator</label>
+                            <label className={labelCls}>Narrator</label>
                             <input
+                              className={fieldCls}
                               value={block.narrator}
-                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, narrator: e.target.value })}
+                              onChange={(e) =>
+                                updateBlock(chIdx, pgIdx, blockIdx, {
+                                  ...block,
+                                  narrator: e.target.value,
+                                })
+                              }
                             />
                           </>
                         )}
 
                         {["hadith", "ayah", "quote"].includes(block.type) && (
                           <>
-                            <label>Commentary</label>
+                            <label className={labelCls}>Commentary</label>
                             <textarea
+                              className={fieldCls}
                               value={block.commentary}
-                              onChange={e => updateBlock(chIdx, pgIdx, blockIdx, { ...block, commentary: e.target.value })}
+                              onChange={(e) =>
+                                updateBlock(chIdx, pgIdx, blockIdx, {
+                                  ...block,
+                                  commentary: e.target.value,
+                                })
+                              }
                             />
                           </>
                         )}
                       </div>
                     ))}
-                    <button type="button" className="add-btn" onClick={() => addBlock(chIdx, pgIdx)}>
+
+                    <button
+                      type="button"
+                      className="bg-[var(--bg-color-header)] text-white border-none py-2 px-4 mt-2 cursor-pointer font-bold rounded-lg w-fit"
+                      onClick={() => addBlock(chIdx, pgIdx)}
+                    >
                       + Add Content on Page
                     </button>
-
-
                   </div>
                 ))}
-                <button type="button" className="add-btn" onClick={() => addPage(chIdx)}>+ Add Page</button>
+
+                <button
+                  type="button"
+                  className="bg-[var(--bg-color-header)] text-white border-none py-2 px-4 mt-2 cursor-pointer font-bold rounded-lg w-fit"
+                  onClick={() => addPage(chIdx)}
+                >
+                  + Add Page
+                </button>
               </div>
             </div>
           ))}
-          <button type="button" className="add-btn" onClick={addChapter}>+ Add Chapter</button>
-          <br /><br />
-          <button type="submit">Submit Book</button>
+
+          <button
+            type="button"
+            className="bg-[var(--bg-color-header)] text-white border-none py-2 px-4 mt-2 cursor-pointer font-bold rounded-lg w-fit"
+            onClick={addChapter}
+          >
+            + Add Chapter
+          </button>
+
+          <br />
+          <br />
+
+          <button
+            type="submit"
+            className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-6 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
+          >
+            Submit Book
+          </button>
         </form>
       </div>
-      {/* Modal */}
+
+      {/* Success/Error Modal */}
       {modal.show && (
-        <div style={{
-          display: "block", position: "fixed", top: "20px", left: "50%", transform: "translateX(-50%)",
-          background: "#fff", color: "#1e293b", border: "1px solid #ccc", padding: "1rem 2rem", borderRadius: "8px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)", zIndex: 9999, width: "90%", maxWidth: 600, textAlign: "center", fontSize: "1rem"
-        }}>
-          <strong style={{ display: "block", fontSize: "1.2rem", marginBottom: "0.5rem" }}>{modal.title}</strong>
+        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-4 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[9999] w-[90%] max-w-[600px] text-center text-base">
+          <strong className="block text-[1.2rem] mb-2">{modal.title}</strong>
           <span>{modal.message}</span>
-          <br /><br />
-          <button onClick={closeModal} style={{
-            background: "#287346", color: "white", border: "none", padding: "0.5rem 1rem",
-            fontWeight: "bold", borderRadius: "6px", cursor: "pointer"
-          }}>Close</button>
+          <br />
+          <br />
+          <button
+            onClick={closeModal}
+            className="bg-[#287346] text-white border-none py-2 px-4 font-bold rounded-[6px] cursor-pointer"
+          >
+            Close
+          </button>
         </div>
       )}
-      {/* Delete Page Modal */}
+
+      {/* Delete Page Confirmation Modal */}
       {deletePageIndex && (
-        <div style={{
-          display: "block", position: "fixed", top: "20px", left: "50%", transform: "translateX(-50%)",
-          background: "#fff", color: "#1e293b", border: "1px solid #ccc", padding: "1.5rem 2rem", borderRadius: "8px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)", zIndex: 10000, width: "90%", maxWidth: 400, textAlign: "center", fontSize: "1rem"
-        }}>
-          <strong style={{ display: "block", fontSize: "1.1rem", marginBottom: "0.7rem" }}>
+        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[400px] text-center text-base">
+          <strong className="block text-[1.1rem] mb-3">
             Delete Page #{deletePageIndex.page + 1}
           </strong>
-          <span>Are you sure you want to delete Page #{deletePageIndex.page + 1}?</span>
-          <br /><br />
-          <button style={{
-            background: "#287346", color: "white", border: "none", padding: "0.5rem 1.2rem",
-            fontWeight: "bold", borderRadius: "6px", cursor: "pointer", marginRight: "1rem"
-          }} onClick={() => removePage(deletePageIndex.chapter, deletePageIndex.page)}>Yes</button>
-          <button style={{
-            background: "#e53e3e", color: "white", border: "none", padding: "0.5rem 1.2rem",
-            fontWeight: "bold", borderRadius: "6px", cursor: "pointer"
-          }} onClick={() => setDeletePageIndex(null)}>No</button>
+          <span>
+            Are you sure you want to delete Page #{deletePageIndex.page + 1}?
+          </span>
+          <br />
+          <br />
+          <button
+            className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer mr-4"
+            onClick={() =>
+              removePage(deletePageIndex.chapter, deletePageIndex.page)
+            }
+          >
+            Yes
+          </button>
+          <button
+            className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
+            onClick={() => setDeletePageIndex(null)}
+          >
+            No
+          </button>
         </div>
       )}
     </AdminLayout>

@@ -4,10 +4,13 @@ import cardIcon from "../../assets/card.png";
 import { loadStripe } from "@stripe/stripe-js";
 import { createCheckoutSession } from "../../api/stripe";
 
-const stripePromise = loadStripe("pk_live_51RlSlOBaaF6tLrTwrOKCypgsYNxh7MVwmpbfMhWRdjSFyZjFXzsuWEceF7R7B98X5ANbvsHba3kqfBQLXUdevC5L00FGZGI4JC");
+const stripePromise = loadStripe(
+  "pk_live_51RlSlOBaaF6tLrTwrOKCypgsYNxh7MVwmpbfMhWRdjSFyZjFXzsuWEceF7R7B98X5ANbvsHba3kqfBQLXUdevC5L00FGZGI4JC",
+);
 
 const getAmount = (customAmount, selectedAmount) => {
-  const amount = customAmount !== "" ? parseFloat(customAmount) : selectedAmount;
+  const amount =
+    customAmount !== "" ? parseFloat(customAmount) : selectedAmount;
   return Math.max(1, amount);
 };
 
@@ -23,7 +26,9 @@ const Contribute = ({ lang = "en" }) => {
   const isArabic = lang === "ar";
 
   const t = {
-    heading: isArabic ? "ساهم في دعم منصة اسأل السنة" : "Contribute to AskSunnah",
+    heading: isArabic
+      ? "ساهم في دعم منصة اسأل السنة"
+      : "Contribute to AskSunnah",
     motivation: isArabic
       ? "دعمك يساعدنا في الحفاظ على هذه المنصة ونشر المعرفة الإسلامية الصحيحة."
       : "Your support enables us to maintain and grow this platform of authentic Islamic knowledge.",
@@ -60,74 +65,92 @@ const Contribute = ({ lang = "en" }) => {
 
   return (
     <>
-      <style>{`
-        @media (max-width: 768px) {
-          .contribute-container {
-            flex-direction: column !important;
-          }
-          .contribute-formSide,
-          .contribute-cardSide {
-            width: 100% !important;
-            padding: 20px !important;
-          }
-          .contribute-cardSide {
-            margin-top: 10px;
-          }
-        }
-      `}</style>
       {maintenanceMsg && (
-      <div style={{
-        background: "#fff3cd",
-        color: "#856404",
-        padding: "16px",
-        textAlign: "center",
-        fontWeight: "bold",
-        borderRadius: "6px",
-        marginBottom: "18px",
-        border: "1px solid #ffeeba",
-        fontSize: "17px",
-  }}>
-      Under Maintenance, please come back
-  </div>
-)}
-      <div style={styles.pageWrapper} dir={isArabic ? "rtl" : "ltr"}>
-        <div className="contribute-container" style={styles.container}>
-          <div className="contribute-formSide" style={styles.formSide}>
-            <h1 style={styles.heading}>{t.heading}</h1>
-            <p style={styles.motivation}>{t.motivation}</p>
+        <div className="bg-[#fff3cd] text-[#856404] p-4 text-center font-bold rounded-[6px] mb-[18px] border border-[#ffeeba] text-[17px]">
+          Under Maintenance, please come back
+        </div>
+      )}
 
-            <h3 style={styles.subheading}>{t.choosePayment}</h3>
-            <div style={styles.methodButtons}>
-              <button onClick={handlePayPalRedirect} style={styles.iconButton}>
-                <img src={paypalIcon} alt="PayPal" style={styles.iconImg} />
+      {/* pageWrapper */}
+      <div
+        className="bg-[#f7f7f7] font-[Segoe_UI,sans-serif] min-h-[69vh] px-4 sm:px-8 md:px-[51px] py-[23px] flex justify-center items-center"
+        dir={isArabic ? "rtl" : "ltr"}
+      >
+        {/* container */}
+        <div className="flex flex-col md:flex-row bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-none overflow-hidden max-w-[1000px] w-full">
+          {/* formSide */}
+          <div className="flex-1 px-5 py-6 sm:px-7 sm:py-8 md:px-[30px] md:py-[40px]">
+            <h1 className="text-[22px] sm:text-[25px] md:text-[28px] text-[#2c3e50] mb-[10px] font-bold">
+              {t.heading}
+            </h1>
+            <p className="text-[15px] md:text-[16px] text-[#555] mb-[25px]">
+              {t.motivation}
+            </p>
+
+            <h3 className="text-[16px] md:text-[18px] text-[#2c3e50] mb-[12px] font-bold">
+              {t.choosePayment}
+            </h3>
+
+            {/* methodButtons */}
+            <div className="flex gap-5 mb-5">
+              <button
+                onClick={handlePayPalRedirect}
+                className="border border-[#ccc] rounded-[8px] bg-white px-[14px] py-[10px] cursor-pointer flex items-center justify-center transition-all duration-200 ease-in-out shadow-[0_2px_4px_rgba(0,0,0,0.05)]"
+              >
+                <img
+                  src={paypalIcon}
+                  alt="PayPal"
+                  className="w-6 h-6 object-contain"
+                />
               </button>
-              <button onClick={() => {setSelectedMethod("card");
-              setMaintenanceMsg(false); }} style={styles.iconButton}>
-                <img src={cardIcon} alt="Card" style={styles.iconImg} />
+              <button
+                onClick={() => {
+                  setSelectedMethod("card");
+                  setMaintenanceMsg(false);
+                }}
+                className="border border-[#ccc] rounded-[8px] bg-white px-[14px] py-[10px] cursor-pointer flex items-center justify-center transition-all duration-200 ease-in-out shadow-[0_2px_4px_rgba(0,0,0,0.05)]"
+              >
+                <img
+                  src={cardIcon}
+                  alt="Card"
+                  className="w-6 h-6 object-contain"
+                />
               </button>
             </div>
           </div>
 
+          {/* cardSide */}
           {selectedMethod === "card" && (
-            <div className="contribute-cardSide" style={styles.cardSide}>
-              <div style={styles.optionGroupWrapper}>
-                <div style={styles.optionGroup}>
+            <div className="flex-1 px-5 py-6 sm:px-7 sm:py-8 md:px-[30px] md:py-[40px] bg-[var(--bg-light)] border-t md:border-t-0 md:border-l border-[#eee]">
+              {/* optionGroupWrapper */}
+              <div className="flex justify-center mb-[15px]">
+                {/* optionGroup */}
+                <div className="inline-flex rounded-[5px] overflow-hidden border border-[var(--bg-color-header)]">
                   <button
                     onClick={() => setDonationType("one-time")}
-                    style={donationType === "one-time" ? styles.optionActive : styles.optionInactive}
+                    className={`px-4 sm:px-[21px] py-[9px] border-none cursor-pointer text-sm sm:text-base ${
+                      donationType === "one-time"
+                        ? "bg-[var(--bg-color-header)] text-white"
+                        : "bg-white text-[#2c3e50]"
+                    }`}
                   >
                     {t.oneTime}
                   </button>
                   <button
                     onClick={() => setDonationType("recurring")}
-                    style={donationType === "recurring" ? styles.optionActive : styles.optionInactive}
+                    className={`px-4 sm:px-[21px] py-[9px] border-none cursor-pointer text-sm sm:text-base ${
+                      donationType === "recurring"
+                        ? "bg-[var(--bg-color-header)] text-white"
+                        : "bg-white text-[#2c3e50]"
+                    }`}
                   >
                     {t.monthly}
                   </button>
                 </div>
               </div>
 
-              <div style={styles.amountButtons}>
+              {/* amountButtons */}
+              <div className="flex flex-wrap gap-[10px] mb-[15px]">
                 {[10, 25, 50].map((amt) => (
                   <button
                     key={amt}
@@ -135,33 +158,49 @@ const Contribute = ({ lang = "en" }) => {
                       setSelectedAmount(amt);
                       setCustomAmount("");
                     }}
-                    style={selectedAmount === amt && customAmount === "" ? styles.amountActive : styles.amountInactive}
+                    className={`px-4 sm:px-[21px] py-[9px] rounded-[5px] border-none cursor-pointer text-sm sm:text-base ${
+                      selectedAmount === amt && customAmount === ""
+                        ? "bg-[var(--bg-color-header)] text-white"
+                        : "bg-[#f1f1f1] text-[#333]"
+                    }`}
                   >
                     ${amt}
                   </button>
                 ))}
                 <input
                   type="number"
+                  min="1"
                   placeholder={isArabic ? "أخرى" : "Other"}
                   value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  style={styles.customInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || parseFloat(val) > 0) {
+                      setCustomAmount(val);
+                    }
+                  }}
+                  className="w-[80px] p-[10px] rounded-[5px] border border-[#ccc] text-sm sm:text-base"
                 />
               </div>
 
-              <div style={styles.summary}>
+              {/* summary */}
+              <div className="text-[15px] md:text-[16px] mt-[10px] mb-[10px]">
                 {t.donating} <strong>${amountToSend}</strong>
               </div>
 
               <input
                 type="email"
-                placeholder={isArabic ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                placeholder={
+                  isArabic ? "أدخل بريدك الإلكتروني" : "Enter your email"
+                }
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={styles.emailInput}
+                className="w-full p-[10px] mb-[10px] rounded-[5px] border border-[#ccc] text-sm sm:text-base"
               />
 
-              <button onClick={handleStripeDonate} style={styles.primaryButton}>
+              <button
+                onClick={handleStripeDonate}
+                className="bg-[var(--bg-color-header)] text-white px-6 py-3 border-none rounded-[5px] text-[15px] md:text-[16px] cursor-pointer w-full"
+              >
                 {t.card}
               </button>
             </div>
@@ -170,148 +209,6 @@ const Contribute = ({ lang = "en" }) => {
       </div>
     </>
   );
-};
-
-const styles = {
-  pageWrapper: {
-    backgroundColor: "#f7f7f7",
-    fontFamily: "Segoe UI, sans-serif",
-    minHeight: "69vh",
-    padding: "23px 51px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  container: {
-    display: "flex",
-    flexDirection: "row",
-    backgroundColor: "#ffffff",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    borderRadius: "0px",
-    overflow: "hidden",
-    maxWidth: "1000px",
-    width: "100%",
-    flexWrap: "wrap",
-  },
-  formSide: {
-    flex: 1,
-    padding: "40px 30px",
-  },
-  cardSide: {
-    flex: 1,
-    padding: "40px 30px",
-    backgroundColor: "var(--bg-light)",
-  },
-  heading: {
-    fontSize: "28px",
-    color: "#2c3e50",
-    marginBottom: "10px",
-  },
-  motivation: {
-    fontSize: "16px",
-    color: "#555",
-    marginBottom: "25px",
-  },
-  subheading: {
-    fontSize: "18px",
-    color: "#2c3e50",
-    marginBottom: "12px",
-  },
-  methodButtons: {
-    display: "flex",
-    gap: "20px",
-    marginBottom: "20px",
-  },
-  iconButton: {
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    padding: "10px 14px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "all 0.2s ease-in-out",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-  },
-  iconImg: {
-    width: "24px",
-    height: "24px",
-    objectFit: "contain",
-  },
-  optionGroupWrapper: {
-    display: "flex",
-    justifyContent: "center",
-    marginBottom: "15px",
-  },
-  optionGroup: {
-    display: "inline-flex",
-    borderRadius: "5px",
-    overflow: "hidden",
-    border: "1px solid var(--bg-color-header)",
-  },
-  optionActive: {
-    backgroundColor: "var(--bg-color-header)",
-    color: "white",
-    padding: "9px 21px",
-    border: "none",
-    cursor: "pointer",
-  },
-  optionInactive: {
-    backgroundColor: "#fff",
-    color: "#2c3e50",
-    padding: "9px 21px",
-    border: "none",
-    cursor: "pointer",
-  },
-  amountButtons: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "10px",
-    marginBottom: "15px",
-  },
-  amountActive: {
-    backgroundColor: "var(--bg-color-header)",
-    color: "white",
-    padding: "9px 21px",
-    borderRadius: "5px",
-    border: "none",
-  },
-  amountInactive: {
-    backgroundColor: "#f1f1f1",
-    color: "#333",
-    padding: "9px 21px",
-    borderRadius: "5px",
-    border: "none",
-  },
-  customInput: {
-    width: "80px",
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-  },
-  emailInput: {
-    width: "100%",
-    padding: "10px",
-    marginBottom: "10px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-  },
-  summary: {
-    fontSize: "16px",
-    marginTop: "10px",
-    marginBottom: "10px",
-  },
-  primaryButton: {
-    backgroundColor: "var(--bg-color-header)",
-    color: "white",
-    padding: "12px 24px",
-    border: "none",
-    borderRadius: "5px",
-    fontSize: "16px",
-    cursor: "pointer",
-    width: "100%",
-  },
 };
 
 export default Contribute;

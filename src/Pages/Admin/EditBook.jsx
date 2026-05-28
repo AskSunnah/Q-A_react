@@ -1,4 +1,3 @@
-// src/pages/EditBook.jsx
 import React, { useState, useEffect } from "react";
 import AdminHeader from "../../Components/Admin/Header";
 import { useParams } from "react-router-dom";
@@ -10,7 +9,6 @@ export default function EditBook() {
   const { lang, slug } = useParams();
   const [book, setBook] = useState(null);
   const [msg, setMsg] = useState("");
-  
 
   useEffect(() => {
     fetchBookAdmin(lang, slug)
@@ -31,58 +29,111 @@ export default function EditBook() {
   };
 
   if (!book) return <div>Loading...</div>;
+  const fieldCls = "w-full mt-[0.3rem] p-[0.4rem] rounded border border-[#b8bbc6] block";
+  const labelCls = "text-[0.95rem] font-bold";
 
   return (
-      <AdminLayout>
-    <div style={{ background: "#f4f6f8", minHeight: "100vh" }}>
-      <style>{`
-        body {
-        margin: 0;
-          font-family: 'Segoe UI', sans-serif;}
-        .form-row { margin-bottom: 1rem; }
-        input, textarea, select { width: 100%; margin-top: 0.3rem; padding: 0.4rem; border-radius: 4px; border: 1px solid #b8bbc6;}
-        .chapter-block, .page-block, .block-block { border: 1px solid #c3a421; border-radius: 6px; background: #fff; margin-bottom: 1rem; padding: 1rem; }
-        .page-block, .block-block { margin-left: 1.5rem; }
-        .block-block { margin-left: 2.5rem; background: #f8fafc;}
-        button { padding: 0.4rem 1rem; border: none; border-radius: 4px; margin-top: 0.3rem; margin-right: 0.5rem; cursor: pointer;}
-        .btn-add { background: #c3a421; color: white;}
-        .btn-delete { background: #e53e3e; color: white;}
-        .btn-main { background: #1f6f3e; color: white;}
-        h2 { color: #c3a421; }
-        label { font-size: 0.95rem; font-weight: bold; }
-      `}</style>
-      <div style={{ maxWidth: 900, margin: "2rem auto" }}>
-        <h2>Edit Book</h2>
-        <form onSubmit={handleSave}>
-          <div className="form-row">
-            <label>Title <input value={book.title} onChange={e => handleFieldChange("title", e.target.value)} required /></label>
-          </div>
-          <div className="form-row">
-            <label>Slug <input value={book.slug} onChange={e => handleFieldChange("slug", e.target.value)} required /></label>
-          </div>
-          <div className="form-row">
-            <label>Author <input value={book.author} onChange={e => handleFieldChange("author", e.target.value)} /></label>
-          </div>
-          <div className="form-row">
-            <label>Description <textarea value={book.description} onChange={e => handleFieldChange("description", e.target.value)} /></label>
-          </div>
-          <div className="form-row">
-            <label>Category <input value={book.category} onChange={e => handleFieldChange("category", e.target.value)} required /></label>
-          </div>
-          <div className="form-row">
-            <label>Language
-              <select value={book.language} onChange={e => handleFieldChange("language", e.target.value)}>
-                <option value="en">English</option>
-                <option value="ar">Arabic</option>
-              </select>
-            </label>
-          </div>
-          <BookEditor book={book} onChange={setBook} />
-          <button type="submit" className="btn-main">Save Book</button>
-          <span style={{ marginLeft: "1rem", color: "#1f6f3e" }}>{msg}</span>
-        </form>
+    <AdminLayout>
+      <style>{`body { margin: 0; font-family: 'Segoe UI', sans-serif; }`}</style>
+
+      {/* outer div: background:#f4f6f8, minHeight:100vh */}
+      <div className="bg-[#f4f6f8] min-h-screen">
+
+        {/* inner wrapper: maxWidth:900, margin:2rem auto */}
+        <div className="max-w-[900px] mx-auto mt-8">
+
+          {/* h2: color:#c3a421 */}
+          <h2 className="text-2xl font-bold mb-4 text-[#c3a421]">Edit Book</h2>
+
+          <form onSubmit={handleSave}>
+
+            {/* .form-row */}
+            <div className="mb-4">
+              <label className={labelCls}>
+                Title
+                <input
+                  className={fieldCls}
+                  value={book.title}
+                  onChange={e => handleFieldChange("title", e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+
+            <div className="mb-4">
+              <label className={labelCls}>
+                Slug
+                <input
+                  className={fieldCls}
+                  value={book.slug}
+                  onChange={e => handleFieldChange("slug", e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+
+            <div className="mb-4">
+              <label className={labelCls}>
+                Author
+                <input
+                  className={fieldCls}
+                  value={book.author}
+                  onChange={e => handleFieldChange("author", e.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="mb-4">
+              <label className={labelCls}>
+                Description
+                <textarea
+                  className={fieldCls}
+                  value={book.description}
+                  onChange={e => handleFieldChange("description", e.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="mb-4">
+              <label className={labelCls}>
+                Category
+                <input
+                  className={fieldCls}
+                  value={book.category}
+                  onChange={e => handleFieldChange("category", e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+
+            <div className="mb-4">
+              <label className={labelCls}>
+                Language
+                <select
+                  className={fieldCls}
+                  value={book.language}
+                  onChange={e => handleFieldChange("language", e.target.value)}
+                >
+                  <option value="en">English</option>
+                  <option value="ar">Arabic</option>
+                </select>
+              </label>
+            </div>
+
+            <BookEditor book={book} onChange={setBook} />
+
+            {/* .btn-main: background:#1f6f3e, color:white */}
+            <button
+              type="submit"
+              className="py-[0.4rem] px-4 border-none rounded mt-[0.3rem] mr-2 cursor-pointer bg-[#1f6f3e] text-white"
+            >
+              Save Book
+            </button>
+
+            <span className="ml-4 text-[#1f6f3e]">{msg}</span>
+          </form>
+        </div>
       </div>
-    </div>
     </AdminLayout>
   );
 }

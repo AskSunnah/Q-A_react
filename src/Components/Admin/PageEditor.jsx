@@ -1,7 +1,13 @@
 import React, { useState } from "react";
-import BlockEditor from "../../Components/Admin/BlockEditor";
+import BlockEditor from "./BlockEditor";
 
-export default function PageEditor({ page, onChange, onDelete, onAddBlock, bookId }) {
+export default function PageEditor({
+  page,
+  onChange,
+  onDelete,
+  onAddBlock,
+  bookId,
+}) {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("");
 
@@ -21,76 +27,81 @@ export default function PageEditor({ page, onChange, onDelete, onAddBlock, bookI
   const handleRefsChange = (e) =>
     updateField(
       "references",
-      e.target.value.split(",").map((r) => r.trim()).filter(Boolean)
+      e.target.value
+        .split(",")
+        .map((r) => r.trim())
+        .filter(Boolean),
     );
 
-  // 🎧 Handle Audio Link change
-  const handleAudioChange = (e) => {
-    updateField("audioUrl", e.target.value);
-  };
+  const handleAudioChange = (e) => updateField("audioUrl", e.target.value);
 
-  // 🎧 Save Audio Link to backend (debug version)
-const handleSaveAudio = async () => {
-  if (!page.audioUrl || !page.audioUrl.startsWith("http")) {
-    alert("⚠️ Please enter a valid audio link (must start with http)");
-    return;
-  }
-console.log("Saving audio for", { bookId, pageNumber: page.number, url: page.audioUrl });
-
-  try {
-    setSaving(true);
-    setStatus("Saving...");
-
-    const res = await fetch(`https://asksunnah-backend-hno9.onrender.com/api/admin/books/${bookId}/audio`, 
- {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pageNumber: page.number,
-        audioLink: page.audioUrl,
-      }),
+  const handleSaveAudio = async () => {
+    if (!page.audioUrl || !page.audioUrl.startsWith("http")) {
+      alert("⚠️ Please enter a valid audio link (must start with http)");
+      return;
+    }
+    console.log("Saving audio for", {
+      bookId,
+      pageNumber: page.number,
+      url: page.audioUrl,
     });
 
-    console.log("Response status:", res.status);
-
-    const rawText = await res.text();
-    console.log("Raw response:", rawText);
-
-    let data;
     try {
-      data = JSON.parse(rawText);
+      setSaving(true);
+      setStatus("Saving...");
+
+      const res = await fetch(
+        `https://asksunnah-backend-hno9.onrender.com/api/admin/books/${bookId}/audio`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pageNumber: page.number,
+            audioLink: page.audioUrl,
+          }),
+        },
+      );
+
+      console.log("Response status:", res.status);
+      const rawText = await res.text();
+      console.log("Raw response:", rawText);
+
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (err) {
+        throw new Error("Invalid JSON: " + rawText);
+      }
+
+      console.log("Parsed data:", data);
+
+      if (res.ok && data.success) {
+        setStatus(`✅ Audio link added successfully to page ${page.number}`);
+      } else {
+        setStatus(`⚠️ ${data.error || "Error saving audio link."}`);
+      }
     } catch (err) {
-      throw new Error("Invalid JSON: " + rawText);
+      console.error("Fetch error:", err);
+      setStatus("💥 Server error while saving audio link: " + err.message);
+    } finally {
+      setSaving(false);
     }
-
-    console.log("Parsed data:", data);
-
-    if (res.ok && data.success) {
-      setStatus(`✅ Audio link added successfully to page ${page.number}`);
-    } else {
-      setStatus(`⚠️ ${data.error || "Error saving audio link."}`);
-    }
-  } catch (err) {
-    console.error("Fetch error:", err);
-    setStatus("💥 Server error while saving audio link: " + err.message);
-  } finally {
-    setSaving(false);
-  }
-};
+  };
 
   return (
-    <div className="page-block">
+    <div className="border border-[#ccc] rounded-lg p-4 mb-4 bg-[#fafafa] ml-8">
       {/* Page Number */}
-      <label>
-        Page #
+      <label className="block mb-3">
+        <span className="block text-sm font-semibold mb-1">Page #</span>
         <input
           type="number"
           value={page.number || ""}
           onChange={(e) => updateField("number", Number(e.target.value))}
+          className="border border-[#ccc] rounded px-2 py-1 text-sm w-24 font-normal"
         />
       </label>
 
-      {/* Render all blocks */}
+      {/* Blocks */}
       <div>
         {page.blocks.map((block, idx) => (
           <BlockEditor
@@ -102,32 +113,35 @@ console.log("Saving audio for", { bookId, pageNumber: page.number, url: page.aud
         ))}
 
         {/* References */}
-        <label>
-          References
+        <label className="block mb-3">
+          <span className="block text-sm font-semibold mb-1">References</span>
           <input
             value={page.references?.join(", ") || ""}
             onChange={handleRefsChange}
+            className="w-full border border-[#ccc] rounded px-2 py-1 text-sm font-normal"
           />
         </label>
 
-        <button type="button" className="btn-add" onClick={onAddBlock}>
+        <button
+          type="button"
+          onClick={onAddBlock}
+          className="bg-[#c3a421] text-white text-sm px-3 py-1 rounded cursor-pointer border-none mr-2"
+        >
           Add Block
         </button>
       </div>
 
-      <button type="button" className="btn-delete" onClick={onDelete}>
+      <button
+        type="button"
+        onClick={onDelete}
+        className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded cursor-pointer border-none mt-3"
+      >
         Remove Page
       </button>
 
-      {/* 🎧 Add Audio Link Section */}
-      <div
-        style={{
-          marginTop: "1rem",
-          paddingTop: "1rem",
-          borderTop: "1px solid #ddd",
-        }}
-      >
-        <label style={{ fontWeight: "bold", display: "block" }}>
+      {/* Audio Link Section */}
+      <div className="mt-4 pt-4 border-t border-[#ddd]">
+        <label className="block font-bold mb-2">
           🎧 Add Audio Link (S3 URL)
         </label>
         <input
@@ -135,29 +149,19 @@ console.log("Saving audio for", { bookId, pageNumber: page.number, url: page.aud
           value={page.audioUrl || ""}
           onChange={handleAudioChange}
           placeholder="Paste your S3 audio link here..."
-          style={{
-            width: "100%",
-            padding: "6px",
-            marginBottom: "0.5rem",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-          }}
+          className="w-full border border-[#ccc] rounded px-2 py-[6px] mb-2 text-sm"
         />
         <button
           onClick={handleSaveAudio}
           disabled={saving}
-          style={{
-            background: saving ? "#aaa" : "#2563eb",
-            color: "#fff",
-            padding: "6px 12px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className={`
+            text-white px-3 py-[6px] rounded border-none cursor-pointer text-sm
+            ${saving ? "bg-[#aaa] cursor-not-allowed" : "bg-[#2563eb] hover:bg-[#1d4ed8]"}
+          `}
         >
           {saving ? "Saving..." : "💾 Save Audio Link"}
         </button>
-        {status && <p style={{ marginTop: "0.5rem" }}>{status}</p>}
+        {status && <p className="mt-2 text-sm">{status}</p>}
       </div>
     </div>
   );
