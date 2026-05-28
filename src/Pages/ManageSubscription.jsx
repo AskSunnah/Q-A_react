@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortalSession } from '../api/stripe';
+import { API_BASE } from "../../config";
 
 export default function ManageSubscription() {
   const [customerId, setCustomerId] = useState('');
@@ -10,7 +11,7 @@ export default function ManageSubscription() {
     const sessionId = query.get('session_id');
 
     if (sessionId) {
-      fetch(`https://asksunnah-backend-hno9.onrender.com/api/session/${sessionId}`)
+      fetch(`${API_BASE}/api/session/${sessionId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.customerId) setCustomerId(data.customerId);

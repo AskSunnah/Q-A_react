@@ -1,9 +1,8 @@
-const API_BASE = "https://asksunnah-backend-hno9.onrender.com/api";  
-
+import { API_BASE } from "../../config";
 // GET all feedback
 export async function getAllFeedback(lang = "en") {
   try {
-    const res = await fetch(`${API_BASE}/feedback?lang=${lang}`, {
+    const res = await fetch(`${API_BASE}/api/feedback?lang=${lang}`, {
   method: "GET",
 });
 
@@ -21,7 +20,7 @@ export async function getAllFeedback(lang = "en") {
 // (Optional) POST feedback if needed in the future
 export async function createFeedback(data) {
   try {
-    const res = await fetch(`${API_BASE}/feedback`, {
+    const res = await fetch(`${API_BASE}/api/feedback`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

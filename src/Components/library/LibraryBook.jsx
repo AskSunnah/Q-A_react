@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
-import Navbar from "../../Components/Navbar";
+import Navbar from '../../Components/Navbar';
+import { API_BASE } from "../../../config";
+
+
 
 const CATEGORY_OPTIONS = {
   en: [
@@ -54,22 +57,25 @@ export default function BookLibrary({ lang = "en" }) {
 
   const getBookLink = (slug) => `/library/read/${lang}/${slug}`;
 
-  const handleDownload = async (bookId) => {
-    try {
-      const res = await fetch(
-        `https://asksunnah-backend-hno9.onrender.com/api/books/${bookId}/download`,
-      );
-      const data = await res.json();
-      if (!res.ok || !data.downloadUrl) {
-        alert("No download link available for this book.");
-        return;
-      }
-      window.location.href = data.downloadUrl;
-    } catch (err) {
-      console.error("Error downloading:", err);
-      alert("Something went wrong while downloading.");
+const handleDownload = async (bookId) => {
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/books/${bookId}/download`
+    );
+    const data = await res.json();
+
+    if (!res.ok || !data.downloadUrl) {
+      alert("No download link available for this book.");
+      return;
     }
-  };
+
+    // Use same tab instead of opening a new one
+    window.location.href = data.downloadUrl;
+  } catch (err) {
+    console.error("Error downloading:", err);
+    alert("Something went wrong while downloading.");
+  }
+};
 
   const getCategoryLabel = (value) => {
     const opts = CATEGORY_OPTIONS[lang] || CATEGORY_OPTIONS.en;

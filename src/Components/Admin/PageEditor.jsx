@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import BlockEditor from "./BlockEditor";
+import BlockEditor from "../../Components/Admin/BlockEditor";
+import { API_BASE } from "../../../config";
+
 
 export default function PageEditor({
   page,
@@ -50,17 +52,15 @@ export default function PageEditor({
       setSaving(true);
       setStatus("Saving...");
 
-      const res = await fetch(
-        `https://asksunnah-backend-hno9.onrender.com/api/admin/books/${bookId}/audio`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            pageNumber: page.number,
-            audioLink: page.audioUrl,
-          }),
-        },
-      );
+    const res = await fetch(`${API_BASE}/api/books/admin/${bookId}/audio`, 
+ {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pageNumber: page.number,
+        audioLink: page.audioUrl,
+      }),
+    });
 
       console.log("Response status:", res.status);
       const rawText = await res.text();

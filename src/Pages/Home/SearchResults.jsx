@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { API_BASE } from "../../../config";
+
 import axios from "axios";
 
 const SearchResults = () => {
@@ -24,9 +26,9 @@ const SearchResults = () => {
       try {
         const lang = isArabic ? "ar" : "en";
         const res = await axios.get(
-          `https://asksunnah-backend-hno9.onrender.com/api/search?q=${encodeURIComponent(
-            query,
-          )}&page=${page}&lang=${lang}`,
+          `${API_BASE}/api/search?q=${encodeURIComponent(
+            query
+          )}&page=${page}&lang=${lang}`
         );
 
         console.log("Search API response:", res.data);

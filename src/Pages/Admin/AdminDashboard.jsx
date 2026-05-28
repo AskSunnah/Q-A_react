@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "../../Components/Admin/AdminLayout";
-import {
-  BookOpen,
-  FileText,
-  MessageSquare,
-  CheckCircle,
-  Library,
-} from "lucide-react";
+import { BookOpen, FileText, MessageSquare, CheckCircle, Library } from "lucide-react";
+import { API_BASE } from "../../../config";
+
 
 const StatCard = ({ title, value, breakdown, icon: Icon, color }) => {
   const isPending = title.includes("Pending");
@@ -58,7 +54,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://asksunnah-backend-hno9.onrender.com/api/admin/stats")
+    fetch(`${API_BASE}/api/admin/stats`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed");
         return res.json();

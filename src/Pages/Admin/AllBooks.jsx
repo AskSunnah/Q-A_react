@@ -3,6 +3,7 @@ import AdminHeader from "../../Components/Admin/Header";
 import { fetchBooksAdmin, deleteBookAdmin } from "../../api/adminBook";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../Components/Admin/AdminLayout";
+import { API_BASE } from "../../../config";
 
 const LANGS = [
   { value: "en", label: "English" },
@@ -41,29 +42,28 @@ export default function AllBooks() {
   };
 
   const handleAddDownloadLink = async (bookId) => {
-    const driveLink = prompt("Paste the Google Drive link here:");
-    try {
-      const res = await fetch(
-        `https://asksunnah-backend-hno9.onrender.com/api/admin/books/${bookId}/download`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ driveLink }),
-        },
-      );
-      const data = await res.json();
-      if (!res.ok || !data.success)
-        throw new Error(data.message || "Failed to add link");
-      alert("Download link updated successfully!");
-      setBooks(
-        books.map((b) =>
-          b._id === bookId ? { ...b, download: data.download } : b,
-        ),
-      );
-    } catch (err) {
-      alert("Error: " + err.message);
-    }
-  };
+  const driveLink = prompt("Paste the Google Drive link here:");
+
+  try {
+  const res = await fetch(`${API_BASE}/api/books/admin/${bookId}/download`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ driveLink }),
+  });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.message || "Failed to add link");
+
+    alert("Download link updated successfully!");
+
+    // update locally
+    setBooks(books.map(b =>
+      b._id === bookId ? { ...b, download: data.download } : b
+    ));
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+};
 
   const doDelete = async (slug) => {
     setModal({ show: false });

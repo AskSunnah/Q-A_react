@@ -1,6 +1,7 @@
 // api calls for admin book management
+import { API_BASE } from "../../config";
 export async function submitBook(bookData) {
-  const res = await fetch('https://asksunnah-backend-hno9.onrender.com/api/books', {
+  const res = await fetch(`${API_BASE}/api/books`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(bookData),
@@ -11,7 +12,7 @@ export async function submitBook(bookData) {
 }
 
 export async function fetchBooksAdmin(lang) {
-  const endpoint = `https://asksunnah-backend-hno9.onrender.com/api/books/${lang}`;
+  const endpoint = `${API_BASE}/api/books/${lang}`;
   const res = await fetch(endpoint);
   if (!res.ok) throw new Error("Failed to fetch books");
   const data = await res.json();
@@ -19,7 +20,7 @@ export async function fetchBooksAdmin(lang) {
 }
 
 export async function deleteBookAdmin(lang, slug) {
-  const endpoint = `https://asksunnah-backend-hno9.onrender.com/api/books/${lang}/${slug}`;
+  const endpoint = `${API_BASE}/api/books/${lang}/${slug}`;
   const res = await fetch(endpoint, { method: "DELETE" });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.message || "Failed to delete book");
@@ -27,7 +28,7 @@ export async function deleteBookAdmin(lang, slug) {
 }
 
 export async function fetchBookAdmin(lang, slug) {
-  const endpoint = `https://asksunnah-backend-hno9.onrender.com/api/books/${lang}/${slug}`;
+  const endpoint = `${API_BASE}/api/books/${lang}/${slug}`;
   const res = await fetch(endpoint);
   const data = await res.json();
   if (!res.ok || !data.book) throw new Error(data.message || "Book not found");
@@ -35,7 +36,7 @@ export async function fetchBookAdmin(lang, slug) {
 }
 
 export async function saveBookAdmin(lang, slug, bookData) {
-  const endpoint = `https://asksunnah-backend-hno9.onrender.com/api/books/${lang}/${slug}`;
+  const endpoint = `${API_BASE}/api/books/${lang}/${slug}`;
   const res = await fetch(endpoint, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
