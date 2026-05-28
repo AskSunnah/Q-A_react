@@ -140,7 +140,7 @@ const handleDownload = async (bookId) => {
       )}
 
       {/* container */}
-      <div className="max-w-[1000px] mx-auto my-8 p-6 rounded-[12px] bg-[var(--bg-light)] text-[var(--text-main)]">
+      <div className="max-w-[1090px] mx-auto my-8 p-6 rounded-[12px] bg-[var(--bg-light)] text-[var(--text-main)]">
         {/* Search + Filter row */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
           {/* Search Bar */}
