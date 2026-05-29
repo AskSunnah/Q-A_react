@@ -26,24 +26,43 @@ const READ_LABEL = { en: "Read Book", ar: "اقرأ الكتاب" };
 const DOWNLOAD_LABEL = { en: "Download (Free)", ar: "تحميل (مجاني)" };
 
 export default function BookLibrary({ lang = "en" }) {
-  const [books, setBooks] = useState([]);
-  const [displayBooks, setDisplayBooks] = useState([]);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+const [books, setBooks] = useState([]);
+const [displayBooks, setDisplayBooks] = useState([]);
+const [search, setSearch] = useState("");
+const [category, setCategory] = useState("all");
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
-    fetchBooks(lang)
-      .then((data) => {
-        setBooks(
-          data.map((b) => ({
-            ...b,
-            category: b.category ? b.category.toLowerCase() : "uncategorized",
-          })),
-        );
-      })
-      .catch(() => setBooks([]));
-  }, [lang]);
+  const loadBooks = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await fetchBooks(lang);
+
+      setBooks(
+        data.map((b) => ({
+          ...b,
+          category: b.category ? b.category.toLowerCase() : "uncategorized",
+        }))
+      );
+    } catch (err) {
+      console.error("Error loading books:", err);
+      setBooks([]);
+      setError(
+        lang === "ar"
+          ? "حدث خطأ أثناء تحميل الكتب."
+          : "Something went wrong while loading books."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadBooks();
+}, [lang]);
 
   useEffect(() => {
     let filtered = books.filter(
@@ -212,104 +231,82 @@ const handleDownload = async (bookId) => {
           </div>
         </div>
 
-        {/* Book Grid */}
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 mt-2">
-          {displayBooks.length === 0 ? (
-            <p></p>
-          ) : (
-            displayBooks.map((book) => (
-              <div
-                key={book.slug}
-                data-category={book.category}
-                className="bg-white rounded-[10px] text-[var(--text-main)] flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-[#e9e0c8] overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-              >
-                {/* Top accent bar */}
-                <div
-                  className="h-1 w-full"
-                  style={{ background: "var(--button-gradient)" }}
-                />
+        {/* Book Grid / Loading State */}
+{loading ? (
+  <div className="flex flex-col items-center justify-center py-16">
+    <div className="w-[70px] h-[70px] rounded-full animate-spin border-[7px] border-[var(--bg-color-header)] border-t-[7px] border-t-[var(--text-accent)]" />
+    <p className="mt-4 text-[var(--text-main)] font-medium">
+      {lang === "ar" ? "جاري تحميل الكتب..." : "Loading books..."}
+    </p>
+  </div>
+) : error ? (
+  <div className="text-center py-12 text-red-600 font-medium">
+    {error}
+  </div>
+) : displayBooks.length === 0 ? (
+  <div className="text-center py-12 text-[var(--text-main)] font-medium">
+    {lang === "ar" ? "لا توجد كتب متاحة." : "No books found."}
+  </div>
+) : (
+  <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 mt-2">
+    {displayBooks.map((book) => (
+      <div
+        key={book.slug}
+        data-category={book.category}
+        className="bg-white rounded-[10px] text-[var(--text-main)] flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-[#e9e0c8] overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+      >
+        <div
+          className="h-1 w-full"
+          style={{ background: "var(--button-gradient)" }}
+        />
 
-                <div className="p-4 flex flex-col flex-1">
-                  {/* Category badge */}
-                  <span className="self-start text-[0.7rem] font-semibold uppercase tracking-wide bg-[#fef3c7] text-[#92400e] px-2 py-[2px] rounded-full mb-3">
-                    {getCategoryLabel(book.category)}
-                  </span>
+        <div className="p-4 flex flex-col flex-1">
+          <span className="self-start text-[0.7rem] font-semibold uppercase tracking-wide bg-[#fef3c7] text-[#92400e] px-2 py-[2px] rounded-full mb-3">
+            {getCategoryLabel(book.category)}
+          </span>
 
-                  {/* Title */}
-                  <div className="text-[1.05rem] font-bold mb-1 leading-snug">
-                    {book.title}
-                  </div>
+          <div className="text-[1.05rem] font-bold mb-1 leading-snug">
+            {book.title}
+          </div>
 
-                  {/* Author */}
-                  <div className="text-[0.85rem] text-[var(--text-secondary)] mb-4 flex items-center gap-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-3 h-3 shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5.121 17.804A4 4 0 0 1 8 17h8a4 4 0 0 1 2.879 1.804M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"
-                      />
-                    </svg>
-                    {book.author}
-                  </div>
+          <div className="text-[0.85rem] text-[var(--text-secondary)] mb-4 flex items-center gap-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-3 h-3 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5.121 17.804A4 4 0 0 1 8 17h8a4 4 0 0 1 2.879 1.804M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"
+              />
+            </svg>
+            {book.author || "Unknown Author"}
+          </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mt-auto">
-                    {/* Read Book */}
-                    <a
-                      href={getBookLink(book.slug)}
-                      className="flex items-center gap-[6px] flex-1 justify-center bg-[#c9a227] text-black py-[0.5rem] px-3 rounded-[6px] no-underline font-bold text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4 shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                        />
-                      </svg>
-                      {READ_LABEL[lang]}
-                    </a>
+          <div className="flex gap-2 mt-auto">
+            <a
+              href={getBookLink(book.slug)}
+              className="flex items-center gap-[6px] flex-1 justify-center bg-[#c9a227] text-black py-[0.5rem] px-3 rounded-[6px] no-underline font-bold text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
+            >
+              {READ_LABEL[lang]}
+            </a>
 
-                    {/* Download Button */}
-                    <button
-                      onClick={() => handleDownload(book._id)}
-                      className="flex items-center gap-[6px] flex-1 justify-center bg-[#1f6f3e] text-white border-none py-[0.5rem] px-3 rounded-[6px] cursor-pointer font-normal text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4 shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5 5-5M12 15V3"
-                        />
-                      </svg>
-                      {DOWNLOAD_LABEL[lang]}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
+            <button
+              onClick={() => handleDownload(book._id)}
+              className="flex items-center gap-[6px] flex-1 justify-center bg-[#1f6f3e] text-white border-none py-[0.5rem] px-3 rounded-[6px] cursor-pointer font-normal text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
+            >
+              {DOWNLOAD_LABEL[lang]}
+            </button>
+          </div>
         </div>
+      </div>
+    ))}
+  </div>
+)}
       </div>
     </div>
   );
