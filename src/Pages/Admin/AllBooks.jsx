@@ -11,7 +11,6 @@ import { API_BASE } from "../../../config";
 const LANGS = [
   { value: "en", label: "English" },
   { value: "ar", label: "Arabic" },
-  { value: "ar", label: "Arabic" },
 ];
 
 export default function AllBooks() {
@@ -123,7 +122,6 @@ export default function AllBooks() {
       title: "Delete Book",
       message: "Are you sure you want to delete this book?",
       onYes: () => doDelete(slug),
-      onYes: () => doDelete(slug),
     });
   };
 
@@ -179,10 +177,6 @@ export default function AllBooks() {
     }
   };
 
-  // ==========================================================
-  // RENDER
-  // ==========================================================
-
   return (
     <AdminLayout>
       <style>{`
@@ -190,56 +184,26 @@ export default function AllBooks() {
           margin: 0;
           font-family: 'Segoe UI', sans-serif;
         }
-
-        .drag-handle {
-          cursor: grab;
-          color: #64748b;
-          font-size: 1.2rem;
-          user-select: none;
-          padding: 0 0.5rem;
-        }
-
-        .drag-handle:active {
-          cursor: grabbing;
-        }
       `}</style>
 
-      <div style={{ maxWidth: 900, margin: "2rem auto" }}>
-        <h1 style={{ textAlign: "center", color: "#c3a421" }}>
+      <div className="max-w-[900px] mx-auto mt-8">
+        <h1 className="text-center text-[#c3a421] text-2xl font-bold mb-0">
           Manage Books
         </h1>
 
-        <p
-          style={{
-            textAlign: "center",
-            color: "#64748b",
-            marginTop: "-0.5rem",
-            marginBottom: "1.5rem",
-          }}
-        >
-          Drag books using the handle to change their frontend order.
+        <p className="text-center text-slate-500 mt-2 mb-4">
+          Drag books using the handle to change their order on the frontend.
         </p>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "1rem",
-            marginBottom: "1rem",
-          }}
-        >
+        <div className="flex justify-center gap-4 mb-4 mt-4">
           {LANGS.map((l) => (
             <button
               key={l.value}
-              style={{
-                padding: "0.5rem 1.2rem",
-                border: "none",
-                borderRadius: "5px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                background: lang === l.value ? "#c3a421" : "#e2e8f0",
-                color: lang === l.value ? "white" : "#1e293b",
-              }}
+              className={`py-2 px-5 border-none rounded-[5px] font-bold cursor-pointer text-base disabled:opacity-60 disabled:cursor-not-allowed ${
+                lang === l.value
+                  ? "bg-[#c3a421] text-white"
+                  : "bg-[#e2e8f0] text-[#1e293b]"
+              }`}
               onClick={() => setLang(l.value)}
               disabled={savingOrder}
             >
@@ -249,14 +213,7 @@ export default function AllBooks() {
         </div>
 
         {savingOrder && (
-          <div
-            style={{
-              textAlign: "center",
-              color: "#2563eb",
-              marginBottom: "1rem",
-              fontWeight: 600,
-            }}
-          >
+          <div className="text-center text-blue-600 font-semibold mb-4">
             Saving new order...
           </div>
         )}
@@ -264,18 +221,9 @@ export default function AllBooks() {
         {loading ? (
           <div className="text-center">Loading books...</div>
         ) : (
-          <ul
-            style={{
-              listStyle: "none",
-              padding: 0,
-              maxWidth: 840,
-              margin: "0 auto",
-            }}
-          >
+          <ul className="list-none p-0 max-w-[840px] mx-auto">
             {books.length === 0 ? (
-              <li>
-                No books found in {lang === "en" ? "English" : "Arabic"}.
-              </li>
+              <li>No books found in {lang === "en" ? "English" : "Arabic"}.</li>
             ) : (
               books.map((book, index) => (
                 <li
@@ -285,50 +233,23 @@ export default function AllBooks() {
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDrop={(e) => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
-                  style={{
-                    background: "#fff",
-                    margin: "0.5rem 0",
-                    padding: "1rem",
-                    borderLeft: "5px solid #c3a421",
-                    borderRadius: 6,
-                    boxShadow:
-                      dragOverIndex === index
-                        ? "0 4px 12px rgba(195,164,33,0.35)"
-                        : "0 2px 5px rgba(0,0,0,0.05)",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: "1rem",
-                    opacity: draggedIndex === index ? 0.5 : 1,
-                    transform:
-                      dragOverIndex === index ? "scale(1.01)" : "scale(1)",
-                    transition: "all 0.15s ease",
-                  }}
+                  className={`bg-white my-3 p-4 border-l-[5px] border-[#c3a421] rounded-[6px] flex justify-between items-center gap-4 transition-all duration-150 ${
+                    draggedIndex === index ? "opacity-50" : "opacity-100"
+                  } ${
+                    dragOverIndex === index
+                      ? "scale-[1.01] shadow-[0_4px_12px_rgba(195,164,33,0.35)]"
+                      : "shadow-[0_2px_5px_rgba(0,0,0,0.05)]"
+                  }`}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.75rem",
-                      flex: 1,
-                    }}
-                  >
-                    <span className="drag-handle" title="Drag to reorder">
+                  <div className="flex items-center gap-3 flex-1">
+                    <span
+                      className="cursor-grab active:cursor-grabbing text-slate-500 text-xl select-none px-2"
+                      title="Drag to reorder"
+                    >
                       ☰
                     </span>
 
-                    <span
-                      style={{
-                        background: "#f1f5f9",
-                        color: "#334155",
-                        padding: "0.25rem 0.55rem",
-                        borderRadius: "999px",
-                        fontSize: "0.8rem",
-                        fontWeight: 700,
-                        minWidth: 28,
-                        textAlign: "center",
-                      }}
-                    >
+                    <span className="bg-slate-100 text-slate-700 py-1 px-2 rounded-full text-xs font-bold min-w-7 text-center">
                       {index + 1}
                     </span>
 
@@ -336,36 +257,15 @@ export default function AllBooks() {
                       onClick={() =>
                         navigate(`/library/read/${book.language}/${book.slug}`)
                       }
-                      style={{
-                        cursor: "pointer",
-                        textDecoration: "none",
-                        color: "#1e293b",
-                        fontWeight: 500,
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.target.style.textDecoration = "underline")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.target.style.textDecoration = "none")
-                      }
+                      className="cursor-pointer text-[#1e293b] font-medium hover:underline"
                     >
                       {book.title}
                     </span>
                   </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "0.5rem",
-                      flexWrap: "wrap",
-                      justifyContent: "flex-end",
-                    }}
-                  >
+                  <div className="flex gap-2 flex-wrap justify-end">
                     <button
-                      style={{
-                        ...buttonStyle,
-                        background: "#2563eb",
-                      }}
+                      className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#2563eb] disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={() => handleAddDownloadLink(book._id)}
                       disabled={savingOrder}
                     >
@@ -373,10 +273,7 @@ export default function AllBooks() {
                     </button>
 
                     <button
-                      style={{
-                        ...buttonStyle,
-                        background: "grey",
-                      }}
+                      className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={() =>
                         navigate(
                           `/supervised/books/edit/${book.language}/${book.slug}`
@@ -388,10 +285,7 @@ export default function AllBooks() {
                     </button>
 
                     <button
-                      style={{
-                        ...buttonStyle,
-                        background: "#e53e3e",
-                      }}
+                      className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#e53e3e] disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={() => confirmDelete(book.slug)}
                       disabled={savingOrder}
                     >
@@ -406,34 +300,8 @@ export default function AllBooks() {
       </div>
 
       {modal.show && (
-        <div
-          style={{
-            position: "fixed",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "#fff",
-            color: "#1e293b",
-            border: "1px solid #ccc",
-            padding: "1rem 2rem",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            zIndex: 9999,
-            width: "90%",
-            maxWidth: 600,
-            textAlign: "center",
-            fontSize: "1rem",
-          }}
-        >
-          <strong
-            style={{
-              fontSize: "1.2rem",
-              marginBottom: "0.5rem",
-              display: "block",
-            }}
-          >
-            {modal.title}
-          </strong>
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-4 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[9999] w-[90%] max-w-[600px] text-center text-base">
+          <strong className="text-[1.2rem] mb-2 block">{modal.title}</strong>
 
           <span>{modal.message}</span>
 
@@ -446,31 +314,14 @@ export default function AllBooks() {
                   modal.onYes();
                   setModal({ ...modal, show: false });
                 }}
-                style={{
-                  background: "#e53e3e",
-                  color: "white",
-                  border: "none",
-                  padding: "0.5rem 1.2rem",
-                  fontWeight: "bold",
-                  borderRadius: 6,
-                  marginRight: "1rem",
-                  cursor: "pointer",
-                }}
+                className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] mr-4 cursor-pointer"
               >
                 Yes
               </button>
 
               <button
                 onClick={() => setModal({ show: false })}
-                style={{
-                  background: "#287346",
-                  color: "white",
-                  border: "none",
-                  padding: "0.5rem 1.2rem",
-                  fontWeight: "bold",
-                  borderRadius: 6,
-                  cursor: "pointer",
-                }}
+                className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
               >
                 No
               </button>
@@ -478,16 +329,7 @@ export default function AllBooks() {
           ) : (
             <button
               onClick={() => setModal({ show: false })}
-              style={{
-                background: "#287346",
-                color: "white",
-                border: "none",
-                padding: "0.5rem 1.2rem",
-                fontWeight: "bold",
-                borderRadius: 6,
-                cursor: "pointer",
-                marginTop: "1rem",
-              }}
+              className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer mt-4"
             >
               Close
             </button>
@@ -497,12 +339,3 @@ export default function AllBooks() {
     </AdminLayout>
   );
 }
-
-const buttonStyle = {
-  padding: "0.4rem 0.8rem",
-  border: "none",
-  borderRadius: "4px",
-  cursor: "pointer",
-  fontSize: "0.95rem",
-  color: "white",
-};
