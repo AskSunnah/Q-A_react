@@ -31,7 +31,7 @@ const LANG_MAP = {
     loading: "جاري التحميل...",
     error: "تعذر تحميل الكتاب",
     chapters: (slug, firstPage) => `/read_ar/${slug}?page=${firstPage}`,
-    libraryUrl: "/library/library_ar/library.html",
+    libraryUrl: "/library_ar",
   },
 };
 
