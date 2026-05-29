@@ -1,16 +1,17 @@
 // src/components/ReadBook/ReadBook.jsx
 
 import React, { useEffect, useState } from "react";
-import { useParams,Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { fetchBook } from "../../api/book.js";
 import Sidebar from "../../Components/library/Sidebar";
 import BookContent from "../../Components/library/BookContent";
 import Controls from "../../Components/library/Controls";
-import Footer from "../../Components/Footer.jsx"
+import Footer from "../../Components/Footer.jsx";
 import { FiShare2 } from "react-icons/fi";
+
 const LANG_LABELS = {
   en: { toc: "Table of Contents", back: "Book Details" },
-  ar: { toc: "فهرس المحتويات", back: "تفاصيل الكتاب" }
+  ar: { toc: "فهرس المحتويات", back: "تفاصيل الكتاب" },
 };
 
 export default function ReadBook() {
@@ -21,512 +22,247 @@ export default function ReadBook() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isTashkeelRemoved, setIsTashkeelRemoved] = useState(false);
 
-
- useEffect(() => {
-  fetchBook(lang, slug)
-    .then(bookData => {
-      let flatPages = [];
-      bookData.chapters.forEach((chapter, chapterIndex) => {
-        chapter.pages.forEach((pg, pageIndex) => {
-          flatPages.push({ ...pg, chapterIndex, pageIndex });
+  useEffect(() => {
+    fetchBook(lang, slug)
+      .then((bookData) => {
+        let flatPages = [];
+        bookData.chapters.forEach((chapter, chapterIndex) => {
+          chapter.pages.forEach((pg, pageIndex) => {
+            flatPages.push({ ...pg, chapterIndex, pageIndex });
+          });
         });
-      });
-      bookData.pages = flatPages; 
-      setBook(bookData);
-      setCurrentPage(0);
-    })
-    .catch(() => setBook(null));
-}, [lang, slug]);
-useEffect(() => {
-  const handleKeyDown = (e) => {
-    if (e.key === "ArrowRight") {
-      if (currentPage < book?.pages?.length - 1) {
-        setCurrentPage((prev) => prev + 1);
-      }
-    } else if (e.key === "ArrowLeft") {
-      if (currentPage > 0) {
-        setCurrentPage((prev) => prev - 1);
-      }
-    }
-  };
+        bookData.pages = flatPages;
+        setBook(bookData);
+        setCurrentPage(0);
+      })
+      .catch(() => setBook(null));
+  }, [lang, slug]);
 
-  window.addEventListener("keydown", handleKeyDown);
-  return () => window.removeEventListener("keydown", handleKeyDown);
-}, [currentPage, book?.pages?.length]);
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight") {
+        if (currentPage < book?.pages?.length - 1) {
+          setCurrentPage((prev) => prev + 1);
+        }
+      } else if (e.key === "ArrowLeft") {
+        if (currentPage > 0) {
+          setCurrentPage((prev) => prev - 1);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentPage, book?.pages?.length]);
+
   if (!book) return <div></div>;
 
-   const page = book.pages?.[currentPage] || { blocks: [] };
+  const page = book.pages?.[currentPage] || { blocks: [] };
   const dir = lang === "ar" ? "rtl" : "ltr";
   const labels = LANG_LABELS[lang] || LANG_LABELS.en;
   const isArabic = lang === "ar";
 
   function handleTashkeelToggle() {
-    setIsTashkeelRemoved(prev => !prev);
+    setIsTashkeelRemoved((prev) => !prev);
     console.log("Tashkeel toggled. Now removed:", !isTashkeelRemoved);
   }
 
-const handleShare = async () => {
-  const title = document.title;
-  const url = window.location.href;
-
-  const text = isArabic
-    ? `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`
-    : `📖 Read this book on AskSunnah: ${title}`;
-
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: title,
-        text: text,
-        url: url,
-      });
-    } catch (err) {
-      console.log("Sharing cancelled or failed:", err);
+  const handleShare = async () => {
+    const title = document.title;
+    const url = window.location.href;
+    const text = isArabic
+      ? `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`
+      : `📖 Read this book on AskSunnah: ${title}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text, url });
+      } catch (err) {
+        console.log("Sharing cancelled or failed:", err);
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert(isArabic ? "📋 تم نسخ رابط الكتاب!" : "📋 Book link copied!");
     }
-  } else {
-    await navigator.clipboard.writeText(url);
-    alert(isArabic ? "📋 تم نسخ رابط الكتاب!" : "📋 Book link copied!");
-  }
-};
-
-
+  };
 
   return (
-    <div className="root" dir={dir}>
-      <style>{`
-    body {
-      margin: 0;
-    }
-
-    header {
-      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/books.jpeg");
-      background-size:fit;
-      background-position: center;
-      color: white;
-      padding: 1rem 2rem;
-      text-align: center;
-    }
-
-    .layout {
-      display: flex;
-      flex-direction: row;
-      padding: 1em;
-      
-      
-    }
-
-    .sidebar {
-      width: 20%;
-      background-color: var(--bg-main);
-      padding: 1rem;
-      overflow-y: scroll;
-      height: 70vh;
-      margin-right:3px;
-      
-    }
-
-    .sidebar h2 {
-      font-size: 1.2rem;
-      color: var(--text-main);
-      margin-bottom: 1rem;
-    }
-
-    .sidebar a {
-      display: block;
-      text-decoration: none;
-      color: var(--text-accent);
-      padding: 0.4rem 0;
-      font-size: 0.95rem;
-      overflow: auto;
-    }
-
-    .sidebar a:hover {
-      color: var(--text-main);
-    }
-    .sidebar-toggle {
-      display: none;
-      font-size: 1.3rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-align: right;
-      margin: 6px;
-      color: var(--primary);
-    }
-    .content {
-      min-height: 50vh;
-      width: 60vw;
-      flex: 1;
-      padding: 1em;
-      line-height: 2;
-      color:var(--text-main);
-      font-size: 1.1rem;
-      border: 1px double var(--border-color);
-      background-color: var(--bg-secondary);
-      border-radius: 2%;
-      background:  url("/test1.jpg");
-      background-size:cover;
-      background-position: center;
-      text-align: justify;
-    }
-      
-
-    .controls {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
-     .controls input {
-      margin: 0 0.3rem;
-      padding: 0.4rem 0.7rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: white;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .controls button{
-      margin: 0 0.3rem;
-      padding: 0.4rem 0.7rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      color: var(--button-text-color);
-      background: var(--button-gradient);
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .controls button:hover {
-      background: white;
-      border:1px solid var(--text-main);
-      color:var(--text-main);
-      border: 1px solid var(--primary);
-      font-weight: 600;
-    }
-    .referencebox{
-      font-size: x-small;
-      bottom: 0;
-      padding: 1em;
-    }
-    .referencebox ul{
-      list-style: none;
-    }
-    hr{
-      color: rgba(0, 95, 30, 0.203);
-      width: 90%;
-    }
-    .navbar {
-      background: var(--bg-main);
-      padding: 1rem 1.5rem;
-      position: relative;
-      z-index: 10;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .navbar ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1.5rem;
-    }
-
-    .nav-link {
-      color: var(--text-main);
-      text-decoration: none;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      transition: background 0.2s;
-      display: inline-block;
-    }
-
-    .nav-link:hover,
-    .nav-link:focus {
-      background: var( --button-gradient);
-      color:var(--text-main);
-    }
-
-    /* Hamburger Button */
-    .nav-toggle {
-      display: none;
-      font-size: 1.3rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--primary);
-      position: absolute;
-      top: 9px;
-      right: 1rem;
-      z-index: 11;
-    }
-
-    /* Small Screens */
-    @media (max-width: 768px) {
-
-      .navbar {
-        /* background:#e9f5ec; */
-        padding: 1.5rem 0;
-      }
-
-      .nav-toggle {
-        display: block;
-      }
-
-      .nav-menu {
-        display: none;
-        width: 100%;
-      }
-
-      .nav-menu.open {
-        display: block;
-      }
-
-      .navbar ul {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-      }
-      .layout{
-        display: flex;
-        flex-direction: column;
-      }
-      .sidebar {
-        display: none;
-        width: 100vw;
-        overflow-y: auto;
-        max-height: 50vh;
-     }
-     .sidebar-toggle{
-      display: block;
-     }
-      .sidebar.open {
-        
-        display: block;
-    }
-    .content{
-      width:fit-content;
-    }
-    }
-
-    /* Dark mode styles */
-    body.dark .navbar {
-      background: #183c25;
-    }
-
-    body.dark .nav-link:hover,
-    body.dark .nav-link:focus {
-      background: #25603a;
-    }
-          .tashkeel-btn {
-  background: #0c0c0cff;
-  color: #fff;
-  border: none;
-  padding: 0.4rem 1.4rem;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin-bottom: 0.8rem;
-  margin-inline-start: 0; /* ❌ remove gap completely */
-  margin-inline-start: -3px;
-
-}
-
-
-    .tashkeel-btn:hover {
-      background: #ef0000f6;
-    }
-
-    .tashkeel-share-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.share-button {
-  background: #fff;
-  border: 1px solid #ccc;
-  color: #333;
-  border-radius: 8px;
-  cursor: pointer;
-  padding: 0.3rem 0.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2rem;
-  transition: 0.2s ease;
-  position: relative;
-top: -5.7px; /* Move up slightly — try -3px or -4px if needed */
-
-}
-
-.share-button:hover {
-  color: #0077cc;
-  border-color: #0077cc;
-  transform: scale(1.05);
-}
-
-
-
-
-    `}</style>
-      <header>
-        <h1>{book.title}</h1>
+    <div dir={dir}>
+      {/* header */}
+      <header
+        className="text-white py-10 px-8 text-center"
+        style={{
+          background:
+            'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/books.jpeg")',
+          backgroundSize: "auto",
+          backgroundPosition: "center",
+        }}
+      >
+        <h1 className="font-bold text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl leading-tight break-words text-center truncate text-wrap">
+          {book.title}
+        </h1>
       </header>
-      <nav className="navbar">
-        <ul>
-          <li><Link className="nav-link" 
-          to={lang === "ar" ? "/ar" : "/"} >
-             {lang === "ar" ? "الرئيسية" : "Home"}
-             </Link>
+
+      {/* navbar */}
+      <nav className="bg-[var(--bg-main)] px-6 py-4 relative z-10 font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]">
+        <ul className="list-none m-0 p-0 flex flex-wrap justify-center gap-6">
+          <li>
+            <Link className="nav-link" to={lang === "ar" ? "/ar" : "/"}>
+              {lang === "ar" ? "الرئيسية" : "Home"}
+            </Link>
           </li>
           <li>
-            <Link className="nav-link"
+            <Link
+              className="nav-link"
               to={lang === "ar" ? "/library_ar" : "/library"}
             >
               {lang === "ar" ? "المكتبة" : "Library"}
             </Link>
           </li>
           <li>
-            <li>
             <Link className="nav-link" to={`/books/${lang}/${slug}`}>
               {labels.back}
             </Link>
-</li>
           </li>
         </ul>
       </nav>
-      <div className="layout">
+
+      {/* layout */}
+      <div className="flex flex-row max-md:flex-col p-4">
+        {/* sidebar toggle button — hidden on desktop, shown on mobile */}
         <button
-  className="sidebar-toggle"
-  onClick={() => setSidebarOpen(open => !open)}
-  aria-label="Toggle sidebar"
->
-  <img
-    src="https://img.icons8.com/?size=100&id=42763&format=png&color=000000"
-    alt="قائمة"
-    width="30px"
-  />
-</button>
-        <Sidebar
-          open={sidebarOpen}
-          chapters={book.chapters}
-          setCurrentPage={setCurrentPage}
-          currentPage={currentPage}
-          pages={book.pages}
-          tocLabel={labels.toc}
-        />
-        <main>
+          className="hidden max-md:block text-[1.3rem] bg-transparent border-none cursor-pointer text-right m-[6px] text-[var(--primary)]"
+          onClick={() => setSidebarOpen((open) => !open)}
+          aria-label="Toggle sidebar"
+        >
+          <img
+            src="https://img.icons8.com/?size=100&id=42763&format=png&color=000000"
+            alt="قائمة"
+            width="30px"
+          />
+        </button>
 
-  <div className="tashkeel-share-wrapper">
-  {isArabic && (
-    <>
-      {/* 🕋 REMOVE TASHKEEL — FIRST */}
-      <button className="tashkeel-btn" onClick={handleTashkeelToggle}>
-        {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
-      </button>
+        {/* sidebar — w-[20%] on desktop, full width + toggleable on mobile */}
+        <div
+          className={`w-[20%] shrink-0 min-w-[180px] bg-[var(--bg-main)] p-4 overflow-y-scroll h-[70vh] mr-[3px]
+            max-md:w-screen max-md:overflow-y-auto max-md:max-h-[50vh] max-md:mr-0
+            ${sidebarOpen ? "max-md:block" : "max-md:hidden"}`}
+        >
+          <Sidebar
+            open={sidebarOpen}
+            chapters={book.chapters}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            pages={book.pages}
+            tocLabel={labels.toc}
+          />
+        </div>
 
-     {/* 🎧 AUDIO BUTTON — SECOND (only show if audio exists) */}
-{page.audioUrl && (
-  <button
-    onClick={() => {
-      if (window.currentAudio && !window.currentAudio.paused) {
-        window.currentAudio.pause();
-        window.currentAudio = null;
-        const icon = document.getElementById("audio-icon");
-        if (icon)
-          icon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round"
-            d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
-            M16.5 8.25a3.75 3.75 0 010 7.5
-            m2.25-10.5a7.5 7.5 0 010 13.5"/>
-          `;
-      } else {
-        if (window.currentAudio) window.currentAudio.pause();
+        {/* main content */}
+        <main className="flex-1 min-w-0">
+          {/* tashkeel + share wrapper */}
+          <div className="flex items-center gap-2">
+            {isArabic && (
+              <>
+                {/* Remove Tashkeel button */}
+                <button
+                  className="bg-[#0c0c0c] text-white border-none px-[1.4rem] py-[0.4rem] rounded-full cursor-pointer text-[0.9rem] mb-[0.8rem] -ml-[3px] hover:bg-[#ef0000f6]"
+                  onClick={handleTashkeelToggle}
+                >
+                  {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
+                </button>
 
-        const audio = new Audio(page.audioUrl);
-        window.currentAudio = audio;
-        audio.play();
+                {/* Audio button — only show if audio exists */}
+                {page.audioUrl && (
+                  <button
+                    onClick={() => {
+                      if (window.currentAudio && !window.currentAudio.paused) {
+                        window.currentAudio.pause();
+                        window.currentAudio = null;
+                        const icon = document.getElementById("audio-icon");
+                        if (icon)
+                          icon.innerHTML = `
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
+                            M16.5 8.25a3.75 3.75 0 010 7.5
+                            m2.25-10.5a7.5 7.5 0 010 13.5"/>
+                          `;
+                      } else {
+                        if (window.currentAudio) window.currentAudio.pause();
+                        const audio = new Audio(page.audioUrl);
+                        window.currentAudio = audio;
+                        audio.play();
+                        const icon = document.getElementById("audio-icon");
+                        if (icon)
+                          icon.innerHTML = `
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10 9h2v6h-2zM14 9h2v6h-2z"/>
+                          `;
+                        audio.addEventListener("ended", () => {
+                          const icon = document.getElementById("audio-icon");
+                          if (icon)
+                            icon.innerHTML = `
+                              <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
+                              M16.5 8.25a3.75 3.75 0 010 7.5
+                              m2.25-10.5a7.5 7.5 0 010 13.5"/>
+                            `;
+                        });
+                      }
+                    }}
+                    title="تشغيل الصوت"
+                    className="bg-white border border-[#ccc] text-[#333] rounded-[8px] cursor-pointer px-[0.6rem] py-[0.3rem] flex items-center justify-center h-8 transition-all duration-200 relative -top-[5.7px] hover:text-[#0077cc] hover:border-[#0077cc] hover:scale-105"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.8"
+                      stroke="currentColor"
+                      width="18"
+                      height="18"
+                      style={{ transform: "scaleX(-1)" }}
+                    >
+                      <path
+                        id="audio-icon"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
+                        M16.5 8.25a3.75 3.75 0 010 7.5
+                        m2.25-10.5a7.5 7.5 0 010 13.5"
+                      />
+                    </svg>
+                  </button>
+                )}
 
-        const icon = document.getElementById("audio-icon");
-        if (icon)
-          icon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round"
-            d="M10 9h2v6h-2zM14 9h2v6h-2z"/>
-          `;
+                {/* Share button */}
+                <button
+                  onClick={handleShare}
+                  title={isArabic ? "شارك" : "Share"}
+                  className="bg-white border border-[#ccc] text-[#333] rounded-[8px] cursor-pointer px-[0.6rem] py-[0.3rem] flex items-center justify-center h-8 transition-all duration-200 relative -top-[5.7px] hover:text-[#0077cc] hover:border-[#0077cc] hover:scale-105"
+                >
+                  <FiShare2 size={18} />
+                </button>
+              </>
+            )}
+          </div>
 
-        audio.addEventListener("ended", () => {
-          const icon = document.getElementById("audio-icon");
-          if (icon)
-            icon.innerHTML = `
-              <path stroke-linecap="round" stroke-linejoin="round"
-              d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
-              M16.5 8.25a3.75 3.75 0 010 7.5
-              m2.25-10.5a7.5 7.5 0 010 13.5"/>
-            `;
-        });
-      }
-    }}
-    title="تشغيل الصوت"
-    className="share-button"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth="1.8"
-      stroke="currentColor"
-      width="18"
-      height="18"
-      style={{ transform: "scaleX(-1)" }}
-    >
-      <path
-        id="audio-icon"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
-        M16.5 8.25a3.75 3.75 0 010 7.5
-        m2.25-10.5a7.5 7.5 0 010 13.5"
-      />
-    </svg>
-  </button>
-)}
+          <BookContent
+            blocks={page.blocks}
+            references={page.references}
+            fontSize={fontSize}
+            removeTashkeel={isTashkeelRemoved}
+          />
 
-      {/* 📤 SHARE BUTTON — THIRD */}
-      <button
-        onClick={handleShare}
-        title={isArabic ? "شارك" : "Share"}
-        className="share-button"
-      >
-        <FiShare2 size={18} />
-      </button>
-    </>
-  )}
-</div>
-
-
-
-
-
-
-  <BookContent
-  blocks={page.blocks}
-  references={page.references}
-  fontSize={fontSize}
-  removeTashkeel={isTashkeelRemoved}
-/>
-  <Controls
-    currentPage={currentPage}
-    totalPages={book.pages ? book.pages.length : 0}
-    setCurrentPage={setCurrentPage}
-    fontSize={fontSize}x
-    setFontSize={setFontSize}
-  />
-</main>
-
+          <Controls
+            currentPage={currentPage}
+            totalPages={book.pages ? book.pages.length : 0}
+            setCurrentPage={setCurrentPage}
+            fontSize={fontSize}
+            setFontSize={setFontSize}
+          />
+        </main>
       </div>
-      <Footer/>
+
+      <Footer />
     </div>
   );
 }

@@ -54,19 +54,17 @@ export default function AddQA() {
     }
   }, [isEdit, editSlug, editLang]);
 
-
   // Pre-fill question from URL params when creating new (not editing)
   useEffect(() => {
-    if (isEdit) return; // don't override edit mode
+    if (isEdit) return;
 
     const params = new URLSearchParams(window.location.search);
     const urlQuestion = params.get("question");
     const urlName = params.get("name");
     const urlLang = params.get("lang");
 
-  if (urlQuestion) {
-    const cleanQuestion = decodeURIComponent(urlQuestion).trim();
-
+    if (urlQuestion) {
+      const cleanQuestion = decodeURIComponent(urlQuestion).trim();
       setForm((prev) => ({
         ...prev,
         question: cleanQuestion,
@@ -78,10 +76,11 @@ export default function AddQA() {
       const name = decodeURIComponent(urlName);
       setMessage(`Answering question from: ${name}`);
     }
-  }, [isEdit]); // dependency array is correct
+  }, [isEdit]);
 
   // Input handlers
-  const handleInput = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleInput = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
   const handleSectionInput = (idx, field, value, subidx = null) => {
     setSections((sections) =>
       sections.map((sec, i) => {
@@ -95,7 +94,7 @@ export default function AddQA() {
           return { ...sec, items };
         }
         return sec;
-      })
+      }),
     );
   };
   const addSection = () => {
@@ -119,339 +118,364 @@ export default function AddQA() {
   const addItem = (idx) =>
     setSections((sections) =>
       sections.map((sec, i) =>
-        i !== idx ? sec : { ...sec, items: [...(sec.items || []), {}] }
-      )
+        i !== idx ? sec : { ...sec, items: [...(sec.items || []), {}] },
+      ),
     );
   const deleteItem = (idx, itemIdx) =>
     setSections((sections) =>
       sections.map((sec, i) =>
-        i !== idx ? sec : { ...sec, items: sec.items.filter((_, j) => j !== itemIdx) }
-      )
+        i !== idx
+          ? sec
+          : { ...sec, items: sec.items.filter((_, j) => j !== itemIdx) },
+      ),
     );
 
-  // Submission
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setMessage("");
-  //   const qa = {
-  //     title: form.title,
-  //     slug: form.slug,
-  //     question: form.question,
-  //     answer: form.answer,
-  //     conclusion: form.conclusion,
-  //     content: sections,
-  //   };
-  //   try {
-  //     if (isEdit) {
-  //       await editQA(qa, editSlug, editLang);
-  //     } else {
-  //       await submitQA(qa, form.language);
-  //     }
-  //     setMessage("Saved successfully!");
-  //     if (!isEdit) {
-  //       setForm({ language: "en", title: "", slug: "", question: "", answer: "", conclusion: "" });
-  //       setSections([]);
-  //     }
-  //   } catch (err) {
-  //     setMessage("Failed to save. " + err.message);
-  //   }
-  //   setLoading(false);
-  // };
-
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setMessage(""); // clear previous message
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
-  const qa = {
-    title: form.title,
-    slug: form.slug,
-    question: form.question,
-    answer: form.answer,
-    conclusion: form.conclusion,
-    content: sections,
+    const qa = {
+      title: form.title,
+      slug: form.slug,
+      question: form.question,
+      answer: form.answer,
+      conclusion: form.conclusion,
+      content: sections,
+    };
+
+    try {
+      if (isEdit) {
+        await editQA(qa, editSlug, editLang);
+        setMessage("Q&A updated successfully!");
+      } else {
+        await submitQA(qa, form.language);
+
+        const questionId = searchParams.get("questionId");
+        if (questionId) {
+          try {
+            await updateQuestionStatus(questionId, "answered", form.language);
+            setMessage("Q&A saved and question marked as answered!");
+          } catch (statusErr) {
+            console.error("Failed to mark question as answered:", statusErr);
+            setMessage("Q&A saved, but failed to mark question as answered.");
+          }
+        } else {
+          setMessage("Q&A saved successfully!");
+        }
+
+        setForm({
+          language: form.language,
+          title: "",
+          slug: "",
+          question: "",
+          answer: "",
+          conclusion: "",
+        });
+        setSections([]);
+      }
+    } catch (err) {
+      console.error("Save failed:", err);
+      setMessage("Failed to save Q&A: " + (err.message || "Unknown error"));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  try {
-    if (isEdit) {
-      await editQA(qa, editSlug, editLang);
-      setMessage("Q&A updated successfully!");
-    } else {
-      await submitQA(qa, form.language);
+  // Shared field class (mirrors original: width:100%, border-radius:8px, border:#b5d4c3, bg:#f6f7fa, padding:10px, font-size:1rem, margin-bottom:1rem)
+  const fieldCls =
+    "w-full mb-4 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-base box-border";
+  const labelCls =
+    "mt-2 mb-[3px] block text-[var(--bg-color-header)] text-[17px] font-bold";
 
-      // Only after successful save, check if it's from a user question
-      const questionId = searchParams.get("questionId");
-      if (questionId) {
-        try {
-          await updateQuestionStatus(questionId, "answered", form.language);
-          setMessage("Q&A saved and question marked as answered!");
-        } catch (statusErr) {
-          console.error("Failed to mark question as answered:", statusErr);
-          setMessage("Q&A saved, but failed to mark question as answered.");
-        }
-      } else {
-        setMessage("Q&A saved successfully!");
-      }
-
-      // Reset form only on new creation
-      setForm({
-        language: form.language, // keep language
-        title: "",
-        slug: "",
-        question: "",
-        answer: "",
-        conclusion: "",
-      });
-      setSections([]);
-    }
-  } catch (err) {
-    console.error("Save failed:", err);
-    setMessage("Failed to save Q&A: " + (err.message || "Unknown error"));
-  } finally {
-    setLoading(false);
-  }
-};
-  // --- Styles ---
   return (
     <AdminLayout>
-      <style>{`
-      body{
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      }
-        #qa-box {
-          font-family: 'Segoe UI', sans-serif;
-          background: #fff;
-          max-width: 650px;
-          margin: 3rem auto 0 auto;
-          border-radius: 1.4rem;
-          box-shadow: 0 6px 24px rgba(40,115,70,0.12);
-          padding: 2rem 2.5rem 2rem 2.5rem;
-        }
-        #qa-box h2 {
-          text-align: center;
-          color: var(--bg-color-header);
-          font-size: 2rem;
-          margin-bottom: 1.2rem;
-          font-family: 'Montserrat', Arial, sans-serif;
-        }
-        #qa-form label {
-          margin: 8px 0 3px 0;
-          display: block;
-          color:var(--bg-color-header);
-              font-size: 17px;
-    font-weight: bold;
-        }
-        #qa-form input, #qa-form select, #qa-form textarea {
-          width: 100%;
-          margin-bottom: 1rem;
-          border-radius: 8px;
-          border: 1.2px solid #b5d4c3;
-          background: #f6f7fa;
-          padding: 10px;
-          font-size: 1rem;
-        }
-        #qa-form textarea { min-height: 62px; }
-        #add-section-bar {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-          margin-bottom: 1.2rem;
-        }
-        #section-type { flex: 1; }
-        #add-section-btn {
-          background:var(--bg-color-header);
-          color: #fff;
-          border: none;
-          border-radius: 8px;
-          padding: 13px 18px;
-          font-size: 1rem;
-          cursor: pointer;
-          margin-top:-7px
-        }
-        #add-section-btn:hover { background: var(--bg-color-header) }
-        .section-block {
-          border: 1px solid #cfe7d8;
-          border-radius: 10px;
-          margin-bottom: 18px;
-          background: white;
-          padding: 1rem;
-        }
-        .grouped-item {
-          border-bottom: 1px solid #e5e9ec;
-          margin-bottom: 9px;
-          padding-bottom: 7px;
-        }
-        .grouped-item:last-child { border: none; margin-bottom: 0; }
-        .section-btns {
-          margin-top: 9px;
-          display: flex;
-          gap: 7px;
-        }
-        .section-btns button {
-          border: 1px solid grey;
-          background: white;
-          color: var(--bg-color-header);
-          font-size: 1rem;
-          padding: 6px 12px;
-          border-radius: 7px;
-          cursor: pointer;
-        }
-        .section-btns button:hover { background: #c3a421; }
-        #save-btn {
-          background:var(--bg-color-header);
-          color: #fff;
-          border: none;
-          border-radius: 10px;
-          padding: 13px 0;
-          font-size: 1.16rem;
-          font-weight: bold;
-          width: 100%;
-          margin-top: 9px;
-          cursor: pointer;
-        }
-        #save-btn:hover { background:var(--bg-color-header); }
-        #save-message { text-align: center; margin-top: 1rem; min-height: 18px; font-weight: 600; }
-        @media (max-width: 700px) {
-          #qa-box { max-width: 96vw; padding: 1.2rem 0.5rem 2rem 0.5rem;}
-        }
+      {/* #qa-box */}
+      <div className="font-[Segoe_UI,sans-serif] bg-white max-w-[750px] mt-12 mx-auto rounded-[1.4rem] shadow-[0_6px_24px_rgba(40,115,70,0.12)] px-10 py-8">
+        {/* h2 */}
+        <h2 className="text-center text-[var(--bg-color-header)] text-[2rem] mb-5 font-[Montserrat,Arial,sans-serif]">
+          {isEdit ? "Edit Q&A" : "Add a New Q&A"}
+        </h2>
 
-      `}</style>
-      <div id="qa-box">
-        <h2>{isEdit ? "Edit Q&A" : "Add a New Q&A"}</h2>
-        {loading ? <p>Loading...</p> : (
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
           <form id="qa-form" onSubmit={handleSubmit} autoComplete="off">
-            <label htmlFor="qa-language">Submission Language:</label>
-            {/* <select id="qa-language" name="language" value={form.language} onChange={handleInput} required>
-              <option value="en">English Question</option>
-              <option value="ar">Arabic Question</option>
-            </select> */}
-
+            <label className={labelCls} htmlFor="qa-language">
+              Submission Language:
+            </label>
             <select
               id="qa-language"
               name="language"
               value={form.language}
               onChange={handleInput}
               required
+              className={fieldCls}
             >
               <option value="en">English Question</option>
               <option value="ar">Arabic Question</option>
             </select>
 
-            <label>Title:</label>
-            <input type="text" id="qa-title" name="title" value={form.title} onChange={handleInput} required />
+            <label className={labelCls}>Title:</label>
+            <input
+              type="text"
+              id="qa-title"
+              name="title"
+              value={form.title}
+              onChange={handleInput}
+              required
+              className={fieldCls}
+            />
 
-            <label>Slug:</label>
-            <input type="text" id="qa-slug" name="slug" value={form.slug} onChange={handleInput} required />
+            <label className={labelCls}>Slug:</label>
+            <input
+              type="text"
+              id="qa-slug"
+              name="slug"
+              value={form.slug}
+              onChange={handleInput}
+              required
+              className={fieldCls}
+            />
 
-            <label>Question:</label>
-            <textarea id="qa-question" name="question" value={form.question} onChange={handleInput} required />
+            <label className={labelCls}>Question:</label>
+            <textarea
+              id="qa-question"
+              name="question"
+              value={form.question}
+              onChange={handleInput}
+              required
+              className={`${fieldCls} min-h-[62px]`}
+            />
 
-            <label>Answer:</label>
-            <textarea id="qa-answer" name="answer" value={form.answer} onChange={handleInput} required />
+            <label className={labelCls}>Answer:</label>
+            <textarea
+              id="qa-answer"
+              name="answer"
+              value={form.answer}
+              onChange={handleInput}
+              required
+              className={`${fieldCls} min-h-[62px]`}
+            />
 
-            <hr style={{ margin: "18px 0" }} />
+            <hr className="my-[18px]" />
 
+            {/* Dynamic sections */}
             <div id="dynamic-sections">
               {sections.map((section, idx) =>
                 section.type === "normal" ? (
-                  <div className="section-block" key={idx}>
-                    <label>{section.type.toUpperCase()}</label>
+                  // .section-block
+                  <div
+                    key={idx}
+                    className="border border-[#cfe7d8] rounded-[10px] mb-[18px] bg-white p-4"
+                  >
+                    <label className={labelCls}>
+                      {section.type.toUpperCase()}
+                    </label>
                     <textarea
                       required
                       placeholder="Text"
                       value={section.text || ""}
-                      onChange={e => handleSectionInput(idx, "text", e.target.value)}
+                      onChange={(e) =>
+                        handleSectionInput(idx, "text", e.target.value)
+                      }
+                      className={`${fieldCls} min-h-[62px]`}
                     />
-                    <div className="section-btns">
-                      <button type="button" onClick={() => moveSection(idx, -1)}>↑</button>
-                      <button type="button" onClick={() => moveSection(idx, 1)}>↓</button>
-                      <button className="delete-secBtn" type="button" onClick={() => deleteSection(idx)}>Delete Section</button>
+                    {/* .section-btns */}
+                    <div className="mt-[9px] flex gap-[7px]">
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, -1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer hover:bg-[#c3a421]"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, 1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer hover:bg-[#c3a421]"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        className="delete-secBtn border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer hover:bg-[#c3a421]"
+                        type="button"
+                        onClick={() => deleteSection(idx)}
+                      >
+                        Delete Section
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="section-block" key={idx}>
-                    <label>{section.type.toUpperCase()}</label>
+                  // .section-block (grouped)
+                  <div
+                    key={idx}
+                    className="border border-[#cfe7d8] rounded-[10px] mb-[18px] bg-white p-4"
+                  >
+                    <label className={labelCls}>
+                      {section.type.toUpperCase()}
+                    </label>
                     {(section.items || []).map((item, subidx) => (
-                      <div className="grouped-item" key={subidx}>
+                      // .grouped-item
+                      <div
+                        key={subidx}
+                        className="border-b border-[#e5e9ec] mb-[9px] pb-[7px] last:border-0 last:mb-0"
+                      >
                         <input
                           type="text"
                           placeholder="Reference"
                           value={item.reference || ""}
                           required
-                          onChange={e => handleSectionInput(idx, "reference", e.target.value, subidx)}
+                          onChange={(e) =>
+                            handleSectionInput(
+                              idx,
+                              "reference",
+                              e.target.value,
+                              subidx,
+                            )
+                          }
+                          className={fieldCls}
                         />
                         {section.type === "sunnah" && (
                           <input
                             type="text"
                             placeholder="Narrator"
                             value={item.narrator || ""}
-                            onChange={e => handleSectionInput(idx, "narrator", e.target.value, subidx)}
+                            onChange={(e) =>
+                              handleSectionInput(
+                                idx,
+                                "narrator",
+                                e.target.value,
+                                subidx,
+                              )
+                            }
+                            className={fieldCls}
                           />
                         )}
                         <textarea
                           placeholder="Text"
                           value={item.text || ""}
-                          onChange={e => handleSectionInput(idx, "text", e.target.value, subidx)}
+                          onChange={(e) =>
+                            handleSectionInput(
+                              idx,
+                              "text",
+                              e.target.value,
+                              subidx,
+                            )
+                          }
+                          className={`${fieldCls} min-h-[62px]`}
                         />
                         <textarea
                           placeholder="Commentary"
                           value={item.commentary || ""}
-                          onChange={e => handleSectionInput(idx, "commentary", e.target.value, subidx)}
+                          onChange={(e) =>
+                            handleSectionInput(
+                              idx,
+                              "commentary",
+                              e.target.value,
+                              subidx,
+                            )
+                          }
+                          className={`${fieldCls} min-h-[62px]`}
                         />
-                        <button style={greenButtonStyle} type="button" onClick={() => deleteItem(idx, subidx)}>Remove</button>
+                        <button
+                          className="px-[22px] py-[10px] bg-[#c3a421] text-white text-[1.02rem] border-0 rounded-[7px] cursor-pointer font-semibold mt-[2px] transition-colors duration-200"
+                          type="button"
+                          onClick={() => deleteItem(idx, subidx)}
+                        >
+                          Remove
+                        </button>
                       </div>
                     ))}
-                    <button style={greenButtonStyle} type="button" onClick={() => addItem(idx)}>Add {section.type} Entry</button>
-                    <div className="section-btns">
-                      <button type="button" onClick={() => moveSection(idx, -1)}>↑</button>
-                      <button type="button" onClick={() => moveSection(idx, 1)}>↓</button>
-                      <button style={greenButtonStyle} type="button" onClick={() => deleteSection(idx)}>Delete Section</button>
+                    <button
+                      className="px-[22px] py-[10px] bg-[#c3a421] text-white text-[1.02rem] border-0 rounded-[7px] cursor-pointer font-semibold mt-[2px] transition-colors duration-200"
+                      type="button"
+                      onClick={() => addItem(idx)}
+                    >
+                      Add {section.type} Entry
+                    </button>
+                    {/* .section-btns */}
+                    <div className="mt-[9px] flex gap-[7px]">
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, -1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer hover:bg-[#c3a421]"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, 1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer hover:bg-[#c3a421]"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        className="px-[22px] py-[10px] bg-[#c3a421] text-white text-[1.02rem] border-0 rounded-[7px] cursor-pointer font-semibold mt-[2px] transition-colors duration-200"
+                        type="button"
+                        onClick={() => deleteSection(idx)}
+                      >
+                        Delete Section
+                      </button>
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
 
-            <div id="add-section-bar">
-              <select id="section-type" style={{ minWidth: 120 }}>
-                {sectionOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {/* #add-section-bar */}
+            <div className="flex gap-3 items-center mb-5">
+              <select
+                id="section-type"
+                className="flex-1 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-base min-w-[120px]"
+              >
+                {sectionOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
-              <button type="button" id="add-section-btn" onClick={addSection}>
+              {/* #add-section-btn */}
+              <button
+                type="button"
+                onClick={addSection}
+                className="bg-[var(--bg-color-header)] text-white border-none rounded-lg py-[13px] px-[18px] text-base cursor-pointer mt-[-7px] hover:bg-[var(--bg-color-header)]"
+              >
                 Add Section
               </button>
             </div>
 
-            <label>Summary:</label>
-            <textarea id="qa-conclusion" name="conclusion" value={form.conclusion} onChange={handleInput} required />
+            <label className={labelCls}>Summary:</label>
+            <textarea
+              id="qa-conclusion"
+              name="conclusion"
+              value={form.conclusion}
+              onChange={handleInput}
+              required
+              className={`${fieldCls} min-h-[62px]`}
+            />
 
             <br />
-            <button type="submit" id="save-btn" disabled={loading}>
-              {loading ? "Saving..." : (isEdit ? "Update Q&A" : "Save Q&A")}
+
+            {/* #save-btn */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-[var(--bg-color-header)] text-white border-none rounded-[10px] py-[13px] px-0 text-[1.16rem] font-bold w-full mt-[9px] cursor-pointer hover:bg-[var(--bg-color-header)]"
+            >
+              {loading ? "Saving..." : isEdit ? "Update Q&A" : "Save Q&A"}
             </button>
           </form>
         )}
-        <div id="save-message" style={{ color: message.includes("success") ? "#287346" : "#b71010" }}>{message}</div>
+
+        {/* #save-message */}
+        <div
+          className="text-center mt-4 min-h-[18px] font-semibold"
+          style={{ color: message.includes("success") ? "#287346" : "#b71010" }}
+        >
+          {message}
+        </div>
       </div>
     </AdminLayout>
-
   );
-
 }
-
-const greenButtonStyle = {
-  padding: '10px 22px',
-  background: '#c3a421',
-  color: '#fff',
-  fontSize: '1.02rem',
-  border: 'none',
-  borderRadius: '7px',
-  cursor: 'pointer',
-  fontWeight: 600,
-  marginTop: '2px',
-  transition: 'background 0.2s',
-};
-

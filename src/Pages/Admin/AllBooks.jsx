@@ -1,4 +1,3 @@
-// src/pages/AllBooks.jsx
 import React, { useState, useEffect } from "react";
 import {
   fetchBooksAdmin,
@@ -11,6 +10,7 @@ import { API_BASE } from "../../../config";
 
 const LANGS = [
   { value: "en", label: "English" },
+  { value: "ar", label: "Arabic" },
   { value: "ar", label: "Arabic" },
 ];
 
@@ -122,6 +122,7 @@ export default function AllBooks() {
       show: true,
       title: "Delete Book",
       message: "Are you sure you want to delete this book?",
+      onYes: () => doDelete(slug),
       onYes: () => doDelete(slug),
     });
   };
@@ -261,7 +262,7 @@ export default function AllBooks() {
         )}
 
         {loading ? (
-          <div style={{ textAlign: "center" }}>Loading books...</div>
+          <div className="text-center">Loading books...</div>
         ) : (
           <ul
             style={{
@@ -439,7 +440,7 @@ export default function AllBooks() {
           <br />
 
           {modal.onYes ? (
-            <div style={{ marginTop: "1rem" }}>
+            <div className="mt-4">
               <button
                 onClick={() => {
                   modal.onYes();

@@ -1,67 +1,30 @@
-// src/Components/ConfirmationModal.jsx
 import React from "react";
 import { X, Check } from "lucide-react";
 
-export default function ConfirmationModal({ 
-  open, 
-  title, 
-  message, 
-  onConfirm, 
-  onCancel 
+export default function ConfirmationModal({
+  open,
+  title,
+  message,
+  onConfirm,
+  onCancel,
 }) {
   if (!open) return null;
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.4)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000
-    }}>
-      <div style={{
-        background: "white",
-        borderRadius: "12px",
-        maxWidth: "400px",
-        width: "90%",
-        padding: "1.5rem",
-        textAlign: "center",
-        boxShadow: "0 8px 20px rgba(0,0,0,0.2)"
-      }}>
-        <h2 style={{ margin: "0 0 0.5rem", fontSize: "1.25rem" }}>{title}</h2>
-        <p style={{ color: "#475569", marginBottom: "1.5rem" }}>{message}</p>
-        <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-[1000]">
+      <div className="bg-white rounded-xl max-w-[400px] w-[90%] p-6 text-center shadow-[0_8px_20px_rgba(0,0,0,0.2)]">
+        <h2 className="m-0 mb-2 text-xl font-semibold">{title}</h2>
+        <p className="text-slate-600 mb-6">{message}</p>
+        <div className="flex justify-center gap-4">
           <button
             onClick={onCancel}
-            style={{
-              background: "#fef2f2",
-              color: "#dc2626",
-              border: "1px solid #fecaca",
-              padding: "0.6rem 1.2rem",
-              borderRadius: "10px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem"
-            }}
+            className="bg-red-50 text-red-600 border border-red-200 px-5 py-2.5 rounded-xl cursor-pointer flex items-center gap-1.5 hover:bg-red-100 transition-colors"
           >
             <X size={16} /> Cancel
           </button>
           <button
             onClick={onConfirm}
-            style={{
-              background: "#c3a421",
-              color: "white",
-              border: "none",
-              padding: "0.6rem 1.2rem",
-              borderRadius: "10px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem"
-            }}
+            className="bg-[#c3a421] text-white border-none px-5 py-2.5 rounded-xl cursor-pointer flex items-center gap-1.5 hover:bg-[#b0911d] transition-colors"
           >
             <Check size={16} /> Confirm
           </button>
