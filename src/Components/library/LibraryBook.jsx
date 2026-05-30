@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
-import Navbar from '../../Components/Navbar';
+import Navbar from "../../Components/Navbar";
 import { API_BASE } from "../../../config";
-
-
 
 const CATEGORY_OPTIONS = {
   en: [
@@ -24,93 +22,97 @@ const CATEGORY_OPTIONS = {
 
 const READ_LABEL = { en: "Read Book", ar: "اقرأ الكتاب" };
 const DOWNLOAD_LABEL = { en: "Download (Free)", ar: "تحميل (مجاني)" };
+const LIMIT = 9;
 
 export default function BookLibrary({ lang = "en" }) {
-const [books, setBooks] = useState([]);
-const [displayBooks, setDisplayBooks] = useState([]);
-const [search, setSearch] = useState("");
-const [category, setCategory] = useState("all");
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState("");
+  const [books, setBooks] = useState([]);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
-  const loadBooks = async () => {
-    try {
-      setLoading(true);
-      setError("");
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
 
-      const data = await fetchBooks(lang);
-
-      setBooks(
-        data.map((b) => ({
-          ...b,
-          category: b.category ? b.category.toLowerCase() : "uncategorized",
-        }))
-      );
-    } catch (err) {
-      console.error("Error loading books:", err);
-      setBooks([]);
-      setError(
-        lang === "ar"
-          ? "حدث خطأ أثناء تحميل الكتب."
-          : "Something went wrong while loading books."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  loadBooks();
-}, [lang]);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
-    let filtered = books.filter(
-      (b) =>
-        (category === "all" || b.category === category) &&
-        (b.title.toLowerCase().includes(search.toLowerCase()) ||
-          b.author.toLowerCase().includes(search.toLowerCase())),
-    );
-    setDisplayBooks(filtered);
-  }, [search, category, books]);
+    setPage(1);
+    setBooks([]);
+  }, [lang, debouncedSearch, category]);
+
+  useEffect(() => {
+    const loadBooks = async () => {
+      try {
+        page === 1 ? setLoading(true) : setLoadingMore(true);
+        setError("");
+
+        const data = await fetchBooks(
+          lang,
+          page,
+          LIMIT,
+          debouncedSearch,
+          category
+        );
+
+        const cleanedBooks = data.books.map((b) => ({
+          ...b,
+          category: b.category ? b.category.toLowerCase() : "uncategorized",
+        }));
+
+        setBooks((prev) =>
+          page === 1 ? cleanedBooks : [...prev, ...cleanedBooks]
+        );
+
+        setHasMore(data.hasMore);
+      } catch (err) {
+        console.error("Error loading books:", err);
+        setError(
+          lang === "ar"
+            ? "حدث خطأ أثناء تحميل الكتب."
+            : "Something went wrong while loading books."
+        );
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    };
+
+    loadBooks();
+  }, [lang, page, debouncedSearch, category]);
 
   const getBookLink = (slug) => `/library/read/${lang}/${slug}`;
 
-const handleDownload = async (bookId) => {
-  try {
-    const res = await fetch(
-      `${API_BASE}/api/books/${bookId}/download`
-    );
-    const data = await res.json();
+  const handleDownload = async (bookId) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/books/${bookId}/download`);
+      const data = await res.json();
 
-    if (!res.ok || !data.downloadUrl) {
-      alert("No download link available for this book.");
-      return;
+      if (!res.ok || !data.downloadUrl) {
+        alert("No download link available for this book.");
+        return;
+      }
+
+      window.location.href = data.downloadUrl;
+    } catch (err) {
+      console.error("Error downloading:", err);
+      alert("Something went wrong while downloading.");
     }
-
-    // Use same tab instead of opening a new one
-    window.location.href = data.downloadUrl;
-  } catch (err) {
-    console.error("Error downloading:", err);
-    alert("Something went wrong while downloading.");
-  }
-};
+  };
 
   const getCategoryLabel = (value) => {
     const opts = CATEGORY_OPTIONS[lang] || CATEGORY_OPTIONS.en;
     const found = opts.find((o) => o.value === value);
-    if (found) return found.label;
-
-    // Try to map using the English list as a fallback (keeps indexes aligned)
-    const enFound = CATEGORY_OPTIONS.en.find((o) => o.value === value);
-    if (enFound) {
-      const idx = CATEGORY_OPTIONS.en.indexOf(enFound);
-      const alt = CATEGORY_OPTIONS[lang] && CATEGORY_OPTIONS[lang][idx];
-      if (alt) return alt.label;
-      return enFound.label;
-    }
-
-    return value || "—";
+    return found ? found.label : value || "—";
   };
 
   return (
@@ -124,14 +126,12 @@ const handleDownload = async (bookId) => {
         backgroundPosition: "center",
       }}
     >
-      {/* header */}
       <header className="bg-[var(--bg-lib-header)] text-white pt-10 pb-10 px-4 text-center font-bold">
         <h1 className="text-[2rem]">
           {lang === "ar" ? "الكتب العربية" : "English Books"}
         </h1>
       </header>
 
-      {/* Navbar */}
       {lang === "ar" ? (
         <Navbar
           dir="rtl"
@@ -158,155 +158,119 @@ const handleDownload = async (bookId) => {
         />
       )}
 
-      {/* container */}
       <div className="max-w-[1090px] mx-auto my-8 p-6 rounded-[12px] bg-[var(--bg-light)] text-[var(--text-main)]">
-        {/* Search + Filter row */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-          {/* Search Bar */}
-          <div className="relative flex-1 max-w-[400px] mx-auto sm:mx-0">
-            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#999]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-                />
-              </svg>
-            </span>
-            <input
-              type="text"
-              placeholder={
-                lang === "ar" ? "ابحث في الكتب..." : "Search English books..."
-              }
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] pl-9 pr-4 text-[1rem] outline-none shadow-sm"
-              style={{
-                direction: dir,
-                textAlign: lang === "ar" ? "right" : "left",
-              }}
-            />
-          </div>
+          <input
+            type="text"
+            placeholder={
+              lang === "ar" ? "ابحث في الكتب..." : "Search English books..."
+            }
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-[400px] bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] px-4 text-[1rem] outline-none shadow-sm"
+            style={{
+              direction: dir,
+              textAlign: lang === "ar" ? "right" : "left",
+            }}
+          />
 
-          {/* Category Filter */}
-          <div className="relative flex-1 max-w-[240px] mx-auto sm:mx-0">
-            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#999]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 4h18M6 8h12M9 12h6"
-                />
-              </svg>
-            </span>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] pl-9 pr-4 text-[1rem] outline-none shadow-sm appearance-none cursor-pointer"
-              style={{
-                direction: dir,
-                textAlign: lang === "ar" ? "right" : "left",
-              }}
-            >
-              {CATEGORY_OPTIONS[lang].map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full max-w-[240px] bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] px-4 text-[1rem] outline-none shadow-sm cursor-pointer"
+            style={{
+              direction: dir,
+              textAlign: lang === "ar" ? "right" : "left",
+            }}
+          >
+            {CATEGORY_OPTIONS[lang].map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-[70px] h-[70px] rounded-full animate-spin border-[7px] border-[var(--bg-color-header)] border-t-[7px] border-t-[var(--text-accent)]" />
+            <p className="mt-4 text-[var(--text-main)] font-medium">
+              {lang === "ar" ? "جاري تحميل الكتب..." : "Loading books..."}
+            </p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 text-red-600 font-medium">
+            {error}
+          </div>
+        ) : books.length === 0 ? (
+          <div className="text-center py-12 text-[var(--text-main)] font-medium">
+            {lang === "ar" ? "لا توجد كتب متاحة." : "No books found."}
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 mt-2">
+              {books.map((book) => (
+                <div
+                  key={book.slug}
+                  className="bg-white rounded-[10px] text-[var(--text-main)] flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-[#e9e0c8] overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+                >
+                  <div
+                    className="h-1 w-full"
+                    style={{ background: "var(--button-gradient)" }}
+                  />
+
+                  <div className="p-4 flex flex-col flex-1">
+                    <span className="self-start text-[0.7rem] font-semibold uppercase tracking-wide bg-[#fef3c7] text-[#92400e] px-2 py-[2px] rounded-full mb-3">
+                      {getCategoryLabel(book.category)}
+                    </span>
+
+                    <div className="text-[1.05rem] font-bold mb-1 leading-snug">
+                      {book.title}
+                    </div>
+
+                    <div className="text-[0.85rem] text-[var(--text-secondary)] mb-4">
+                      {book.author || "Unknown Author"}
+                    </div>
+
+                    <div className="flex gap-2 mt-auto">
+                      <a
+                        href={getBookLink(book.slug)}
+                        className="flex-1 text-center bg-[#c9a227] text-black py-[0.5rem] px-3 rounded-[6px] no-underline font-bold text-[0.85rem] hover:opacity-80"
+                      >
+                        {READ_LABEL[lang]}
+                      </a>
+
+                      <button
+                        onClick={() => handleDownload(book._id)}
+                        className="flex-1 bg-[#1f6f3e] text-white border-none py-[0.5rem] px-3 rounded-[6px] cursor-pointer text-[0.85rem] hover:opacity-80"
+                      >
+                        {DOWNLOAD_LABEL[lang]}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </select>
-          </div>
-        </div>
+            </div>
 
-        {/* Book Grid / Loading State */}
-{loading ? (
-  <div className="flex flex-col items-center justify-center py-16">
-    <div className="w-[70px] h-[70px] rounded-full animate-spin border-[7px] border-[var(--bg-color-header)] border-t-[7px] border-t-[var(--text-accent)]" />
-    <p className="mt-4 text-[var(--text-main)] font-medium">
-      {lang === "ar" ? "جاري تحميل الكتب..." : "Loading books..."}
-    </p>
-  </div>
-) : error ? (
-  <div className="text-center py-12 text-red-600 font-medium">
-    {error}
-  </div>
-) : displayBooks.length === 0 ? (
-  <div className="text-center py-12 text-[var(--text-main)] font-medium">
-    {lang === "ar" ? "لا توجد كتب متاحة." : "No books found."}
-  </div>
-) : (
-  <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-6 mt-2">
-    {displayBooks.map((book) => (
-      <div
-        key={book.slug}
-        data-category={book.category}
-        className="bg-white rounded-[10px] text-[var(--text-main)] flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-[#e9e0c8] overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-      >
-        <div
-          className="h-1 w-full"
-          style={{ background: "var(--button-gradient)" }}
-        />
-
-        <div className="p-4 flex flex-col flex-1">
-          <span className="self-start text-[0.7rem] font-semibold uppercase tracking-wide bg-[#fef3c7] text-[#92400e] px-2 py-[2px] rounded-full mb-3">
-            {getCategoryLabel(book.category)}
-          </span>
-
-          <div className="text-[1.05rem] font-bold mb-1 leading-snug">
-            {book.title}
-          </div>
-
-          <div className="text-[0.85rem] text-[var(--text-secondary)] mb-4 flex items-center gap-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-3 h-3 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5.121 17.804A4 4 0 0 1 8 17h8a4 4 0 0 1 2.879 1.804M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"
-              />
-            </svg>
-            {book.author || "Unknown Author"}
-          </div>
-
-          <div className="flex gap-2 mt-auto">
-            <a
-              href={getBookLink(book.slug)}
-              className="flex items-center gap-[6px] flex-1 justify-center bg-[#c9a227] text-black py-[0.5rem] px-3 rounded-[6px] no-underline font-bold text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
-            >
-              {READ_LABEL[lang]}
-            </a>
-
-            <button
-              onClick={() => handleDownload(book._id)}
-              className="flex items-center gap-[6px] flex-1 justify-center bg-[#1f6f3e] text-white border-none py-[0.5rem] px-3 rounded-[6px] cursor-pointer font-normal text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
-            >
-              {DOWNLOAD_LABEL[lang]}
-            </button>
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => setPage((prev) => prev + 1)}
+                  disabled={loadingMore}
+                  className="bg-[#c9a227] text-black px-6 py-2 rounded font-bold hover:opacity-80 disabled:opacity-60"
+                >
+                  {loadingMore
+                    ? lang === "ar"
+                      ? "جاري التحميل..."
+                      : "Loading..."
+                    : lang === "ar"
+                    ? "تحميل المزيد"
+                    : "Load More"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
