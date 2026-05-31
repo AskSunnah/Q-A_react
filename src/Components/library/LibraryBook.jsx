@@ -292,8 +292,8 @@ export default function BookLibrary({ lang = "en" }) {
                       ? "جاري التحميل..."
                       : "Loading..."
                     : lang === "ar"
-                    ? "تحميل المزيد"
-                    : "Load More"}
+                    ? "عرض المزيد"
+                    : "View More"}
                 </button>
               </div>
             )}

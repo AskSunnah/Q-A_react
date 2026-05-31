@@ -22,7 +22,8 @@ const MENU = [
     route: "/supervised/user-questions",
   },
   { label: "Add Book", icon: BookPlus, route: "/supervised/add-book" },
-  { label: "All Books", icon: Library, route: "/supervised/all-books" },
+  { label: "English Books", icon: Library, route: "/supervised/books/en" },
+  { label: "Arabic Books", icon: Library, route: "/supervised/books/ar" },
   {
     label: "User Feedback",
     icon: MessageCircleHeart,
