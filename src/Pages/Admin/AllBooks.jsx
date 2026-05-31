@@ -8,15 +8,17 @@ import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 import { API_BASE } from "../../../config";
 
-const LANGS = [
-  { value: "en", label: "English" },
-  { value: "ar", label: "Arabic" },
-];
+const LIMIT = 20;
 
-export default function AllBooks() {
-  const [lang, setLang] = useState("en");
+
+export default function AllBooks({ lang = "en" }) {
+  const [search, setSearch] = useState("");
+const [debouncedSearch, setDebouncedSearch] = useState("");
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(1);
   const [savingOrder, setSavingOrder] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -31,23 +33,44 @@ export default function AllBooks() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setLoading(true);
+  setPage(1);
+  setBooks([]);
+}, [lang, debouncedSearch]);
+useEffect(() => {
+  const timer = setTimeout(() => {
+    if (search.trim().length === 0 || search.trim().length >= 3) {
+      setDebouncedSearch(search.trim());
+    }
+  }, 500);
 
-    fetchBooksAdmin(lang)
-      .then(setBooks)
-      .catch((err) =>
+  return () => clearTimeout(timer);
+}, [search]);
+  useEffect(() => {
+    const loadBooks = async () => {
+      try {
+        page === 1 ? setLoading(true) : setLoadingMore(true);
+
+        const data = await fetchBooksAdmin(lang, page, LIMIT, debouncedSearch);
+
+        setBooks((prev) =>
+          page === 1 ? data.books : [...prev, ...data.books]
+        );
+
+        setHasMore(data.hasMore);
+      } catch (err) {
         setModal({
           show: true,
           title: "Error",
           message: err.message,
-        })
-      )
-      .finally(() => setLoading(false));
-  }, [lang]);
+        });
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    };
 
-  // ==========================================================
-  // DRAG AND DROP REORDER
-  // ==========================================================
+    loadBooks();
+  }, [lang, page, debouncedSearch]);
 
   const reorderLocally = (list, startIndex, endIndex) => {
     const result = [...list];
@@ -112,10 +135,6 @@ export default function AllBooks() {
     setDragOverIndex(null);
   };
 
-  // ==========================================================
-  // DELETE BOOK
-  // ==========================================================
-
   const confirmDelete = (slug) => {
     setModal({
       show: true,
@@ -142,10 +161,6 @@ export default function AllBooks() {
 
     setLoading(false);
   };
-
-  // ==========================================================
-  // ADD DOWNLOAD LINK
-  // ==========================================================
 
   const handleAddDownloadLink = async (bookId) => {
     const driveLink = prompt("Paste the Google Drive link here:");
@@ -188,30 +203,25 @@ export default function AllBooks() {
 
       <div className="max-w-[900px] mx-auto mt-8">
         <h1 className="text-center text-[#c3a421] text-2xl font-bold mb-0">
-          Manage Books
+          {lang === "ar" ? "Manage Arabic Books" : "Manage English Books"}
         </h1>
 
         <p className="text-center text-slate-500 mt-2 mb-4">
-          Drag books using the handle to change their order on the frontend.
+          Drag books using the handle to change their order.
         </p>
-
-        <div className="flex justify-center gap-4 mb-4 mt-4">
-          {LANGS.map((l) => (
-            <button
-              key={l.value}
-              className={`py-2 px-5 border-none rounded-[5px] font-bold cursor-pointer text-base disabled:opacity-60 disabled:cursor-not-allowed ${
-                lang === l.value
-                  ? "bg-[#c3a421] text-white"
-                  : "bg-[#e2e8f0] text-[#1e293b]"
-              }`}
-              onClick={() => setLang(l.value)}
-              disabled={savingOrder}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-
+<div className="flex justify-center mt-4 mb-6">
+  <input
+    type="text"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    placeholder={
+      lang === "ar"
+        ? "Search Arabic books..."
+        : "Search English books..."
+    }
+    className="w-full max-w-[420px] bg-white border border-slate-300 rounded-[6px] py-2 px-4 text-base outline-none shadow-sm focus:border-[#c3a421]"
+  />
+</div>
         {savingOrder && (
           <div className="text-center text-blue-600 font-semibold mb-4">
             Saving new order...
@@ -221,81 +231,97 @@ export default function AllBooks() {
         {loading ? (
           <div className="text-center">Loading books...</div>
         ) : (
-          <ul className="list-none p-0 max-w-[840px] mx-auto">
-            {books.length === 0 ? (
-              <li>No books found in {lang === "en" ? "English" : "Arabic"}.</li>
-            ) : (
-              books.map((book, index) => (
-                <li
-                  key={book._id}
-                  draggable={!savingOrder}
-                  onDragStart={(e) => handleDragStart(e, index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDrop={(e) => handleDrop(e, index)}
-                  onDragEnd={handleDragEnd}
-                  className={`bg-white my-3 p-4 border-l-[5px] border-[#c3a421] rounded-[6px] flex justify-between items-center gap-4 transition-all duration-150 ${
-                    draggedIndex === index ? "opacity-50" : "opacity-100"
-                  } ${
-                    dragOverIndex === index
-                      ? "scale-[1.01] shadow-[0_4px_12px_rgba(195,164,33,0.35)]"
-                      : "shadow-[0_2px_5px_rgba(0,0,0,0.05)]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <span
-                      className="cursor-grab active:cursor-grabbing text-slate-500 text-xl select-none px-2"
-                      title="Drag to reorder"
-                    >
-                      ☰
-                    </span>
-
-                    <span className="bg-slate-100 text-slate-700 py-1 px-2 rounded-full text-xs font-bold min-w-7 text-center">
-                      {index + 1}
-                    </span>
-
-                    <span
-                      onClick={() =>
-                        navigate(`/library/read/${book.language}/${book.slug}`)
-                      }
-                      className="cursor-pointer text-[#1e293b] font-medium hover:underline"
-                    >
-                      {book.title}
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2 flex-wrap justify-end">
-                    <button
-                      className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#2563eb] disabled:opacity-60 disabled:cursor-not-allowed"
-                      onClick={() => handleAddDownloadLink(book._id)}
-                      disabled={savingOrder}
-                    >
-                      Add Download Link
-                    </button>
-
-                    <button
-                      className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
-                      onClick={() =>
-                        navigate(
-                          `/supervised/books/edit/${book.language}/${book.slug}`
-                        )
-                      }
-                      disabled={savingOrder}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#e53e3e] disabled:opacity-60 disabled:cursor-not-allowed"
-                      onClick={() => confirmDelete(book.slug)}
-                      disabled={savingOrder}
-                    >
-                      Delete
-                    </button>
-                  </div>
+          <>
+            <ul className="list-none p-0 max-w-[840px] mx-auto">
+              {books.length === 0 ? (
+                <li>
+                  No books found in {lang === "en" ? "English" : "Arabic"}.
                 </li>
-              ))
+              ) : (
+                books.map((book, index) => (
+                  <li
+                    key={book._id}
+                    draggable={!savingOrder}
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDrop={(e) => handleDrop(e, index)}
+                    onDragEnd={handleDragEnd}
+                    className={`bg-white my-3 p-4 border-l-[5px] border-[#c3a421] rounded-[6px] flex justify-between items-center gap-4 transition-all duration-150 ${
+                      draggedIndex === index ? "opacity-50" : "opacity-100"
+                    } ${
+                      dragOverIndex === index
+                        ? "scale-[1.01] shadow-[0_4px_12px_rgba(195,164,33,0.35)]"
+                        : "shadow-[0_2px_5px_rgba(0,0,0,0.05)]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <span
+                        className="cursor-grab active:cursor-grabbing text-slate-500 text-xl select-none px-2"
+                        title="Drag to reorder"
+                      >
+                        ☰
+                      </span>
+
+                      <span className="bg-slate-100 text-slate-700 py-1 px-2 rounded-full text-xs font-bold min-w-7 text-center">
+                        {index + 1}
+                      </span>
+
+                      <span
+                        onClick={() =>
+                          navigate(`/library/read/${book.language}/${book.slug}`)
+                        }
+                        className="cursor-pointer text-[#1e293b] font-medium hover:underline"
+                      >
+                        {book.title}
+                      </span>
+                    </div>
+
+                    <div className="flex gap-2 flex-wrap justify-end">
+                      <button
+                        className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#2563eb] disabled:opacity-60 disabled:cursor-not-allowed"
+                        onClick={() => handleAddDownloadLink(book._id)}
+                        disabled={savingOrder}
+                      >
+                        Add Download Link
+                      </button>
+
+                      <button
+                        className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-gray-500 disabled:opacity-60 disabled:cursor-not-allowed"
+                        onClick={() =>
+                          navigate(
+                            `/supervised/books/edit/${book.language}/${book.slug}`
+                          )
+                        }
+                        disabled={savingOrder}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#e53e3e] disabled:opacity-60 disabled:cursor-not-allowed"
+                        onClick={() => confirmDelete(book.slug)}
+                        disabled={savingOrder}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+
+            {hasMore && (
+              <div className="flex justify-center mt-6 mb-10">
+                <button
+                  onClick={() => setPage((prev) => prev + 1)}
+                  disabled={loadingMore || savingOrder}
+                  className="bg-[#c3a421] text-white py-2 px-6 rounded-[5px] font-bold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {loadingMore ? "Loading..." : "View More"}
+                </button>
+              </div>
             )}
-          </ul>
+          </>
         )}
       </div>
 

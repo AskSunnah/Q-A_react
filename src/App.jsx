@@ -84,6 +84,8 @@ function App() {
           <Route path="/supervised/user-feedback" element={
             <ProtectedRoute><Feedback /></ProtectedRoute>
           } />
+          <Route path="/supervised/books/en" element={<AllBooks lang="en" />} />
+          <Route path="/supervised/books/ar" element={<AllBooks lang="ar" />} />
           <Route path="/managesubscription" element={<ManageSubscription />} />
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />

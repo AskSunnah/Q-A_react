@@ -13,14 +13,34 @@ export async function submitBook(bookData) {
   }
   return data;
 }
-export async function fetchBooksAdmin(lang) {
-  const endpoint = `${API_BASE}/api/books/${lang}`;
+export async function fetchBooksAdmin(
+  lang = "en",
+  page = 1,
+  limit = 20,
+  search = ""
+) {
+  const params = new URLSearchParams();
+
+  params.set("page", page);
+  params.set("limit", limit);
+
+  if (search.trim()) {
+    params.set("search", search.trim());
+  }
+
+  const endpoint =
+    lang === "ar"
+      ? `${API_BASE}/api/books/ar?${params.toString()}`
+      : `${API_BASE}/api/books/en?${params.toString()}`;
+
   const res = await fetch(endpoint);
   const data = await res.json();
+
   if (!res.ok) {
     throw new Error(data.message || "Failed to fetch books");
   }
-  return data.books;
+
+  return data;
 }
 export async function deleteBookAdmin(lang, slug) {
   const endpoint = `${API_BASE}/api/books/${lang}/${slug}`;
