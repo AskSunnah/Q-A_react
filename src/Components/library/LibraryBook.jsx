@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
-import Navbar from "../../Components/Navbar";
+import Navbar from '../../Components/Navbar';
 import { API_BASE } from "../../../config";
 
 const CATEGORY_OPTIONS = {
@@ -39,8 +39,10 @@ export default function BookLibrary({ lang = "en" }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 400);
+      if (search.trim().length === 0 || search.trim().length >= 3) {
+        setDebouncedSearch(search.trim());
+      }
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [search]);
@@ -56,13 +58,7 @@ export default function BookLibrary({ lang = "en" }) {
         page === 1 ? setLoading(true) : setLoadingMore(true);
         setError("");
 
-        const data = await fetchBooks(
-          lang,
-          page,
-          LIMIT,
-          debouncedSearch,
-          category
-        );
+        const data = await fetchBooks(lang, page, LIMIT, debouncedSearch, category);
 
         const cleanedBooks = data.books.map((b) => ({
           ...b,
@@ -112,7 +108,17 @@ export default function BookLibrary({ lang = "en" }) {
   const getCategoryLabel = (value) => {
     const opts = CATEGORY_OPTIONS[lang] || CATEGORY_OPTIONS.en;
     const found = opts.find((o) => o.value === value);
-    return found ? found.label : value || "—";
+    if (found) return found.label;
+
+    const enFound = CATEGORY_OPTIONS.en.find((o) => o.value === value);
+    if (enFound) {
+      const idx = CATEGORY_OPTIONS.en.indexOf(enFound);
+      const alt = CATEGORY_OPTIONS[lang] && CATEGORY_OPTIONS[lang][idx];
+      if (alt) return alt.label;
+      return enFound.label;
+    }
+
+    return value || "—";
   };
 
   return (
@@ -160,35 +166,47 @@ export default function BookLibrary({ lang = "en" }) {
 
       <div className="max-w-[1090px] mx-auto my-8 p-6 rounded-[12px] bg-[var(--bg-light)] text-[var(--text-main)]">
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-          <input
-            type="text"
-            placeholder={
-              lang === "ar" ? "ابحث في الكتب..." : "Search English books..."
-            }
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full max-w-[400px] bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] px-4 text-[1rem] outline-none shadow-sm"
-            style={{
-              direction: dir,
-              textAlign: lang === "ar" ? "right" : "left",
-            }}
-          />
+          <div className="relative flex-1 max-w-[400px] mx-auto sm:mx-0">
+            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#999]">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder={lang === "ar" ? "ابحث في الكتب..." : "Search English books..."}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] pl-9 pr-4 text-[1rem] outline-none shadow-sm"
+              style={{
+                direction: dir,
+                textAlign: lang === "ar" ? "right" : "left",
+              }}
+            />
+          </div>
 
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full max-w-[240px] bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] px-4 text-[1rem] outline-none shadow-sm cursor-pointer"
-            style={{
-              direction: dir,
-              textAlign: lang === "ar" ? "right" : "left",
-            }}
-          >
-            {CATEGORY_OPTIONS[lang].map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+          <div className="relative flex-1 max-w-[240px] mx-auto sm:mx-0">
+            <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#999]">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M6 8h12M9 12h6" />
+              </svg>
+            </span>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] pl-9 pr-4 text-[1rem] outline-none shadow-sm appearance-none cursor-pointer"
+              style={{
+                direction: dir,
+                textAlign: lang === "ar" ? "right" : "left",
+              }}
+            >
+              {CATEGORY_OPTIONS[lang].map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {loading ? (
@@ -212,6 +230,7 @@ export default function BookLibrary({ lang = "en" }) {
               {books.map((book) => (
                 <div
                   key={book.slug}
+                  data-category={book.category}
                   className="bg-white rounded-[10px] text-[var(--text-main)] flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-[#e9e0c8] overflow-hidden transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
                 >
                   <div
@@ -228,22 +247,31 @@ export default function BookLibrary({ lang = "en" }) {
                       {book.title}
                     </div>
 
-                    <div className="text-[0.85rem] text-[var(--text-secondary)] mb-4">
+                    <div className="text-[0.85rem] text-[var(--text-secondary)] mb-4 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A4 4 0 0 1 8 17h8a4 4 0 0 1 2.879 1.804M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                      </svg>
                       {book.author || "Unknown Author"}
                     </div>
 
                     <div className="flex gap-2 mt-auto">
                       <a
                         href={getBookLink(book.slug)}
-                        className="flex-1 text-center bg-[#c9a227] text-black py-[0.5rem] px-3 rounded-[6px] no-underline font-bold text-[0.85rem] hover:opacity-80"
+                        className="flex items-center gap-[6px] flex-1 justify-center bg-[#c9a227] text-black py-[0.5rem] px-3 rounded-[6px] no-underline font-bold text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
                       >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
                         {READ_LABEL[lang]}
                       </a>
 
                       <button
                         onClick={() => handleDownload(book._id)}
-                        className="flex-1 bg-[#1f6f3e] text-white border-none py-[0.5rem] px-3 rounded-[6px] cursor-pointer text-[0.85rem] hover:opacity-80"
+                        className="flex items-center gap-[6px] flex-1 justify-center bg-[#1f6f3e] text-white border-none py-[0.5rem] px-3 rounded-[6px] cursor-pointer font-normal text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
                       >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5 5-5M12 15V3" />
+                        </svg>
                         {DOWNLOAD_LABEL[lang]}
                       </button>
                     </div>
