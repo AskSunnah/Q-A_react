@@ -21,7 +21,12 @@ const LANG_MAP = {
     noAuthorInfo: "No author details have been added yet.",
     noBookInfo: "No detailed book information has been added yet.",
     libraryUrl: "/library",
-
+    categoryNames: {
+    Aqeedah: "Aqeedah",
+    Fiqh: "Fiqh",
+    Hadith: "Hadith",
+    Seerah:"Seerah",
+  },
     languageNames: {
       en: "English",
       ar: "Arabic",
@@ -46,7 +51,12 @@ const LANG_MAP = {
     noAuthorInfo: "لم تتم إضافة تفاصيل عن المؤلف بعد.",
     noBookInfo: "لم تتم إضافة تفاصيل عن الكتاب بعد.",
     libraryUrl: "/library_ar",
-
+    categoryNames: {
+    Aqeedah: "العقيدة",
+    Fiqh: "الفقه",
+    Hadith: "الحديث",
+    Seerah: "السيرة",
+  },
     languageNames: {
       en: "الإنجليزية",
       ar: "العربية",
@@ -79,6 +89,8 @@ export default function BookDetails() {
   const isRtl = labels.dir === "rtl";
   const displayLanguage =
   labels.languageNames?.[book?.language] || book?.language || "—";
+  const displayCategory =
+  labels.categoryNames?.[book?.category] || book?.category || "—";
 
   const sections = [
     { id: "details", title: labels.details },
@@ -173,7 +185,7 @@ export default function BookDetails() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     <MetaItem label={labels.book} value={book.title} />
                     <MetaItem label={labels.author} value={book.author || "—"} />
-                    <MetaItem label={labels.category} value={book.category || "—"} />
+                    <MetaItem label={labels.category} value={displayCategory} />
                     <MetaItem label={labels.language} value={displayLanguage} />
                     <MetaItem label={labels.totalPages} value={totalPages} />
                   </div>
