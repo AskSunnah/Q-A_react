@@ -13,7 +13,18 @@ export async function adminLogin(username, password) {
     return { success: false, message: "Network error" };
   }
 }
+export function isTokenValid(token) {
+  if (!token) return false;
 
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const expiryTime = payload.exp * 1000;
+
+    return Date.now() < expiryTime;
+  } catch {
+    return false;
+  }
+}
 // src/api/adminAuth.js
 export function logoutUser() {
   localStorage.removeItem("adminToken");
