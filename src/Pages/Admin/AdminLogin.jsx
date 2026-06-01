@@ -1,13 +1,20 @@
-import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { adminLogin } from "../../api/adminAuth";
-
+import { adminLogin,isTokenValid } from "../../api/adminAuth";
+import React, { useEffect, useState } from "react";
 export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
 
+    if (isTokenValid(token)) {
+      navigate("/supervised/dashboard", { replace: true });
+    } else {
+      localStorage.removeItem("adminToken");
+    }
+  }, [navigate]);
   const handleLogin = async () => {
     if (!username || !password) {
       setMessage("Please enter both fields");
