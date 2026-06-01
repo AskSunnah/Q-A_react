@@ -82,7 +82,17 @@ export default function EditBook() {
                 />
               </label>
             </div>
-
+            <div className="mb-4">
+            <label className={labelCls}>
+              About the Author
+              <textarea
+                className={fieldCls}
+                value={book.authorBio || ""}
+                onChange={e => handleFieldChange("authorBio", e.target.value)}
+                placeholder="Write author biography/background"
+              />
+            </label>
+          </div>
             <div className="mb-4">
               <label className={labelCls}>
                 Description
@@ -93,7 +103,17 @@ export default function EditBook() {
                 />
               </label>
             </div>
-
+            <div className="mb-4">
+              <label className={labelCls}>
+                About the Book
+                <textarea
+                  className={fieldCls}
+                  value={book.aboutBook || ""}
+                  onChange={e => handleFieldChange("aboutBook", e.target.value)}
+                  placeholder="Write detailed information about this book"
+                />
+              </label>
+            </div>
             <div className="mb-4">
               <label className={labelCls}>
                 Category

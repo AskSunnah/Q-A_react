@@ -21,6 +21,8 @@ export default function AddBook() {
     title: "",
     author: "",
     description: "",
+    authorBio: "",
+    aboutBook: "",
     category: "",
     language: "en",
   });
@@ -142,6 +144,8 @@ export default function AddBook() {
         title: "",
         author: "",
         description: "",
+        authorBio: "",
+        aboutBook: "",
         category: "",
         language: "en",
       });
@@ -181,6 +185,20 @@ export default function AddBook() {
             required
           />
 
+          <label className={labelCls}>Language:</label>
+          <select
+            className={fieldCls}
+            name="language"
+            value={form.language}
+            onChange={handleFormChange}
+            required
+          >
+            {LANGS.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
           <label className={labelCls}>Author:</label>
           <input
             className={fieldCls}
@@ -188,7 +206,14 @@ export default function AddBook() {
             value={form.author}
             onChange={handleFormChange}
           />
-
+          <label className={labelCls}>About the Author:</label>
+          <textarea
+            className={fieldCls}
+            name="authorBio"
+            value={form.authorBio}
+            onChange={handleFormChange}
+            placeholder="Write a short biography or background of the author"
+          />
           <label className={labelCls}>Description (if any):</label>
           <textarea
             className={fieldCls}
@@ -196,7 +221,14 @@ export default function AddBook() {
             value={form.description}
             onChange={handleFormChange}
           />
-
+          <label className={labelCls}>About the Book:</label>
+          <textarea
+            className={fieldCls}
+            name="aboutBook"
+            value={form.aboutBook}
+            onChange={handleFormChange}
+            placeholder="Write details about the book, its purpose, topic, and importance"
+          />
           <label className={labelCls}>Category:</label>
           <select
             className={fieldCls}
@@ -212,20 +244,6 @@ export default function AddBook() {
             ))}
           </select>
 
-          <label className={labelCls}>Language:</label>
-          <select
-            className={fieldCls}
-            name="language"
-            value={form.language}
-            onChange={handleFormChange}
-            required
-          >
-            {LANGS.map((l) => (
-              <option key={l.value} value={l.value}>
-                {l.label}
-              </option>
-            ))}
-          </select>
 
           {/* Chapters */}
           {chapters.map((ch, chIdx) => (
