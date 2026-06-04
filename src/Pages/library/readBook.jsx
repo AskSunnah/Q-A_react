@@ -1,7 +1,7 @@
 // src/components/ReadBook/ReadBook.jsx
 
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { fetchBook } from "../../api/book.js";
 import Sidebar from "../../Components/library/Sidebar";
 import BookContent from "../../Components/library/BookContent";
@@ -16,62 +16,175 @@ const LANG_LABELS = {
 
 export default function ReadBook() {
   const { lang, slug } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [book, setBook] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [fontSize, setFontSize] = useState(1.1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isTashkeelRemoved, setIsTashkeelRemoved] = useState(false);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const goToPage = useCallback(
+    (valueOrUpdater) => {
+      setCurrentPage((prev) => {
+        const totalPages = book?.pages?.length || 0;
+
+        if (totalPages === 0) return prev;
+
+        const nextPage =
+          typeof valueOrUpdater === "function"
+            ? valueOrUpdater(prev)
+            : valueOrUpdater;
+
+        const safePage = Math.min(Math.max(nextPage, 0), totalPages - 1);
+
+        setSearchParams({ page: String(safePage + 1) });
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+
+        return safePage;
+      });
+    },
+    [book?.pages?.length, setSearchParams]
+  );
+
   useEffect(() => {
+    setLoading(true);
+    setError("");
+    setBook(null);
+
     fetchBook(lang, slug)
       .then((bookData) => {
         let flatPages = [];
+
         bookData.chapters.forEach((chapter, chapterIndex) => {
           chapter.pages.forEach((pg, pageIndex) => {
             flatPages.push({ ...pg, chapterIndex, pageIndex });
           });
         });
+
         bookData.pages = flatPages;
         setBook(bookData);
-        setCurrentPage(0);
+
+        const params = new URLSearchParams(window.location.search);
+        const pageFromUrl = Number(params.get("page")) || 1;
+
+        const safePage =
+          flatPages.length > 0
+            ? Math.min(Math.max(pageFromUrl - 1, 0), flatPages.length - 1)
+            : 0;
+
+        setCurrentPage(safePage);
       })
-      .catch(() => setBook(null));
+      .catch(() => {
+        setBook(null);
+        setError(lang === "ar" ? "تعذر تحميل الكتاب." : "Could not load book.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [lang, slug]);
 
   useEffect(() => {
+    if (!book?.pages?.length) return;
+
+    const pageFromUrl = Number(searchParams.get("page")) || 1;
+
+    const safePage = Math.min(
+      Math.max(pageFromUrl - 1, 0),
+      book.pages.length - 1
+    );
+
+    if (safePage !== currentPage) {
+      setCurrentPage(safePage);
+    }
+  }, [searchParams, book?.pages?.length, currentPage]);
+
+  useEffect(() => {
     const handleKeyDown = (e) => {
+      if (!book?.pages?.length) return;
+
       if (e.key === "ArrowRight") {
-        if (currentPage < book?.pages?.length - 1) {
-          setCurrentPage((prev) => prev + 1);
+        if (currentPage < book.pages.length - 1) {
+          goToPage((prev) => prev + 1);
         }
       } else if (e.key === "ArrowLeft") {
         if (currentPage > 0) {
-          setCurrentPage((prev) => prev - 1);
+          goToPage((prev) => prev - 1);
         }
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
+
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentPage, book?.pages?.length]);
+  }, [currentPage, book?.pages?.length, goToPage]);
 
-  if (!book) return <div></div>;
+  if (loading) {
+    return (
+      <div
+        dir={lang === "ar" ? "rtl" : "ltr"}
+        className="min-h-screen flex flex-col items-center justify-center text-white"
+        style={{
+          background:
+            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("/books.jpeg")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="w-[70px] h-[70px] rounded-full animate-spin border-[7px] border-white/40 border-t-[#c9a227]" />
 
-  const page = book.pages?.[currentPage] || { blocks: [] };
+        <p className="mt-5 text-lg font-semibold">
+          {lang === "ar" ? "جاري تحميل الكتاب..." : "Loading book..."}
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        dir={lang === "ar" ? "rtl" : "ltr"}
+        className="min-h-screen flex items-center justify-center text-white text-center px-4"
+        style={{
+          background:
+            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("/books.jpeg")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <p className="text-lg font-semibold">{error}</p>
+      </div>
+    );
+  }
+
+  if (!book) {
+    return null;
+  }
+
+  const page = book.pages?.[currentPage] || { blocks: [], references: [] };
   const dir = lang === "ar" ? "rtl" : "ltr";
   const labels = LANG_LABELS[lang] || LANG_LABELS.en;
   const isArabic = lang === "ar";
 
   function handleTashkeelToggle() {
     setIsTashkeelRemoved((prev) => !prev);
-    console.log("Tashkeel toggled. Now removed:", !isTashkeelRemoved);
   }
 
   const handleShare = async () => {
     const title = document.title;
     const url = window.location.href;
+
     const text = isArabic
       ? `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`
       : `📖 Read this book on AskSunnah: ${title}`;
+
     if (navigator.share) {
       try {
         await navigator.share({ title, text, url });
@@ -109,6 +222,7 @@ export default function ReadBook() {
               {lang === "ar" ? "الرئيسية" : "Home"}
             </Link>
           </li>
+
           <li>
             <Link
               className="nav-link"
@@ -117,6 +231,7 @@ export default function ReadBook() {
               {lang === "ar" ? "المكتبة" : "Library"}
             </Link>
           </li>
+
           <li>
             <Link className="nav-link" to={`/books/${lang}/${slug}`}>
               {labels.back}
@@ -127,7 +242,7 @@ export default function ReadBook() {
 
       {/* layout */}
       <div className="flex flex-row max-md:flex-col p-4">
-        {/* sidebar toggle button — hidden on desktop, shown on mobile */}
+        {/* sidebar toggle button */}
         <button
           className="hidden max-md:block text-[1.3rem] bg-transparent border-none cursor-pointer text-right m-[6px] text-[var(--primary)]"
           onClick={() => setSidebarOpen((open) => !open)}
@@ -140,7 +255,7 @@ export default function ReadBook() {
           />
         </button>
 
-        {/* sidebar — w-[20%] on desktop, full width + toggleable on mobile */}
+        {/* sidebar */}
         <div
           className={`w-[20%] shrink-0 min-w-[180px] bg-[var(--bg-main)] p-4 overflow-y-scroll h-[70vh] mr-[3px]
             max-md:w-screen max-md:overflow-y-auto max-md:max-h-[50vh] max-md:mr-0
@@ -149,7 +264,7 @@ export default function ReadBook() {
           <Sidebar
             open={sidebarOpen}
             chapters={book.chapters}
-            setCurrentPage={setCurrentPage}
+            setCurrentPage={goToPage}
             currentPage={currentPage}
             pages={book.pages}
             tocLabel={labels.toc}
@@ -158,11 +273,9 @@ export default function ReadBook() {
 
         {/* main content */}
         <main className="flex-1 min-w-0">
-          {/* tashkeel + share wrapper */}
           <div className="flex items-center gap-2">
             {isArabic && (
               <>
-                {/* Remove Tashkeel button */}
                 <button
                   className="bg-[#0c0c0c] text-white border-none px-[1.4rem] py-[0.4rem] rounded-full cursor-pointer text-[0.9rem] mb-[0.8rem] -ml-[3px] hover:bg-[#ef0000f6]"
                   onClick={handleTashkeelToggle}
@@ -170,41 +283,50 @@ export default function ReadBook() {
                   {isTashkeelRemoved ? "استعادة التشكيل" : "إزالة التشكيل"}
                 </button>
 
-                {/* Audio button — only show if audio exists */}
                 {page.audioUrl && (
                   <button
                     onClick={() => {
                       if (window.currentAudio && !window.currentAudio.paused) {
                         window.currentAudio.pause();
                         window.currentAudio = null;
+
                         const icon = document.getElementById("audio-icon");
-                        if (icon)
+
+                        if (icon) {
                           icon.innerHTML = `
                             <path stroke-linecap="round" stroke-linejoin="round"
                             d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
                             M16.5 8.25a3.75 3.75 0 010 7.5
                             m2.25-10.5a7.5 7.5 0 010 13.5"/>
                           `;
+                        }
                       } else {
                         if (window.currentAudio) window.currentAudio.pause();
+
                         const audio = new Audio(page.audioUrl);
                         window.currentAudio = audio;
                         audio.play();
+
                         const icon = document.getElementById("audio-icon");
-                        if (icon)
+
+                        if (icon) {
                           icon.innerHTML = `
                             <path stroke-linecap="round" stroke-linejoin="round"
                             d="M10 9h2v6h-2zM14 9h2v6h-2z"/>
                           `;
+                        }
+
                         audio.addEventListener("ended", () => {
                           const icon = document.getElementById("audio-icon");
-                          if (icon)
+
+                          if (icon) {
                             icon.innerHTML = `
                               <path stroke-linecap="round" stroke-linejoin="round"
                               d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z
                               M16.5 8.25a3.75 3.75 0 010 7.5
                               m2.25-10.5a7.5 7.5 0 010 13.5"/>
                             `;
+                          }
                         });
                       }
                     }}
@@ -233,7 +355,6 @@ export default function ReadBook() {
                   </button>
                 )}
 
-                {/* Share button */}
                 <button
                   onClick={handleShare}
                   title={isArabic ? "شارك" : "Share"}
@@ -246,8 +367,8 @@ export default function ReadBook() {
           </div>
 
           <BookContent
-            blocks={page.blocks}
-            references={page.references}
+            blocks={page.blocks || []}
+            references={page.references || []}
             fontSize={fontSize}
             removeTashkeel={isTashkeelRemoved}
           />
@@ -255,7 +376,7 @@ export default function ReadBook() {
           <Controls
             currentPage={currentPage}
             totalPages={book.pages ? book.pages.length : 0}
-            setCurrentPage={setCurrentPage}
+            setCurrentPage={goToPage}
             fontSize={fontSize}
             setFontSize={setFontSize}
           />
