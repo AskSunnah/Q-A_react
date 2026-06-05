@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Footer from "../Footer";
 import Navbar from "../Navbar";
+import { useSearchParams } from "react-router-dom";
 
 function QuestionPage({
   fetchQuestionBySlug,
@@ -25,6 +26,13 @@ function QuestionPage({
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [searchParams] = useSearchParams();
+  const backPage = searchParams.get("page");
+  const backLink =
+    language === "ar"
+      ? `/ar${backPage ? `?page=${backPage}` : ""}`
+      : `/${backPage ? `?page=${backPage}` : ""}`;
 
   // Default nav items per language
   const defaultNavItems =
@@ -324,7 +332,7 @@ function QuestionPage({
         </p>
 
         <Link
-          to={language === "ar" ? "/ar" : "/"}
+          to={backLink}
           className="inline-block mt-8 text-[var(--bg-color-header)] no-underline font-bold hover:underline"
         >
           {labels.back}

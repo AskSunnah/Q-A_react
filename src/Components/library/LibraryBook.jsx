@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
-import Navbar from '../../Components/Navbar';
+import Navbar from "../../Components/Navbar";
 import { API_BASE } from "../../../config";
 
 const CATEGORY_OPTIONS = {
@@ -58,7 +58,13 @@ export default function BookLibrary({ lang = "en" }) {
         page === 1 ? setLoading(true) : setLoadingMore(true);
         setError("");
 
-        const data = await fetchBooks(lang, page, LIMIT, debouncedSearch, category);
+        const data = await fetchBooks(
+          lang,
+          page,
+          LIMIT,
+          debouncedSearch,
+          category,
+        );
 
         const cleanedBooks = data.books.map((b) => ({
           ...b,
@@ -66,7 +72,7 @@ export default function BookLibrary({ lang = "en" }) {
         }));
 
         setBooks((prev) =>
-          page === 1 ? cleanedBooks : [...prev, ...cleanedBooks]
+          page === 1 ? cleanedBooks : [...prev, ...cleanedBooks],
         );
 
         setHasMore(data.hasMore);
@@ -75,7 +81,7 @@ export default function BookLibrary({ lang = "en" }) {
         setError(
           lang === "ar"
             ? "حدث خطأ أثناء تحميل الكتب."
-            : "Something went wrong while loading books."
+            : "Something went wrong while loading books.",
         );
       } finally {
         setLoading(false);
@@ -124,7 +130,7 @@ export default function BookLibrary({ lang = "en" }) {
   return (
     <div
       dir={dir}
-      className="m-0 min-h-screen font-[var(--font-family)]"
+      className="m-0 font-[var(--font-family)]"
       style={{
         background:
           'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url("/books.jpeg")',
@@ -168,13 +174,26 @@ export default function BookLibrary({ lang = "en" }) {
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
           <div className="relative flex-1 max-w-[400px] mx-auto sm:mx-0">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#999]">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                />
               </svg>
             </span>
             <input
               type="text"
-              placeholder={lang === "ar" ? "ابحث في الكتب..." : "Search English books..."}
+              placeholder={
+                lang === "ar" ? "ابحث في الكتب..." : "Search English books..."
+              }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-white border border-[#e5e7eb] rounded-[8px] py-[0.6rem] pl-9 pr-4 text-[1rem] outline-none shadow-sm"
@@ -187,8 +206,19 @@ export default function BookLibrary({ lang = "en" }) {
 
           <div className="relative flex-1 max-w-[240px] mx-auto sm:mx-0">
             <span className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-[#999]">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h18M6 8h12M9 12h6" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 4h18M6 8h12M9 12h6"
+                />
               </svg>
             </span>
             <select
@@ -248,8 +278,19 @@ export default function BookLibrary({ lang = "en" }) {
                     </div>
 
                     <div className="text-[0.85rem] text-[var(--text-secondary)] mb-4 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A4 4 0 0 1 8 17h8a4 4 0 0 1 2.879 1.804M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-3 h-3 shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5.121 17.804A4 4 0 0 1 8 17h8a4 4 0 0 1 2.879 1.804M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"
+                        />
                       </svg>
                       {book.author || "Unknown Author"}
                     </div>
@@ -259,8 +300,19 @@ export default function BookLibrary({ lang = "en" }) {
                         href={getBookLink(book.slug)}
                         className="flex items-center gap-[6px] flex-1 justify-center bg-[#c9a227] text-black py-[0.5rem] px-3 rounded-[6px] no-underline font-bold text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4 shrink-0"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                          />
                         </svg>
                         {READ_LABEL[lang]}
                       </a>
@@ -269,8 +321,19 @@ export default function BookLibrary({ lang = "en" }) {
                         onClick={() => handleDownload(book._id)}
                         className="flex items-center gap-[6px] flex-1 justify-center bg-[#1f6f3e] text-white border-none py-[0.5rem] px-3 rounded-[6px] cursor-pointer font-normal text-[0.85rem] transition-opacity duration-200 hover:opacity-80"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5 5-5M12 15V3" />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4 shrink-0"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5 5-5M12 15V3"
+                          />
                         </svg>
                         {DOWNLOAD_LABEL[lang]}
                       </button>
@@ -292,8 +355,8 @@ export default function BookLibrary({ lang = "en" }) {
                       ? "جاري التحميل..."
                       : "Loading..."
                     : lang === "ar"
-                    ? "عرض المزيد"
-                    : "View More"}
+                      ? "عرض المزيد"
+                      : "View More"}
                 </button>
               </div>
             )}

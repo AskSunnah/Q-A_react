@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import QuestionItem from "./QuestionItem";
 import Pagination from "./Pagination";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const RecentAnswers = ({
   fetchFatwas,
@@ -12,12 +12,25 @@ const RecentAnswers = ({
 }) => {
   const [fatwas, setFatwas] = useState([]);
   const [filteredFatwas, setFilteredFatwas] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [loading, setLoading] = useState(true);
   const itemsPerPage = 5;
+
+  // Read page from URL, default to 1
+  const currentPage = parseInt(searchParams.get("page")) || 1;
+
+  const setCurrentPage = (page) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set("page", page);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const loadFatwas = async () => {
       try {
+        setLoading(true);
         const data = await fetchFatwas();
         const reversed = data.slice().reverse();
         setFatwas(reversed);
@@ -26,12 +39,15 @@ const RecentAnswers = ({
         console.error("Failed to load fatwas:", error);
         setFatwas([]);
         setFilteredFatwas([]);
+      } finally {
+        setLoading(false);
       }
     };
     loadFatwas();
   }, [fetchFatwas]);
 
   const navigate = useNavigate();
+  const isRTL = direction === "rtl";
 
   const handleSearch = (e) => {
     if (e.key === "Enter") {
@@ -42,7 +58,6 @@ const RecentAnswers = ({
       }
     }
   };
-  const isRTL = direction === "rtl";
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedFatwas = filteredFatwas.slice(
@@ -90,7 +105,7 @@ const RecentAnswers = ({
         />
       </div>
 
-      <div id="fatwaList">
+      {/* <div id="fatwaList">
         {paginatedFatwas.length > 0 ? (
           paginatedFatwas.map((item, index) => (
             <QuestionItem
@@ -99,6 +114,7 @@ const RecentAnswers = ({
               item={item}
               labelPrefix={questionLabel}
               direction={direction}
+              currentPage={currentPage}
             />
           ))
         ) : (
@@ -106,8 +122,36 @@ const RecentAnswers = ({
             {isRTL ? "❌ لم يتم العثور على إجابات." : "❌ No answers found."}
           </p>
         )}
-      </div>
+      </div> */}
 
+      <div id="fatwaList">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-4">
+            <div className="w-[50px] h-[50px] rounded-full animate-spin border-[5px] border-[var(--bg-color-header)] border-t-transparent" />
+            <p className="text-[var(--bg-color-header)] font-medium text-[0.95rem]">
+              {isRTL ? "جاري تحميل الأسئلة..." : "Loading questions..."}
+            </p>
+          </div>
+        ) : paginatedFatwas.length > 0 ? (
+          paginatedFatwas.map((item, index) => (
+            <QuestionItem
+              key={index}
+              index={startIndex + index}
+              item={item}
+              labelPrefix={questionLabel}
+              direction={direction}
+              currentPage={currentPage}
+            />
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+            <span className="text-[2rem]">📭</span>
+            <p className="text-[var(--bg-color-header)] font-semibold text-[1rem]">
+              {isRTL ? "لم يتم العثور على إجابات." : "No answers found."}
+            </p>
+          </div>
+        )}
+      </div>
       <Pagination
         totalItems={filteredFatwas.length}
         itemsPerPage={itemsPerPage}
