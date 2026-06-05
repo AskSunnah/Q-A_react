@@ -6,12 +6,17 @@ const QuestionItem = ({
   index,
   labelPrefix = "Q",
   direction = "ltr",
+  currentPage = 1,
 }) => {
   const isRTL = direction === "rtl";
+  const basePath = isRTL
+    ? `/ar/questions/${item.slug}`
+    : `/questions/${item.slug}`;
+  const backPage = currentPage > 1 ? `?page=${currentPage}` : "";
 
   return (
     <Link
-      to={`/${isRTL ? "ar/" : ""}questions/${item.slug}`}
+      to={`${basePath}${backPage}`}
       dir={direction}
       className={`
         block
