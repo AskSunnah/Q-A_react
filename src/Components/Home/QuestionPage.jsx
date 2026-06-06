@@ -388,44 +388,71 @@ function QuestionPage({
           <strong>{labels.andAllahKnowsBest}</strong>
         </p>
 
-         <Link
+        <Link
           to={backLink}
           className="inline-block mt-8 text-[var(--bg-color-header)] no-underline font-bold hover:underline"
         >
           {labels.back}
-        </Link> 
-
-    
+        </Link>
 
         {/* ── RELATED ANSWERS ───────────────────────────────────────── */}
         {relatedData.length > 0 && (
           <div className="mt-16">
             {/* section header */}
+
             <div
               className={`flex items-center gap-4 mb-6 ${direction === "rtl" ? "flex-row-reverse" : ""}`}
             >
-              <div className="flex items-center gap-2">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--bg-color-header)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                </svg>
-                <span className="text-[var(--bg-color-header)] font-bold text-[1rem] uppercase tracking-widest">
-                  {language === "ar" ? "أسئلة ذات صلة" : "Related Answers"}
-                </span>
-              </div>
-              <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
+              {direction === "rtl" ? (
+                <>
+                  <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
+                  <div
+                    className={`flex items-center gap-2 ${direction === "rtl" ? "flex-row-reverse" : ""}`}
+                  >
+                    <span className="text-[var(--bg-color-header)] font-bold text-[1rem] uppercase tracking-widest">
+                      {language === "ar" ? "أسئلة ذات صلة" : "Related Answers"}
+                    </span>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--bg-color-header)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--bg-color-header)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                    <span className="text-[var(--bg-color-header)] font-bold text-[1rem] uppercase tracking-widest">
+                      {language === "ar" ? "أسئلة ذات صلة" : "Related Answers"}
+                    </span>
+                  </div>
+                  <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
+                </>
+              )}
             </div>
-
             {/* cards grid */}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {relatedData.map((item, i) => {
                 const rq = data.relatedQuestions[i];
@@ -433,19 +460,20 @@ function QuestionPage({
                   rq.lang === "ar"
                     ? `/ar/questions/${rq.slug}`
                     : `/questions/${rq.slug}`;
+                const isCardRTL = rq.lang === "ar";
                 return (
                   <a
                     key={i}
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    dir={isCardRTL ? "rtl" : "ltr"}
                     className="group flex flex-col gap-3 p-5 rounded-2xl border border-[rgba(40,115,70,0.15)] bg-[#fafcfb] hover:border-[var(--bg-color-header)] hover:shadow-[0_4px_20px_rgba(40,115,70,0.12)] transition-all duration-200 no-underline"
                   >
-                    {/* top row */}
-                    <div
-                      className={`flex items-start justify-between gap-3 ${direction === "rtl" ? "flex-row-reverse" : ""}`}
-                    >
-                      <p className="m-0 text-[14.5px] font-semibold text-[#1c1c1c] leading-snug group-hover:text-[var(--bg-color-header)] transition-colors line-clamp-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <p
+                        className={`m-0 text-[14.5px] font-semibold text-[#1c1c1c] leading-snug group-hover:text-[var(--bg-color-header)] transition-colors line-clamp-3 ${isCardRTL ? "text-right" : "text-left"}`}
+                      >
                         {item.heading}
                       </p>
                       <span className="shrink-0 w-7 h-7 rounded-lg bg-[rgba(40,115,70,0.08)] flex items-center justify-center group-hover:bg-[var(--bg-color-header)] transition-colors mt-[1px]">
@@ -467,17 +495,17 @@ function QuestionPage({
                       </span>
                     </div>
 
-                    {/* question preview */}
-                    <p className="m-0 text-[12.5px] text-[#777] leading-relaxed line-clamp-2 border-t border-[rgba(40,115,70,0.08)] pt-3">
+                    <p
+                      className={`m-0 text-[12.5px] text-[#777] leading-relaxed line-clamp-2 border-t border-[rgba(40,115,70,0.08)] pt-3 ${isCardRTL ? "text-right" : "text-left"}`}
+                    >
                       {item.question}
                     </p>
 
-                    {/* footer */}
                     <div
-                      className={`flex items-center gap-1 mt-auto ${direction === "rtl" ? "flex-row-reverse" : ""}`}
+                      className={`flex items-center gap-1 mt-auto ${isCardRTL ? "flex-row-reverse" : ""}`}
                     >
                       <span className="text-[11.5px] font-semibold text-[var(--bg-color-header)] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-wide">
-                        {language === "ar" ? "اقرأ الإجابة" : "Read answer"}
+                        {isCardRTL ? "اقرأ الإجابة" : "Read answer"}
                       </span>
                       <svg
                         width="11"
@@ -488,7 +516,7 @@ function QuestionPage({
                         strokeWidth="2.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        className={`opacity-0 group-hover:opacity-100 transition-opacity ${isCardRTL ? "rotate-180" : ""}`}
                       >
                         <line x1="5" y1="12" x2="19" y2="12" />
                         <polyline points="12 5 19 12 12 19" />
