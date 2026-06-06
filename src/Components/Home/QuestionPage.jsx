@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import Footer from "../Footer";
 import Navbar from "../Navbar";
 import { useSearchParams } from "react-router-dom";
+import { fetchFatwaBySlug } from "../../api/fatwa";
 
 function QuestionPage({
   fetchQuestionBySlug,
@@ -26,6 +27,7 @@ function QuestionPage({
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [relatedData, setRelatedData] = useState([]);
 
   const [searchParams] = useSearchParams();
   const backPage = searchParams.get("page");
@@ -60,6 +62,7 @@ function QuestionPage({
   useEffect(() => {
     const loadFatwa = async () => {
       setLoading(true);
+      console.log(`Fetching fatwa for slug: ${slug} in language: ${language}`);
       const result = await fetchQuestionBySlug(slug);
       if (result) {
         setData(result);
@@ -69,6 +72,19 @@ function QuestionPage({
     };
     loadFatwa();
   }, [slug]);
+
+  useEffect(() => {
+    if (!data?.relatedQuestions?.length) return;
+    console.log("Fetching related:", data.relatedQuestions);
+    Promise.all(
+      data.relatedQuestions.map((rq) => fetchFatwaBySlug(rq.slug, rq.lang)),
+    )
+      .then((results) => {
+        console.log("Related results:", results);
+        setRelatedData(results.filter(Boolean));
+      })
+      .catch((err) => console.error("Related fetch error:", err));
+  }, [data]);
 
   if (loading) {
     return (
@@ -88,6 +104,45 @@ function QuestionPage({
     salaf: labels.fromSalaf,
     scholar: labels.fromScholars,
     normal: "",
+  };
+
+  // Parses {{slug|text}} tokens in a string → array of text + <Link> nodes
+  const renderTextWithRefs = (text, key = 0) => {
+    // handles both {{slug|label}} internal and [[url|label]] external
+    const parts = text.split(/({{[^}]+\|[^}]+}}|\[\[[^\]]+\|[^\]]+\]\])/g);
+    return parts.map((part, i) => {
+      const internal = part.match(/^{{(.+?)\|(.+?)}}$/);
+      const external = part.match(/^\[\[(.+?)\|(.+?)\]\]$/);
+      if (internal) {
+        const [, slug, label] = internal;
+        const href =
+          language === "ar" ? `/ar/questions/${slug}` : `/questions/${slug}`;
+        return (
+          <Link
+            key={`${key}-${i}`}
+            to={href}
+            className="text-[var(--bg-color-header)] underline underline-offset-2 font-medium hover:opacity-70 transition-opacity"
+          >
+            {label}
+          </Link>
+        );
+      }
+      if (external) {
+        const [, url, label] = external;
+        return (
+          <a
+            key={`${key}-${i}`}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[var(--bg-color-header)] underline underline-offset-2 font-medium hover:opacity-70 transition-opacity"
+          >
+            {label}
+          </a>
+        );
+      }
+      return <span key={`${key}-${i}`}>{part}</span>;
+    });
   };
 
   const renderAnswer = (text) => {
@@ -134,7 +189,7 @@ function QuestionPage({
       if (typeof el === "string") {
         return (
           <p key={idx} className="whitespace-pre-wrap leading-[1.6] mb-4">
-            {el}
+            {renderTextWithRefs(el, idx)}
           </p>
         );
       }
@@ -143,10 +198,11 @@ function QuestionPage({
         return (
           <div key={idx} className="mb-6">
             <p className="text-[18px] mb-2">{`${sectionNumber}. ${el.heading}`}</p>
+
             <ul className="pl-6">
               {el.bullets.map((b, i) => (
                 <li key={i} className="text-[17px]">
-                  {b}
+                  {renderTextWithRefs(b, idx)}
                 </li>
               ))}
             </ul>
@@ -158,7 +214,7 @@ function QuestionPage({
           <ul key={idx}>
             {el.items.map((item, i) => (
               <li key={i} className="text-[17px]">
-                {item}
+                {renderTextWithRefs(item, idx)}
               </li>
             ))}
           </ul>
@@ -227,7 +283,7 @@ function QuestionPage({
               }}
             >
               <p className="m-0 leading-[1.7] text-[17px] text-[#2b2b2b] whitespace-pre-wrap">
-                {data.conclusion}
+                {renderTextWithRefs(data.conclusion, 0)}
               </p>
             </div>
           </div>
@@ -258,7 +314,7 @@ function QuestionPage({
                   key={idx}
                   className="whitespace-pre-wrap leading-[1.6] mb-4 text-[18px] max-[1024px]:text-[1.125rem] max-[900px]:text-[17px] max-[480px]:text-[14px]"
                 >
-                  {section.text}
+                  {renderTextWithRefs(section.text, idx)}
                 </p>
               );
             }
@@ -310,11 +366,11 @@ function QuestionPage({
                           ${direction === "rtl" ? "text-right" : "text-left"}
                         `}
                       >
-                        {item.text}
+                        {renderTextWithRefs(item.text, idx)}
                       </blockquote>
                       {item.commentary && (
                         <p className="whitespace-pre-wrap leading-[1.6] mb-4 text-[18px] max-[1024px]:text-[1.125rem] max-[900px]:text-[17px] max-[480px]:text-[14px]">
-                          {item.commentary}
+                          {renderTextWithRefs(item.commentary, idx)}
                         </p>
                       )}
                     </li>
@@ -325,18 +381,125 @@ function QuestionPage({
           })}
         </div>
 
+        {/*  divider */}
         <div className="h-px bg-[#c3a421] my-8 opacity-60" />
 
         <p className="text-[18px]">
           <strong>{labels.andAllahKnowsBest}</strong>
         </p>
 
-        <Link
+         <Link
           to={backLink}
           className="inline-block mt-8 text-[var(--bg-color-header)] no-underline font-bold hover:underline"
         >
           {labels.back}
-        </Link>
+        </Link> 
+
+    
+
+        {/* ── RELATED ANSWERS ───────────────────────────────────────── */}
+        {relatedData.length > 0 && (
+          <div className="mt-16">
+            {/* section header */}
+            <div
+              className={`flex items-center gap-4 mb-6 ${direction === "rtl" ? "flex-row-reverse" : ""}`}
+            >
+              <div className="flex items-center gap-2">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--bg-color-header)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+                <span className="text-[var(--bg-color-header)] font-bold text-[1rem] uppercase tracking-widest">
+                  {language === "ar" ? "أسئلة ذات صلة" : "Related Answers"}
+                </span>
+              </div>
+              <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
+            </div>
+
+            {/* cards grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {relatedData.map((item, i) => {
+                const rq = data.relatedQuestions[i];
+                const href =
+                  rq.lang === "ar"
+                    ? `/ar/questions/${rq.slug}`
+                    : `/questions/${rq.slug}`;
+                return (
+                  <a
+                    key={i}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex flex-col gap-3 p-5 rounded-2xl border border-[rgba(40,115,70,0.15)] bg-[#fafcfb] hover:border-[var(--bg-color-header)] hover:shadow-[0_4px_20px_rgba(40,115,70,0.12)] transition-all duration-200 no-underline"
+                  >
+                    {/* top row */}
+                    <div
+                      className={`flex items-start justify-between gap-3 ${direction === "rtl" ? "flex-row-reverse" : ""}`}
+                    >
+                      <p className="m-0 text-[14.5px] font-semibold text-[#1c1c1c] leading-snug group-hover:text-[var(--bg-color-header)] transition-colors line-clamp-3">
+                        {item.heading}
+                      </p>
+                      <span className="shrink-0 w-7 h-7 rounded-lg bg-[rgba(40,115,70,0.08)] flex items-center justify-center group-hover:bg-[var(--bg-color-header)] transition-colors mt-[1px]">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="var(--bg-color-header)"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="group-hover:stroke-white transition-colors"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </span>
+                    </div>
+
+                    {/* question preview */}
+                    <p className="m-0 text-[12.5px] text-[#777] leading-relaxed line-clamp-2 border-t border-[rgba(40,115,70,0.08)] pt-3">
+                      {item.question}
+                    </p>
+
+                    {/* footer */}
+                    <div
+                      className={`flex items-center gap-1 mt-auto ${direction === "rtl" ? "flex-row-reverse" : ""}`}
+                    >
+                      <span className="text-[11.5px] font-semibold text-[var(--bg-color-header)] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-wide">
+                        {language === "ar" ? "اقرأ الإجابة" : "Read answer"}
+                      </span>
+                      <svg
+                        width="11"
+                        height="11"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="var(--bg-color-header)"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <Footer lang={language} />
