@@ -1,5 +1,3 @@
-// src/Components/library/BookContent.jsx
-
 import { useEffect, useRef } from "react";
 
 const TASHKEEL_REGEX = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g;
