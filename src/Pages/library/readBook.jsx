@@ -13,7 +13,66 @@ const LANG_LABELS = {
   en: { toc: "Table of Contents", back: "Book Details" },
   ar: { toc: "فهرس المحتويات", back: "تفاصيل الكتاب" },
 };
+const getReadingProgressKey = (lang, slug) => {
+  return `reading-progress:${lang}:${slug}`;
+};
 
+const getReadingHistoryKey = () => {
+  return "reading-history";
+};
+
+const saveReadingProgress = ({ lang, slug, pageIndex, book }) => {
+  if (!book) return;
+
+  const progress = {
+    lang,
+    slug,
+    title: book.title || "",
+    author: book.author || "",
+    pageIndex,
+    pageNumber: pageIndex + 1,
+    updatedAt: new Date().toISOString(),
+  };
+
+  localStorage.setItem(
+    getReadingProgressKey(lang, slug),
+    JSON.stringify(progress)
+  );
+
+  const oldHistory = JSON.parse(
+    localStorage.getItem(getReadingHistoryKey()) || "[]"
+  );
+
+  const filteredHistory = oldHistory.filter(
+    (item) => !(item.lang === lang && item.slug === slug)
+  );
+
+  const newHistory = [progress, ...filteredHistory].slice(0, 30);
+
+  localStorage.setItem(getReadingHistoryKey(), JSON.stringify(newHistory));
+};
+
+const getSavedPageIndex = (lang, slug) => {
+  const saved = localStorage.getItem(getReadingProgressKey(lang, slug));
+
+  if (!saved) return null;
+
+  try {
+    const parsed = JSON.parse(saved);
+
+    if (typeof parsed.pageIndex === "number") {
+      return parsed.pageIndex;
+    }
+
+    if (typeof parsed.pageNumber === "number") {
+      return parsed.pageNumber - 1;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};
 export default function ReadBook() {
   const { lang, slug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,31 +95,38 @@ export default function ReadBook() {
   const isArabic = lang === "ar";
 
   const goToPage = useCallback(
-    (valueOrUpdater) => {
-      setCurrentPage((prev) => {
-        const totalPages = book?.pages?.length || 0;
-        if (totalPages === 0) return prev;
+  (valueOrUpdater) => {
+    setCurrentPage((prev) => {
+      const totalPages = book?.pages?.length || 0;
+      if (totalPages === 0) return prev;
 
-        const nextPage =
-          typeof valueOrUpdater === "function"
-            ? valueOrUpdater(prev)
-            : valueOrUpdater;
+      const nextPage =
+        typeof valueOrUpdater === "function"
+          ? valueOrUpdater(prev)
+          : valueOrUpdater;
 
-        const safePage = Math.min(Math.max(nextPage, 0), totalPages - 1);
-        setSearchParams({ page: String(safePage + 1) });
+      const safePage = Math.min(Math.max(nextPage, 0), totalPages - 1);
 
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-          setIsPlaying(false);
-        }
+      setSearchParams({ page: String(safePage + 1) });
 
-        return safePage;
+      saveReadingProgress({
+        lang,
+        slug,
+        pageIndex: safePage,
+        book,
       });
-    },
-    [book?.pages?.length, setSearchParams]
-  );
 
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+        setIsPlaying(false);
+      }
+
+      return safePage;
+    });
+  },
+  [book, lang, slug, setSearchParams]
+);
   // ── Load book ────────────────────────────────────────────────────────────────
   useEffect(() => {
     setLoading(true);
@@ -79,12 +145,33 @@ export default function ReadBook() {
         setBook(bookData);
 
         const params = new URLSearchParams(window.location.search);
-        const pageFromUrl = Number(params.get("page")) || 1;
+        const hasPageInUrl = params.has("page");
+
+        let startingPageIndex = 0;
+
+        if (hasPageInUrl) {
+          const pageFromUrl = Number(params.get("page")) || 1;
+          startingPageIndex = pageFromUrl - 1;
+        } else {
+          const savedPageIndex = getSavedPageIndex(lang, slug);
+          startingPageIndex =
+            typeof savedPageIndex === "number" ? savedPageIndex : 0;
+        }
+
         const safePage =
           flatPages.length > 0
-            ? Math.min(Math.max(pageFromUrl - 1, 0), flatPages.length - 1)
+            ? Math.min(Math.max(startingPageIndex, 0), flatPages.length - 1)
             : 0;
+
         setCurrentPage(safePage);
+        setSearchParams({ page: String(safePage + 1) });
+
+        saveReadingProgress({
+          lang,
+          slug,
+          pageIndex: safePage,
+          book: bookData,
+        });
       })
       .catch(() => {
         setBook(null);
@@ -93,13 +180,29 @@ export default function ReadBook() {
       .finally(() => setLoading(false));
   }, [lang, slug]);
 
-  // ── Sync URL → page ──────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!book?.pages?.length) return;
-    const pageFromUrl = Number(searchParams.get("page")) || 1;
-    const safePage = Math.min(Math.max(pageFromUrl - 1, 0), book.pages.length - 1);
-    if (safePage !== currentPage) setCurrentPage(safePage);
-  }, [searchParams, book?.pages?.length]); // eslint-disable-line
+ // ── Sync URL → page ──────────────────────────────────────────────────────────
+useEffect(() => {
+  if (!book?.pages?.length) return;
+  if (!searchParams.has("page")) return;
+
+  const pageFromUrl = Number(searchParams.get("page")) || 1;
+
+  const safePage = Math.min(
+    Math.max(pageFromUrl - 1, 0),
+    book.pages.length - 1
+  );
+
+  if (safePage !== currentPage) {
+    setCurrentPage(safePage);
+
+    saveReadingProgress({
+      lang,
+      slug,
+      pageIndex: safePage,
+      book,
+    });
+  }
+}, [searchParams, book, currentPage, lang, slug]);
 
   // ── Keyboard navigation — RTL aware ─────────────────────────────────────────
   useEffect(() => {

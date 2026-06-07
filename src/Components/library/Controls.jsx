@@ -58,7 +58,7 @@ export default function Controls({
 
       <div className="h-2 w-full bg-[var(--border-color)] opacity-40" style={{ background: "rgba(0,0,0,0.12)" }}>
         <div
-          className="h-full bg-black transition-all duration-300 ease-out rounded-tr-full rounded-tl-full"
+          className="h-full bg-[var(--bg-color-header)] transition-all duration-300 ease-out rounded-tr-full rounded-tl-full"
           style={{ width: `${progress}%` }}
         />
       </div>
