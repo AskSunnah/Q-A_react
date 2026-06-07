@@ -12,7 +12,7 @@ export default function BookContent({
 }) {
   const scrollRef = useRef(null);
 
-  // Scroll to top whenever the page changes (blocks is a new array ref each time)
+  // Scroll to top whenever the page changes
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0;
@@ -23,10 +23,11 @@ export default function BookContent({
     removeTashkeel ? text.replace(TASHKEEL_REGEX, "") : text;
 
   const hasReferences = references && references.length > 0;
+
   return (
     <div className="flex flex-col">
 
-      {/* Book page content */}
+      {/* Book page — minHeight makes short pages feel like a full book page */}
       <div
         ref={scrollRef}
         className="
@@ -44,6 +45,13 @@ export default function BookContent({
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "local",
+          /*
+            minHeight keeps a consistent "book page" feel regardless of content length.
+            calc(100vh - 260px) = viewport height minus header + navbar + action bar + controls bar.
+            Short pages fill to this height; long pages grow beyond it and the parent column scrolls.
+            Adjust the 260px constant up/down if your header/navbar are taller/shorter.
+          */
+          minHeight: "calc(100vh - 260px)",
         }}
       >
         {blocks.map((block, idx) => {
