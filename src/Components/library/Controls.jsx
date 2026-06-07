@@ -1,84 +1,147 @@
+// src/Components/library/Controls.jsx
+
 export default function Controls({
   currentPage,
   totalPages,
   setCurrentPage,
+  fontSize,
   setFontSize,
+  isRTL = false,
 }) {
-  const btnClass = [
-    // mobile: smaller padding + text
-    "px-2 py-1 text-xs",
-    // sm+: original sizing
-    "sm:px-3 sm:py-[0.4rem] sm:text-sm",
-    // shared
-    "border border-[#ccc] rounded-[4px]",
+  const progress = totalPages > 0 ? ((currentPage + 1) / totalPages) * 100 : 0;
+
+  const navBtnClass = [
+    "flex items-center justify-center",
+    "w-10 h-10 sm:w-11 sm:h-11",
+    "rounded-full",
+    "border border-[#ccc]",
     "text-[var(--button-text-color)]",
     "cursor-pointer font-[inherit]",
     "transition-all duration-150",
-    "hover:bg-white hover:border-[var(--primary)] hover:text-[var(--text-main)] hover:font-semibold",
+    "disabled:opacity-30 disabled:cursor-not-allowed",
+    "hover:bg-white hover:border-[var(--primary)] hover:text-[var(--text-main)] hover:scale-105",
+    "active:scale-95",
+    "text-lg",
   ].join(" ");
 
+  const fontBtnClass = [
+    "flex items-center justify-center",
+    "w-8 h-8 sm:w-9 sm:h-9",
+    "rounded-[4px]",
+    "border border-[#ccc]",
+    "text-[var(--button-text-color)]",
+    "cursor-pointer font-[inherit] text-xs sm:text-sm",
+    "transition-all duration-150",
+    "hover:bg-white hover:border-[var(--primary)] hover:text-[var(--text-main)]",
+    "active:scale-95",
+  ].join(" ");
+
+  /*
+    ARROW LOGIC — keep it simple:
+    ‹ always means "go to lower page index" (previous in reading order for both LTR and RTL).
+    › always means "go to higher page index" (next in reading order for both LTR and RTL).
+
+    In RTL the browser already mirrors the visual layout, so the ‹ glyph appears
+    on the right side and › on the left — which is correct for Arabic reading direction.
+    We do NOT need to swap the onClick logic. The page index is language-agnostic.
+
+    CHATBOT BUBBLE:
+    Fixed bottom-right ~64px wide regardless of page direction.
+    pr-16 sm:pr-20 on the progress label clears it in both LTR and RTL.
+    Bump to pr-24 if your bubble is wider.
+
+    z-40 sits above most chatbot overlays (typically z-10–z-30).
+  */
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 py-2 sm:py-3 mb-4 mt-2 px-2">
-      {/* Font size group */}
-      <div className="flex items-center gap-1">
-        <button
-          onClick={() => setFontSize((f) => Math.max(0.8, f - 0.1))}
-          className={btnClass}
-          style={{ background: "var(--button-gradient)" }}
-          title="Decrease font size"
-        >
-          A−
-        </button>
-        <button
-          onClick={() => setFontSize((f) => f + 0.1)}
-          className={btnClass}
-          style={{ background: "var(--button-gradient)" }}
-          title="Increase font size"
-        >
-          A+
-        </button>
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-main)] border-t border-[var(--border-color)] shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
+
+      <div className="h-2 w-full bg-[var(--border-color)] opacity-40" style={{ background: "rgba(0,0,0,0.12)" }}>
+        <div
+          className="h-full bg-[var(--bg-color-header)] transition-all duration-300 ease-out rounded-tr-full rounded-tl-full"
+          style={{ width: `${progress}%` }}
+        />
       </div>
 
-      {/* Divider — visible on sm+ */}
-      <span className="hidden sm:block w-px h-5 bg-[#ccc]" />
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-6 py-2 sm:py-3">
 
-      {/* Page navigation group */}
-      <div className="flex items-center gap-1">
-        <button
-          onClick={() => currentPage > 0 && setCurrentPage(currentPage - 1)}
-          className={btnClass}
-          style={{ background: "var(--button-gradient)" }}
-          title="Previous page"
-        >
-          ‹
-        </button>
+        {/* ── Font size — start side ── */}
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setFontSize((f) => Math.max(0.8, +(f - 0.1).toFixed(1)))}
+            className={fontBtnClass}
+            style={{ background: "var(--button-gradient)" }}
+            title={isRTL ? "تصغير الخط" : "Decrease font size"}
+            aria-label={isRTL ? "تصغير الخط" : "Decrease font size"}
+          >
+            A−
+          </button>
+          <span className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] w-6 text-center tabular-nums select-none">
+            {Math.round(fontSize * 10)}
+          </span>
+          <button
+            onClick={() => setFontSize((f) => Math.min(2.0, +(f + 0.1).toFixed(1)))}
+            className={fontBtnClass}
+            style={{ background: "var(--button-gradient)" }}
+            title={isRTL ? "تكبير الخط" : "Increase font size"}
+            aria-label={isRTL ? "تكبير الخط" : "Increase font size"}
+          >
+            A+
+          </button>
+        </div>
 
-        <input
-          type="number"
-          min={1}
-          max={totalPages}
-          value={currentPage + 1}
-          onChange={(e) => {
-            let val = parseInt(e.target.value, 10) - 1;
-            if (val >= 0 && val < totalPages) setCurrentPage(val);
-          }}
-          className="w-[40px] sm:w-[55px] px-1 sm:px-2 py-1 sm:py-[0.4rem] border border-[#ccc] rounded-[4px] bg-white text-center font-[inherit] text-xs sm:text-sm"
-        />
+        {/* ── Page navigation — center ── */}
+        <div className="flex items-center gap-2 sm:gap-3">
 
-        <span className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] whitespace-nowrap">
-          / {totalPages}
-        </span>
+          {/* ‹ always = previous page (lower index). Browser mirrors position in RTL. */}
+          <button
+            onClick={() => { if (currentPage > 0) setCurrentPage(currentPage - 1); }}
+            disabled={currentPage === 0}
+            className={navBtnClass}
+            style={{ background: "var(--button-gradient)" }}
+            title={isRTL ? "الصفحة السابقة" : "Previous page"}
+            aria-label={isRTL ? "الصفحة السابقة" : "Previous page"}
+          >
+            ‹
+          </button>
 
-        <button
-          onClick={() =>
-            currentPage < totalPages - 1 && setCurrentPage(currentPage + 1)
-          }
-          className={btnClass}
-          style={{ background: "var(--button-gradient)" }}
-          title="Next page"
-        >
-          ›
-        </button>
+          {/* Page input */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={currentPage + 1}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10) - 1;
+                if (!isNaN(val) && val >= 0 && val < totalPages) setCurrentPage(val);
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="w-[38px] sm:w-[50px] px-1 py-1 sm:py-[0.4rem] border border-[#ccc] rounded-[4px] bg-white text-center font-[inherit] text-xs sm:text-sm focus:outline-none focus:border-[var(--primary)]"
+            />
+            <span className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] whitespace-nowrap select-none">
+              / {totalPages}
+            </span>
+          </div>
+
+          {/* › always = next page (higher index). Browser mirrors position in RTL. */}
+          <button
+            onClick={() => { if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1); }}
+            disabled={currentPage === totalPages - 1}
+            className={navBtnClass}
+            style={{ background: "var(--button-gradient)" }}
+            title={isRTL ? "الصفحة التالية" : "Next page"}
+            aria-label={isRTL ? "الصفحة التالية" : "Next page"}
+          >
+            ›
+          </button>
+        </div>
+
+        {/* ── Progress % — end side, padded to clear chatbot bubble ── */}
+        <div className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] min-w-[2.5rem] text-right tabular-nums select-none pr-16 sm:pr-20">
+          {Math.round(progress)}%
+        </div>
+
       </div>
     </div>
   );
