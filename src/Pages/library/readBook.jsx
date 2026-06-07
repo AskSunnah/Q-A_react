@@ -27,6 +27,10 @@ export default function ReadBook() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const dir = lang === "ar" ? "rtl" : "ltr";
+  const labels = LANG_LABELS[lang] || LANG_LABELS.en;
+  const isArabic = lang === "ar";
+
   const goToPage = useCallback(
     (valueOrUpdater) => {
       setCurrentPage((prev) => {
@@ -126,53 +130,6 @@ export default function ReadBook() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentPage, book?.pages?.length, goToPage]);
 
-  if (loading) {
-    return (
-      <div
-        dir={lang === "ar" ? "rtl" : "ltr"}
-        className="min-h-screen flex flex-col items-center justify-center text-white"
-        style={{
-          background:
-            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("/books.jpeg")',
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="w-[70px] h-[70px] rounded-full animate-spin border-[7px] border-white/40 border-t-[#c9a227]" />
-
-        <p className="mt-5 text-lg font-semibold">
-          {lang === "ar" ? "جاري تحميل الكتاب..." : "Loading book..."}
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div
-        dir={lang === "ar" ? "rtl" : "ltr"}
-        className="min-h-screen flex items-center justify-center text-white text-center px-4"
-        style={{
-          background:
-            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("/books.jpeg")',
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <p className="text-lg font-semibold">{error}</p>
-      </div>
-    );
-  }
-
-  if (!book) {
-    return null;
-  }
-
-  const page = book.pages?.[currentPage] || { blocks: [], references: [] };
-  const dir = lang === "ar" ? "rtl" : "ltr";
-  const labels = LANG_LABELS[lang] || LANG_LABELS.en;
-  const isArabic = lang === "ar";
-
   function handleTashkeelToggle() {
     setIsTashkeelRemoved((prev) => !prev);
   }
@@ -196,6 +153,141 @@ export default function ReadBook() {
       alert(isArabic ? "📋 تم نسخ رابط الكتاب!" : "📋 Book link copied!");
     }
   };
+
+  if (loading) {
+    return (
+      <div dir={dir}>
+        {/* header skeleton */}
+        <header
+          className="text-white py-10 px-8 text-center"
+          style={{
+            background:
+              'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/books.jpeg")',
+            backgroundSize: "auto",
+            backgroundPosition: "center",
+          }}
+        >
+          <div className="mx-auto h-8 w-[60%] max-w-[500px] rounded bg-white/30 animate-pulse" />
+        </header>
+
+        {/* navbar skeleton */}
+        <nav className="bg-[var(--bg-main)] px-6 py-4 relative z-10 font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]">
+          <ul className="list-none m-0 p-0 flex flex-wrap justify-center gap-6">
+            <li>
+              <Link className="nav-link" to={lang === "ar" ? "/ar" : "/"}>
+                {lang === "ar" ? "الرئيسية" : "Home"}
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                className="nav-link"
+                to={lang === "ar" ? "/library_ar" : "/library"}
+              >
+                {lang === "ar" ? "المكتبة" : "Library"}
+              </Link>
+            </li>
+
+            <li>
+              <span className="nav-link opacity-60">{labels.back}</span>
+            </li>
+          </ul>
+        </nav>
+
+        {/* layout skeleton */}
+        <div className="flex flex-row max-md:flex-col p-4">
+          {/* sidebar skeleton */}
+          <div
+            className="w-[20%] shrink-0 min-w-[180px] bg-[var(--bg-main)] p-4 overflow-hidden h-[70vh] mr-[3px]
+            max-md:w-screen max-md:max-h-[220px] max-md:mr-0"
+          >
+            <div className="h-6 w-[70%] bg-gray-300 rounded mb-5 animate-pulse" />
+
+            <div className="space-y-3">
+              <div className="h-4 w-full bg-gray-300 rounded animate-pulse" />
+              <div className="h-4 w-[85%] bg-gray-300 rounded animate-pulse" />
+              <div className="h-4 w-[90%] bg-gray-300 rounded animate-pulse" />
+              <div className="h-4 w-[75%] bg-gray-300 rounded animate-pulse" />
+              <div className="h-4 w-[95%] bg-gray-300 rounded animate-pulse" />
+              <div className="h-4 w-[80%] bg-gray-300 rounded animate-pulse" />
+            </div>
+          </div>
+
+          {/* main content skeleton */}
+          <main className="flex-1 min-w-0">
+            <div
+              className="
+                w-full sm:w-[95%] md:w-[90%] lg:w-[85%] min-h-[50vh]
+                px-3 py-3
+                sm:px-5 sm:py-4
+                md:px-8 md:py-6
+                border border-double border-[var(--border-color)]
+                rounded-[2%]
+                overflow-hidden
+              "
+              style={{
+                background: 'url("/test1.jpg")',
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              <div className="animate-pulse space-y-5">
+                <div className="h-7 w-[45%] bg-gray-300 rounded" />
+
+                <div className="space-y-3">
+                  <div className="h-4 w-full bg-gray-300 rounded" />
+                  <div className="h-4 w-[95%] bg-gray-300 rounded" />
+                  <div className="h-4 w-[90%] bg-gray-300 rounded" />
+                  <div className="h-4 w-[97%] bg-gray-300 rounded" />
+                  <div className="h-4 w-[80%] bg-gray-300 rounded" />
+                </div>
+
+                <div className="space-y-3 pt-4">
+                  <div className="h-4 w-full bg-gray-300 rounded" />
+                  <div className="h-4 w-[92%] bg-gray-300 rounded" />
+                  <div className="h-4 w-[88%] bg-gray-300 rounded" />
+                  <div className="h-4 w-[96%] bg-gray-300 rounded" />
+                  <div className="h-4 w-[75%] bg-gray-300 rounded" />
+                </div>
+              </div>
+            </div>
+
+            {/* controls skeleton */}
+            <div className="flex justify-center items-center gap-3 mt-5 animate-pulse">
+              <div className="h-9 w-24 bg-gray-300 rounded" />
+              <div className="h-5 w-20 bg-gray-300 rounded" />
+              <div className="h-9 w-24 bg-gray-300 rounded" />
+            </div>
+          </main>
+        </div>
+
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        dir={dir}
+        className="min-h-screen flex items-center justify-center text-white text-center px-4"
+        style={{
+          background:
+            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("/books.jpeg")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <p className="text-lg font-semibold">{error}</p>
+      </div>
+    );
+  }
+
+  if (!book) {
+    return null;
+  }
+
+  const page = book.pages?.[currentPage] || { blocks: [], references: [] };
 
   return (
     <div dir={dir}>
