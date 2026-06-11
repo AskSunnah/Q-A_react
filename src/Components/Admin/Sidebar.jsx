@@ -86,7 +86,7 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
 
         {/* Menu */}
         <nav className="flex-1 overflow-y-auto mt-[10px] pb-[80px]">
-          {MENU.map(({ label, icon: Icon, route }) => {
+          {MENU.map(({ label, route }) => {
             const isActive = pathname.includes(route);
             return (
               <NavLink

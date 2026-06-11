@@ -35,38 +35,76 @@ export default function Controls({
     "hover:bg-white hover:border-[var(--primary)] hover:text-[var(--text-main)]",
     "active:scale-95",
   ].join(" ");
-
-  /*
-    ARROW LOGIC — keep it simple:
-    ‹ always means "go to lower page index" (previous in reading order for both LTR and RTL).
-    › always means "go to higher page index" (next in reading order for both LTR and RTL).
-
-    In RTL the browser already mirrors the visual layout, so the ‹ glyph appears
-    on the right side and › on the left — which is correct for Arabic reading direction.
-    We do NOT need to swap the onClick logic. The page index is language-agnostic.
-
-    CHATBOT BUBBLE:
-    Fixed bottom-right ~64px wide regardless of page direction.
-    pr-16 sm:pr-20 on the progress label clears it in both LTR and RTL.
-    Bump to pr-24 if your bubble is wider.
-
-    z-40 sits above most chatbot overlays (typically z-10–z-30).
-  */
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-main)] border-t border-[var(--border-color)] shadow-[0_-4px_16px_rgba(0,0,0,0.12)]">
+    <div
+      dir="ltr"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg-main)] border-t border-[var(--border-color)] shadow-[0_-4px_16px_rgba(0,0,0,0.12)]"
+    >
 
-      <div className="h-2 w-full bg-[var(--border-color)] opacity-40" style={{ background: "rgba(0,0,0,0.12)" }}>
+      {/* Progress bar — golden fill on a light track */}
+      <div className="h-2 w-full bg-[var(--border-color)]">
         <div
-          className="h-full bg-[var(--bg-color-header)] transition-all duration-300 ease-out rounded-tr-full rounded-tl-full"
-          style={{ width: `${progress}%` }}
+          className="h-full transition-all duration-300 ease-out"
+          style={{ width: `${progress}%`, background: "var(--button-gradient)" }}
         />
       </div>
 
       <div className="flex items-center justify-between gap-2 px-3 sm:px-6 py-2 sm:py-3">
 
-        {/* ── Font size — start side ── */}
-        <div className="flex items-center gap-1.5">
+        {/* Progress % — physical left, well away from chatbot bubble */}
+        <div className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] min-w-[2rem] tabular-nums select-none">
+          {Math.round(progress)}%
+        </div>
+
+        {/* Page navigation — center */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={() => { if (currentPage > 0) setCurrentPage(currentPage - 1); }}
+            disabled={currentPage === 0}
+            className={navBtnClass}
+            style={{ background: "var(--button-gradient)" }}
+            title={isRTL ? "الصفحة السابقة" : "Previous page"}
+            aria-label={isRTL ? "الصفحة السابقة" : "Previous page"}
+          >
+            ‹
+          </button>
+
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={currentPage + 1}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10) - 1;
+                if (!isNaN(val) && val >= 0 && val < totalPages) setCurrentPage(val);
+              }}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="w-[38px] sm:w-[50px] px-1 py-1 sm:py-[0.4rem] border border-[#ccc] rounded-[4px] bg-white text-center font-[inherit] text-xs sm:text-sm focus:outline-none focus:border-[var(--primary)]"
+            />
+            <span className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] whitespace-nowrap select-none">
+              / {totalPages}
+            </span>
+          </div>
+
+          <button
+            onClick={() => { if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1); }}
+            disabled={currentPage === totalPages - 1}
+            className={navBtnClass}
+            style={{ background: "var(--button-gradient)" }}
+            title={isRTL ? "الصفحة التالية" : "Next page"}
+            aria-label={isRTL ? "الصفحة التالية" : "Next page"}
+          >
+            ›
+          </button>
+        </div>
+
+        {/*
+          Font size — physical right side.
+          pr-16 sm:pr-20 pads the whole group away from the chatbot bubble
+          which sits fixed at bottom-right (~56px wide).
+        */}
+        <div className="flex items-center gap-1.5 pr-16 sm:pr-20">
           <button
             onClick={() => setFontSize((f) => Math.max(0.8, +(f - 0.1).toFixed(1)))}
             className={fontBtnClass}
@@ -88,58 +126,6 @@ export default function Controls({
           >
             A+
           </button>
-        </div>
-
-        {/* ── Page navigation — center ── */}
-        <div className="flex items-center gap-2 sm:gap-3">
-
-          {/* ‹ always = previous page (lower index). Browser mirrors position in RTL. */}
-          <button
-            onClick={() => { if (currentPage > 0) setCurrentPage(currentPage - 1); }}
-            disabled={currentPage === 0}
-            className={navBtnClass}
-            style={{ background: "var(--button-gradient)" }}
-            title={isRTL ? "الصفحة السابقة" : "Previous page"}
-            aria-label={isRTL ? "الصفحة السابقة" : "Previous page"}
-          >
-            ‹
-          </button>
-
-          {/* Page input */}
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            <input
-              type="number"
-              min={1}
-              max={totalPages}
-              value={currentPage + 1}
-              onChange={(e) => {
-                const val = parseInt(e.target.value, 10) - 1;
-                if (!isNaN(val) && val >= 0 && val < totalPages) setCurrentPage(val);
-              }}
-              onKeyDown={(e) => e.stopPropagation()}
-              className="w-[38px] sm:w-[50px] px-1 py-1 sm:py-[0.4rem] border border-[#ccc] rounded-[4px] bg-white text-center font-[inherit] text-xs sm:text-sm focus:outline-none focus:border-[var(--primary)]"
-            />
-            <span className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] whitespace-nowrap select-none">
-              / {totalPages}
-            </span>
-          </div>
-
-          {/* › always = next page (higher index). Browser mirrors position in RTL. */}
-          <button
-            onClick={() => { if (currentPage < totalPages - 1) setCurrentPage(currentPage + 1); }}
-            disabled={currentPage === totalPages - 1}
-            className={navBtnClass}
-            style={{ background: "var(--button-gradient)" }}
-            title={isRTL ? "الصفحة التالية" : "Next page"}
-            aria-label={isRTL ? "الصفحة التالية" : "Next page"}
-          >
-            ›
-          </button>
-        </div>
-
-        {/* ── Progress % — end side, padded to clear chatbot bubble ── */}
-        <div className="text-[0.65rem] sm:text-xs text-[var(--text-secondary)] min-w-[2.5rem] text-right tabular-nums select-none pr-16 sm:pr-20">
-          {Math.round(progress)}%
         </div>
 
       </div>
