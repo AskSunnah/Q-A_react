@@ -55,7 +55,7 @@ const QuestionItem = ({
         {labelPrefix}
         {index + 1}:
       </strong>{" "}
-      <span className="text-[0.88rem] sm:text-[1rem] leading-6">
+      <span className="text-[0.9rem] sm:text-[1rem] leading-6">
         {item.heading}
       </span>
     </Link>
