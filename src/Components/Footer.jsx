@@ -3,15 +3,16 @@ import { Link } from "react-router-dom";
 
 const Footer = ({ lang = "en" }) => {
   const isArabic = lang === "ar";
+  const currentYear = new Date().getFullYear();
 
   const t = {
     logoText: isArabic ? "اسأل السنة" : "AskSunnah",
     tagline: isArabic
       ? "منصة للمعرفة الإسلامية المبنية على القرآن والسنة"
-      : "A platform for Islamic knowledge based on the Qur’an and Sunnah.",
+      : "A platform for Islamic knowledge based on the Qur'an and Sunnah.",
     copyright: isArabic
-      ? "© 2025 اسأل السنة. جميع الحقوق محفوظة."
-      : "© 2025 AskSunnah. All rights reserved.",
+      ? `© ${currentYear} اسأل السنة. جميع الحقوق محفوظة.`
+      : `Copyright © 17153988 CANADA ASSOCIATION | AskSunnah ${currentYear}. All rights reserved.`,
     terms: isArabic ? "الشروط والأحكام" : "Terms & Conditions",
     termsLink: isArabic ? "/ar/terms" : "/terms",
     dir: isArabic ? "rtl" : "ltr",
@@ -59,19 +60,19 @@ const Footer = ({ lang = "en" }) => {
     >
       <div className="absolute top-0 left-0 right-0 h-[15px] bg-gradient-to-b from-white/20 to-transparent" />
 
-      <div className="flex flex-col items-center text-center">
+      <div className="flex flex-col items-center text-center gap-3">
         {/* Logo */}
-        <h2 className="font-bold text-[1.5rem] sm:text-[2rem] mb-2 text-white">
+        <h2 className="font-bold text-[1.5rem] sm:text-[2rem] mb-0 text-white">
           {t.logoText}
         </h2>
 
-        {/* Tagline */}
-        <p className="text-[0.85rem] sm:text-[1rem] text-[#f0f0f0] mb-4 px-2 sm:px-0">
+        {/* Tagline — single line, truncates gracefully */}
+        <p className="text-[0.82rem] sm:text-[0.95rem] text-[#f0f0f0] whitespace-nowrap overflow-hidden text-ellipsis w-full max-w-[600px] px-2">
           {t.tagline}
         </p>
 
-        {/* Social icons */}
-        <div className="flex justify-center gap-4 sm:gap-5 flex-wrap items-center mb-2">
+        {/* Social icons — no labels */}
+        <div className="flex justify-center gap-4 sm:gap-5 flex-wrap items-center">
           {socials.map((s, i) => (
             <a
               key={i}
@@ -96,12 +97,12 @@ const Footer = ({ lang = "en" }) => {
         </div>
 
         {/* Footer bottom */}
-        <div className="border-t border-white/20 mt-6 pt-4 text-[0.75rem] sm:text-[0.85rem] text-[#cccccc] px-2">
+        <div className="border-t border-white/20 w-full pt-3 text-[0.75rem] sm:text-[0.85rem] text-[#f0f0f0] px-2">
           <span>{t.copyright}</span>
           <span className="mx-2">|</span>
           <Link
             to={t.termsLink}
-            className="text-[#cccccc] no-underline hover:underline"
+            className="text-[#f0f0f0] no-underline hover:underline"
           >
             {t.terms}
           </Link>
