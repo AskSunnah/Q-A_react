@@ -83,7 +83,7 @@ export async function saveBookAdmin(lang, slug, bookData) {
   return true;
 }
 // REORDER BOOKS ADMIN
-export async function reorderBooksAdmin(lang, orderedIds) {
+export async function reorderBooksAdmin(lang, bookId, newOrder) {
   const endpoint = `${API_BASE}/api/books/admin/reorder`;
 
   const res = await fetch(endpoint, {
@@ -91,12 +91,16 @@ export async function reorderBooksAdmin(lang, orderedIds) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       language: lang,
-      orderedIds,
+      bookId,
+      newOrder: Number(newOrder),
     }),
   });
+
   const data = await res.json();
+
   if (!res.ok || !data.success) {
-    throw new Error(data.message || "Failed to reorder books");
+    throw new Error(data.message || "Failed to reorder book");
   }
+
   return data.books;
 }
