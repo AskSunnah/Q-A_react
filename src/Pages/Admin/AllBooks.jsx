@@ -10,18 +10,15 @@ import { API_BASE } from "../../../config";
 
 const LIMIT = 20;
 
-
 export default function AllBooks({ lang = "en" }) {
   const [search, setSearch] = useState("");
-const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(1);
-  const [savingOrder, setSavingOrder] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState(null);
-  const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [updatingOrder, setUpdatingOrder] = useState(false);
 
   const [modal, setModal] = useState({
     show: false,
@@ -30,21 +27,29 @@ const [debouncedSearch, setDebouncedSearch] = useState("");
     onYes: null,
   });
 
+  const [moveModal, setMoveModal] = useState({
+    show: false,
+    book: null,
+    newOrder: "",
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
-  setPage(1);
-  setBooks([]);
-}, [lang, debouncedSearch]);
-useEffect(() => {
-  const timer = setTimeout(() => {
-    if (search.trim().length === 0 || search.trim().length >= 3) {
-      setDebouncedSearch(search.trim());
-    }
-  }, 500);
+    const timer = setTimeout(() => {
+      if (search.trim().length === 0 || search.trim().length >= 3) {
+        setDebouncedSearch(search.trim());
+      }
+    }, 500);
 
-  return () => clearTimeout(timer);
-}, [search]);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+    setBooks([]);
+  }, [lang, debouncedSearch]);
+
   useEffect(() => {
     const loadBooks = async () => {
       try {
@@ -72,68 +77,66 @@ useEffect(() => {
     loadBooks();
   }, [lang, page, debouncedSearch]);
 
-  const reorderLocally = (list, startIndex, endIndex) => {
-    const result = [...list];
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    return result;
+  const refreshBooks = async () => {
+    const data = await fetchBooksAdmin(lang, 1, LIMIT, debouncedSearch);
+    setBooks(data.books);
+    setHasMore(data.hasMore);
+    setPage(1);
   };
 
-  const handleDragStart = (e, index) => {
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = "move";
+  const openMoveModal = (book) => {
+    setMoveModal({
+      show: true,
+      book,
+      newOrder: "",
+    });
   };
 
-  const handleDragOver = (e, index) => {
-    e.preventDefault();
-    setDragOverIndex(index);
+  const closeMoveModal = () => {
+    setMoveModal({
+      show: false,
+      book: null,
+      newOrder: "",
+    });
   };
 
-  const handleDrop = async (e, dropIndex) => {
-    e.preventDefault();
+ const handleMovePosition = async () => {
+  if (!moveModal.book) return;
 
-    if (draggedIndex === null || draggedIndex === dropIndex) {
-      setDraggedIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
+  const parsedOrder = Number(moveModal.newOrder);
 
-    const previousBooks = books;
-    const reorderedBooks = reorderLocally(books, draggedIndex, dropIndex);
+  if (!Number.isInteger(parsedOrder) || parsedOrder < 1) {
+    setModal({
+      show: true,
+      title: "Invalid Position",
+      message: "Please enter a valid position number.",
+    });
+    return;
+  }
 
-    setBooks(reorderedBooks);
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-    setSavingOrder(true);
+  setUpdatingOrder(true);
 
-    try {
-      const orderedIds = reorderedBooks.map((book) => book._id);
-      const updatedBooks = await reorderBooksAdmin(lang, orderedIds);
+  try {
+    await reorderBooksAdmin(lang, moveModal.book._id, parsedOrder);
+    await refreshBooks();
 
-      setBooks(updatedBooks);
+    closeMoveModal();
 
-      setModal({
-        show: true,
-        title: "Order Updated",
-        message: "Book order has been updated successfully.",
-      });
-    } catch (err) {
-      setBooks(previousBooks);
-
-      setModal({
-        show: true,
-        title: "Error",
-        message: err.message || "Failed to update book order.",
-      });
-    } finally {
-      setSavingOrder(false);
-    }
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
+    setModal({
+      show: true,
+      title: "Position Updated",
+      message: "Book position has been updated successfully.",
+    });
+  } catch (err) {
+    setModal({
+      show: true,
+      title: "Error",
+      message: err.message || "Failed to update book position.",
+    });
+  } finally {
+    setUpdatingOrder(false);
+  }
+};
 
   const confirmDelete = (slug) => {
     setModal({
@@ -150,7 +153,7 @@ useEffect(() => {
 
     try {
       await deleteBookAdmin(lang, slug);
-      setBooks(books.filter((b) => b.slug !== slug));
+      setBooks((prev) => prev.filter((b) => b.slug !== slug));
     } catch (err) {
       setModal({
         show: true,
@@ -182,8 +185,8 @@ useEffect(() => {
 
       alert("Download link updated successfully!");
 
-      setBooks(
-        books.map((b) =>
+      setBooks((prev) =>
+        prev.map((b) =>
           b._id === bookId ? { ...b, download: data.download } : b
         )
       );
@@ -207,24 +210,26 @@ useEffect(() => {
         </h1>
 
         <p className="text-center text-slate-500 mt-2 mb-4">
-          Drag books using the handle to change their order.
+          Search books, edit details, add download links, or update book order.
         </p>
-<div className="flex justify-center mt-4 mb-6">
-  <input
-    type="text"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    placeholder={
-      lang === "ar"
-        ? "Search Arabic books..."
-        : "Search English books..."
-    }
-    className="w-full max-w-[420px] bg-white border border-slate-300 rounded-[6px] py-2 px-4 text-base outline-none shadow-sm focus:border-[#c3a421]"
-  />
-</div>
-        {savingOrder && (
+
+        <div className="flex justify-center mt-4 mb-6">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={
+              lang === "ar"
+                ? "Search Arabic books..."
+                : "Search English books..."
+            }
+            className="w-full max-w-[420px] bg-white border border-slate-300 rounded-[6px] py-2 px-4 text-base outline-none shadow-sm focus:border-[#c3a421]"
+          />
+        </div>
+
+        {updatingOrder && (
           <div className="text-center text-blue-600 font-semibold mb-4">
-            Saving new order...
+            Updating position...
           </div>
         )}
 
@@ -238,32 +243,14 @@ useEffect(() => {
                   No books found in {lang === "en" ? "English" : "Arabic"}.
                 </li>
               ) : (
-                books.map((book, index) => (
+                books.map((book) => (
                   <li
                     key={book._id}
-                    draggable={!savingOrder}
-                    onDragStart={(e) => handleDragStart(e, index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragEnd={handleDragEnd}
-                    className={`bg-white my-3 p-4 border-l-[5px] border-[#c3a421] rounded-[6px] flex justify-between items-center gap-4 transition-all duration-150 ${
-                      draggedIndex === index ? "opacity-50" : "opacity-100"
-                    } ${
-                      dragOverIndex === index
-                        ? "scale-[1.01] shadow-[0_4px_12px_rgba(195,164,33,0.35)]"
-                        : "shadow-[0_2px_5px_rgba(0,0,0,0.05)]"
-                    }`}
+                    className="bg-white my-3 p-4 border-l-[5px] border-[#c3a421] rounded-[6px] flex justify-between items-center gap-4 transition-all duration-150 shadow-[0_2px_5px_rgba(0,0,0,0.05)]"
                   >
                     <div className="flex items-center gap-3 flex-1">
-                      <span
-                        className="cursor-grab active:cursor-grabbing text-slate-500 text-xl select-none px-2"
-                        title="Drag to reorder"
-                      >
-                        ☰
-                      </span>
-
                       <span className="bg-slate-100 text-slate-700 py-1 px-2 rounded-full text-xs font-bold min-w-7 text-center">
-                        {index + 1}
+                        {book.order || "-"}
                       </span>
 
                       <span
@@ -278,9 +265,17 @@ useEffect(() => {
 
                     <div className="flex gap-2 flex-wrap justify-end">
                       <button
+                        className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#c3a421] disabled:opacity-60 disabled:cursor-not-allowed"
+                        onClick={() => openMoveModal(book)}
+                        disabled={updatingOrder}
+                      >
+                        Move Position
+                      </button>
+
+                      <button
                         className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#2563eb] disabled:opacity-60 disabled:cursor-not-allowed"
                         onClick={() => handleAddDownloadLink(book._id)}
-                        disabled={savingOrder}
+                        disabled={updatingOrder}
                       >
                         Add Download Link
                       </button>
@@ -292,7 +287,7 @@ useEffect(() => {
                             `/supervised/books/edit/${book.language}/${book.slug}`
                           )
                         }
-                        disabled={savingOrder}
+                        disabled={updatingOrder}
                       >
                         Edit
                       </button>
@@ -300,7 +295,7 @@ useEffect(() => {
                       <button
                         className="py-[0.4rem] px-[0.8rem] border-none rounded cursor-pointer text-[0.95rem] text-white bg-[#e53e3e] disabled:opacity-60 disabled:cursor-not-allowed"
                         onClick={() => confirmDelete(book.slug)}
-                        disabled={savingOrder}
+                        disabled={updatingOrder}
                       >
                         Delete
                       </button>
@@ -314,7 +309,7 @@ useEffect(() => {
               <div className="flex justify-center mt-6 mb-10">
                 <button
                   onClick={() => setPage((prev) => prev + 1)}
-                  disabled={loadingMore || savingOrder}
+                  disabled={loadingMore || updatingOrder}
                   className="bg-[#c3a421] text-white py-2 px-6 rounded-[5px] font-bold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {loadingMore ? "Loading..." : "View More"}
@@ -324,6 +319,61 @@ useEffect(() => {
           </>
         )}
       </div>
+
+      {moveModal.show && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9998] px-4">
+          <div className="bg-white w-full max-w-[420px] rounded-lg shadow-lg p-6 text-[#1e293b]">
+            <h2 className="text-xl font-bold text-[#c3a421] mb-2">
+              Move Book Position
+            </h2>
+
+            <p className="text-sm text-slate-500 mb-4">
+              Enter the new position for:
+            </p>
+
+            <p className="font-semibold mb-1">{moveModal.book?.title}</p>
+
+            <p className="text-sm text-slate-500 mb-4">
+              Current Position:{" "}
+              <span className="font-bold text-[#c3a421]">
+                {moveModal.book?.order || "-"}
+              </span>
+            </p>
+
+            <input
+              type="number"
+              min="1"
+              value={moveModal.newOrder}
+              onChange={(e) =>
+                setMoveModal((prev) => ({
+                  ...prev,
+                  newOrder: e.target.value,
+                }))
+              }
+              placeholder={`Move to:`}
+              className="w-full border border-slate-300 rounded-[6px] py-2 px-3 outline-none focus:border-[#c3a421] mb-4"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={closeMoveModal}
+                disabled={updatingOrder}
+                className="bg-slate-200 text-slate-700 py-2 px-4 rounded font-bold disabled:opacity-60"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleMovePosition}
+                disabled={updatingOrder}
+                className="bg-[#c3a421] text-white py-2 px-4 rounded font-bold disabled:opacity-60"
+              >
+                {updatingOrder ? "Updating..." : "Update Position"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modal.show && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-4 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[9999] w-[90%] max-w-[600px] text-center text-base">
@@ -347,7 +397,7 @@ useEffect(() => {
 
               <button
                 onClick={() => setModal({ show: false })}
-                className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
+                className="bg-[var(--bg-color-header)] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
               >
                 No
               </button>
@@ -355,7 +405,7 @@ useEffect(() => {
           ) : (
             <button
               onClick={() => setModal({ show: false })}
-              className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer mt-4"
+              className="bg-[var(--bg-color-header)] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer mt-4"
             >
               Close
             </button>
