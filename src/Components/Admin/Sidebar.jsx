@@ -9,6 +9,7 @@ import {
   LogOut,
   MessageSquare,
   X,
+  ArrowUpRight,
   MessageCircleHeart,
 } from "lucide-react";
 
@@ -74,14 +75,27 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
           <h1 className="text-[1.1rem] font-bold m-0 leading-none flex items-center text-[#323232]">
             Ask Sunnah
           </h1>
-          {isMobile && (
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="bg-transparent border-none cursor-pointer flex items-center justify-end h-full p-0"
+
+          <div className="flex items-center gap-2">
+            <a
+              href="https://asksunnah.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center w-8 h-8 rounded-md border border-[#dfd7d7] text-[#323232] hover:bg-[#f0ece0] transition-colors duration-200"
+              title="Visit asksunnah.com"
             >
-              <X size={24} />
-            </button>
-          )}
+              <ArrowUpRight size={20} />
+            </a>
+
+            {isMobile && (
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="bg-transparent border-none cursor-pointer flex items-center justify-end h-full p-0"
+              >
+                <X size={24} />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Menu */}
