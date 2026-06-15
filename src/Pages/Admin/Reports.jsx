@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import AdminLayout from "../../Components/admin/AdminLayout";
+import AdminLayout from "../../Components/Admin/AdminLayout";
 import {
   fetchReports,
   updateReportStatus,
