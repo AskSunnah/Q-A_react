@@ -5,6 +5,10 @@ import Footer from "../Footer";
 import Navbar from "../Navbar";
 import { useSearchParams } from "react-router-dom";
 import { fetchFatwaBySlug } from "../../api/fatwa";
+import {
+  ReportableContent,
+  ReportableBlock,
+} from "../common/ReportableContent";
 
 function QuestionPage({
   fetchQuestionBySlug,
@@ -183,17 +187,31 @@ function QuestionPage({
     let manualSectionCounter = 1;
 
     return elements.map((el, idx) => {
+
       if (typeof el === "string") {
         return (
-          <p key={idx} className="whitespace-pre-wrap leading-[1.7] mb-4">
+          <ReportableBlock
+            key={idx}
+            text={el}
+            as="p"
+            className="whitespace-pre-wrap leading-[1.7] mb-4"
+          >
             {renderTextWithRefs(el, idx)}
-          </p>
+          </ReportableBlock>
         );
       }
+
+
+
       if (el.type === "section") {
         const sectionNumber = manualSectionCounter++;
         return (
-          <div key={idx} className="mb-6">
+          <ReportableBlock
+            key={idx}
+            text={el.heading}
+            as="div"
+            className="mb-6"
+          >
             <p className="text-[1.05em] font-medium mb-2">{`${sectionNumber}. ${el.heading}`}</p>
             <ul className="pl-6">
               {el.bullets.map((b, i) => (
@@ -202,9 +220,10 @@ function QuestionPage({
                 </li>
               ))}
             </ul>
-          </div>
+          </ReportableBlock>
         );
       }
+
       if (el.type === "ul") {
         return (
           <ul key={idx}>
@@ -233,245 +252,298 @@ function QuestionPage({
         Everything inside uses em/inherit so one breakpoint scales the whole page.
         Desktop: 17px  |  ≤768px: 16px  |  ≤480px: 15px
       */}
-      <div
-        dir={direction}
-        lang={language}
-        className="
+
+      <ReportableContent lang={language} contentType="question" slug={slug}>
+        <div
+          dir={direction}
+          lang={language}
+          className="
           p-8 max-w-[887px] mx-auto mt-8 text-[17px]
           max-[768px]:p-6 max-[768px]:max-w-[95%] max-[768px]:text-[16px]
           max-[480px]:p-4 max-[480px]:text-[15px]
         "
-      >
-        {/* H1 — display size, keeps its own breakpoints */}
-        <h1
-          className={`
+        >
+          {/* H1 — display size, keeps its own breakpoints */}
+          <h1
+            className={`
             text-[var(--bg-color-header)] text-[2rem] leading-[1.5] mb-5 font-bold
             max-[768px]:text-[1.6rem] max-[768px]:mb-4
             max-[480px]:text-[1.3rem] max-[480px]:leading-[1.4] max-[480px]:mb-3
             ${direction === "rtl" ? "text-right" : "text-left"}
           `}
-        >
-          {data.heading}
-        </h1>
+          >
+            {data.heading}
+          </h1>
 
-        {/* Question */}
-        <p
-          className={`
-            mb-5 leading-[1.8]
-            ${direction === "rtl" ? "text-right" : "text-left"}
-          `}
-        >
-          <strong>{labels.question}</strong> <span>{data.question}</span>
-        </p>
+          <ReportableBlock
+            text={data.question}
+            as="p"
+            className={`mb-5 leading-[1.8] ${direction === "rtl" ? "text-right" : "text-left"}`}
+          >
+            <strong>{labels.question}</strong> <span>{data.question}</span>
+          </ReportableBlock>
+          {/* Conclusion / Summary box */}
+          {data.conclusion && (
+            <div className="mb-6">
+              <h2 className="text-[1.05em] font-bold text-[#c3a421] mb-2">
+                {labels.conclusion}
+              </h2>
 
-        {/* Conclusion / Summary box */}
-        {data.conclusion && (
-          <div className="mb-6">
-            <h2 className="text-[1.05em] font-bold text-[#c3a421] mb-2">
-              {labels.conclusion}
-            </h2>
-            <div
-              className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
-              style={{
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-              }}
-            >
-              <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
-                {renderTextWithRefs(data.conclusion, 0)}
-              </p>
+              <ReportableBlock
+                text={data.conclusion}
+                as="div"
+                className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
+              >
+                <div
+                  style={{
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                  }}
+                >
+                  <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
+                    {renderTextWithRefs(data.conclusion, 0)}
+                  </p>
+                </div>
+              </ReportableBlock>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Answer */}
-        <div className="mb-6">
-          <p
-            className={`
+          {/* Answer */}
+          <div className="mb-6">
+            <p
+              className={`
               mb-4 leading-[1.8]
               ${direction === "rtl" ? "text-right" : "text-left"}
             `}
-          >
-            <strong>{labels.answer}</strong>
-          </p>
-          {data.answer && renderAnswer(data.answer)}
-        </div>
+            >
+              <strong>{labels.answer}</strong>
+            </p>
+            {data.answer && renderAnswer(data.answer)}
+          </div>
 
-        {/* Dynamic content sections (Quran, Sunnah, Salaf, Scholars) */}
-        <div id="dynamic-content">
-          {data.content?.map((section, idx) => {
-            const sectionTitle = sectionTitleMap[section.type] || "";
-            if (section.type === "normal") {
+          {/* Dynamic content sections (Quran, Sunnah, Salaf, Scholars) */}
+          <div id="dynamic-content">
+            {data.content?.map((section, idx) => {
+              const sectionTitle = sectionTitleMap[section.type] || "";
+
+              if (section.type === "normal") {
+                return (
+                  <ReportableBlock
+                    key={idx}
+                    text={section.text}
+                    as="p"
+                    className="whitespace-pre-wrap leading-[1.7] mb-4"
+                  >
+                    {renderTextWithRefs(section.text, idx)}
+                  </ReportableBlock>
+                );
+              }
+              const items = Array.isArray(section.items)
+                ? section.items
+                : [section];
               return (
-                <p
-                  key={idx}
-                  className="whitespace-pre-wrap leading-[1.7] mb-4"
-                >
-                  {renderTextWithRefs(section.text, idx)}
-                </p>
-              );
-            }
-            const items = Array.isArray(section.items)
-              ? section.items
-              : [section];
-            return (
-              <div key={idx}>
-                {sectionTitle && (
-                  <h2
-                    className={`
+                <div key={idx}>
+                  {sectionTitle && (
+                    <h2
+                      className={`
                       text-[var(--bg-color-header)] mt-8 mb-4 text-[1.15em] font-bold
                       max-[480px]:mt-5 max-[480px]:mb-3
                       ${direction === "rtl" ? "text-right" : "text-left"}
                     `}
-                  >
-                    {sectionTitle}
-                  </h2>
-                )}
-                <ul className="ps-5 list-disc">
-                  {items.map((item, i) => (
-                    <li key={i} className="mb-6">
-                      {item.reference && (
-                        <strong
-                          className={`block mb-2 text-[0.9em] ${direction === "rtl" ? "text-right" : "text-left"}`}
-                        >
-                          {item.reference}
-                        </strong>
-                      )}
-                      {item.narrator && (
-                        <em
-                          className={`block mb-2 text-[0.875em] ${direction === "rtl" ? "text-right" : "text-left"}`}
-                        >
-                          {item.narrator}
-                        </em>
-                      )}
-                      <blockquote
-                        className={`
+                    >
+                      {sectionTitle}
+                    </h2>
+                  )}
+                  <ul className="ps-5 list-disc">
+                    {items.map((item, i) => (
+                     
+
+                      <li key={i} className="mb-6">
+                        {item.reference && (
+                          <strong
+                            className={`block mb-2 text-[0.9em] ${direction === "rtl" ? "text-right" : "text-left"}`}
+                          >
+                            {item.reference}
+                          </strong>
+                        )}
+                        {item.narrator && (
+                          <em
+                            className={`block mb-2 text-[0.875em] ${direction === "rtl" ? "text-right" : "text-left"}`}
+                          >
+                            {item.narrator}
+                          </em>
+                        )}
+                        <ReportableBlock
+                          text={item.text}
+                          as="blockquote"
+                          className={`
                           bg-[var(--bg-light)] border-s-[5px] border-[var(--bg-color-header)]
                           my-5 px-5 py-4 italic mb-2
                           max-[480px]:px-4 max-[480px]:py-3 max-[480px]:my-4
                           ${direction === "rtl" ? "text-right" : "text-left"}
                         `}
-                      >
-                        {renderTextWithRefs(item.text, idx)}
-                      </blockquote>
-                      {item.commentary && (
-                        <p className="whitespace-pre-wrap leading-[1.7] mb-4">
-                          {renderTextWithRefs(item.commentary, idx)}
-                        </p>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
+                        >
+                          {renderTextWithRefs(item.text, idx)}
+                        </ReportableBlock>
+                        {item.commentary && (
+                          <p className="whitespace-pre-wrap leading-[1.7] mb-4">
+                            {renderTextWithRefs(item.commentary, idx)}
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
 
-        {/* Divider */}
-        <div className="h-px bg-[#c3a421] my-8 opacity-60" />
+          {/* Divider */}
+          <div className="h-px bg-[#c3a421] my-8 opacity-60" />
 
-        <p>
-          <strong>{labels.andAllahKnowsBest}</strong>
-        </p>
+          <p>
+            <strong>{labels.andAllahKnowsBest}</strong>
+          </p>
 
-        <Link
-          to={backLink}
-          className="inline-block mt-8 text-[var(--bg-color-header)] no-underline font-bold hover:underline"
-        >
-          {labels.back}
-        </Link>
+          <Link
+            to={backLink}
+            className="inline-block mt-8 text-[var(--bg-color-header)] no-underline font-bold hover:underline"
+          >
+            {labels.back}
+          </Link>
 
-        {/* Related Answers */}
-        {relatedData.length > 0 && (
-          <div className="mt-16">
-            {/* Section header */}
-            <div
-              className={`flex items-center gap-4 mb-6 ${direction === "rtl" ? "flex-row-reverse" : ""}`}
-            >
-              {direction === "rtl" ? (
-                <>
-                  <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
-                  <div className={`flex items-center gap-2 flex-row-reverse`}>
-                    <span className="text-[var(--bg-color-header)] font-bold text-[0.9em] uppercase tracking-widest">
-                      الفتاوى الحديثة
-                    </span>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--bg-color-header)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                    </svg>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--bg-color-header)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                    </svg>
-                    <span className="text-[var(--bg-color-header)] font-bold text-[0.9em] uppercase tracking-widest">
-                      Related Answers
-                    </span>
-                  </div>
-                  <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
-                </>
-              )}
-            </div>
-
-            {/* Cards grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {relatedData.map((item, i) => {
-                const rq = data.relatedQuestions[i];
-                const href =
-                  rq.lang === "ar"
-                    ? `/ar/questions/${rq.slug}`
-                    : `/questions/${rq.slug}`;
-                const isCardRTL = rq.lang === "ar";
-                return (
-                  <a
-                    key={i}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    dir={isCardRTL ? "rtl" : "ltr"}
-                    className="group flex flex-col gap-3 p-5 rounded-2xl border border-[rgba(40,115,70,0.15)] bg-[#fafcfb] hover:border-[var(--bg-color-header)] hover:shadow-[0_4px_20px_rgba(40,115,70,0.12)] transition-all duration-200 no-underline"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <p
-                        className={`m-0 text-[0.875em] font-semibold text-[#1c1c1c] leading-snug group-hover:text-[var(--bg-color-header)] transition-colors line-clamp-3 ${isCardRTL ? "text-right" : "text-left"}`}
-                      >
-                        {item.heading}
-                      </p>
-                      <span className="shrink-0 w-7 h-7 rounded-lg bg-[rgba(40,115,70,0.08)] flex items-center justify-center group-hover:bg-[var(--bg-color-header)] transition-colors mt-[1px]">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--bg-color-header)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:stroke-white transition-colors">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
+          {/* Related Answers */}
+          {relatedData.length > 0 && (
+            <div className="mt-16">
+              {/* Section header */}
+              <div
+                className={`flex items-center gap-4 mb-6 ${direction === "rtl" ? "flex-row-reverse" : ""}`}
+              >
+                {direction === "rtl" ? (
+                  <>
+                    <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
+                    <div className={`flex items-center gap-2 flex-row-reverse`}>
+                      <span className="text-[var(--bg-color-header)] font-bold text-[0.9em] uppercase tracking-widest">
+                        الفتاوى الحديثة
                       </span>
-                    </div>
-
-                    <p
-                      className={`m-0 text-[0.8em] text-[#777] leading-relaxed line-clamp-2 border-t border-[rgba(40,115,70,0.08)] pt-3 ${isCardRTL ? "text-right" : "text-left"}`}
-                    >
-                      {item.question}
-                    </p>
-
-                    <div className={`flex items-center gap-1 mt-auto ${isCardRTL ? "flex-row-reverse" : ""}`}>
-                      <span className="text-[0.75em] font-semibold text-[var(--bg-color-header)] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-wide">
-                        {isCardRTL ? "اقرأ الإجابة" : "Read answer"}
-                      </span>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--bg-color-header)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`opacity-0 group-hover:opacity-100 transition-opacity ${isCardRTL ? "rotate-180" : ""}`}>
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="var(--bg-color-header)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                       </svg>
                     </div>
-                  </a>
-                );
-              })}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="var(--bg-color-header)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                      </svg>
+                      <span className="text-[var(--bg-color-header)] font-bold text-[0.9em] uppercase tracking-widest">
+                        Related Answers
+                      </span>
+                    </div>
+                    <div className="flex-1 h-px bg-[rgba(40,115,70,0.15)]" />
+                  </>
+                )}
+              </div>
+
+              {/* Cards grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {relatedData.map((item, i) => {
+                  const rq = data.relatedQuestions[i];
+                  const href =
+                    rq.lang === "ar"
+                      ? `/ar/questions/${rq.slug}`
+                      : `/questions/${rq.slug}`;
+                  const isCardRTL = rq.lang === "ar";
+                  return (
+                    <a
+                      key={i}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      dir={isCardRTL ? "rtl" : "ltr"}
+                      className="group flex flex-col gap-3 p-5 rounded-2xl border border-[rgba(40,115,70,0.15)] bg-[#fafcfb] hover:border-[var(--bg-color-header)] hover:shadow-[0_4px_20px_rgba(40,115,70,0.12)] transition-all duration-200 no-underline"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <p
+                          className={`m-0 text-[0.875em] font-semibold text-[#1c1c1c] leading-snug group-hover:text-[var(--bg-color-header)] transition-colors line-clamp-3 ${isCardRTL ? "text-right" : "text-left"}`}
+                        >
+                          {item.heading}
+                        </p>
+                        <span className="shrink-0 w-7 h-7 rounded-lg bg-[rgba(40,115,70,0.08)] flex items-center justify-center group-hover:bg-[var(--bg-color-header)] transition-colors mt-[1px]">
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="var(--bg-color-header)"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="group-hover:stroke-white transition-colors"
+                          >
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                          </svg>
+                        </span>
+                      </div>
+
+                      <p
+                        className={`m-0 text-[0.8em] text-[#777] leading-relaxed line-clamp-2 border-t border-[rgba(40,115,70,0.08)] pt-3 ${isCardRTL ? "text-right" : "text-left"}`}
+                      >
+                        {item.question}
+                      </p>
+
+                      <div
+                        className={`flex items-center gap-1 mt-auto ${isCardRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <span className="text-[0.75em] font-semibold text-[var(--bg-color-header)] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-wide">
+                          {isCardRTL ? "اقرأ الإجابة" : "Read answer"}
+                        </span>
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="var(--bg-color-header)"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={`opacity-0 group-hover:opacity-100 transition-opacity ${isCardRTL ? "rotate-180" : ""}`}
+                        >
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </ReportableContent>
 
       <Footer lang={language} />
     </>

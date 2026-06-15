@@ -1,7 +1,7 @@
 // src/Components/library/BookContent.jsx
 
 import { useEffect, useRef, useState } from "react";
-
+  import { ReportableContent, ReportableBlock } from "../../Components/common/ReportableContent";
 const TASHKEEL_REGEX = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g;
 
 export default function BookContent({
@@ -9,10 +9,15 @@ export default function BookContent({
   references,
   fontSize,
   removeTashkeel,
+  lang,
+  bookId,
+  chapterNumber,
+  pageNumber,
 }) {
   const scrollRef = useRef(null);
   const [isScrollable, setIsScrollable] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
+
 
   // Scroll to top on page change
   useEffect(() => {
@@ -50,6 +55,15 @@ export default function BookContent({
     Reference zone: always 88px, always visible — consistent across all pages.
   */
   return (
+
+ <ReportableContent
+      lang={lang}
+      contentType="book_page"
+      bookId={bookId}
+      chapterNumber={chapterNumber}
+      pageNumber={pageNumber}
+      bottomOffset="5.5rem"
+    >
     <div
       className="flex flex-col w-full sm:w-[95%] md:w-[90%] lg:w-[85%]"
       style={{ height: "calc(100vh - 260px)" }}
@@ -78,7 +92,7 @@ export default function BookContent({
             borderRadius: "2% 2% 0 0",
           }}
         >
-          {blocks.map((block, idx) => {
+          {/* {blocks.map((block, idx) => {
             switch (block.type) {
               case "heading":
                 return (
@@ -110,6 +124,43 @@ export default function BookContent({
                 );
               default:
                 return <p key={idx} className="mb-4">{cleanText(block.text)}</p>;
+            }
+          })} */}
+
+          {blocks.map((block, idx) => {
+            switch (block.type) {
+              case "heading":
+                return (
+                  <ReportableBlock key={idx} text={block.text} as="h3" className="font-bold mb-4 mt-5" >
+                    <span style={{ fontSize: `${fontSize * 1.15}rem`, lineHeight: "1.6" }}>
+                      {cleanText(block.text)}
+                    </span>
+                  </ReportableBlock>
+                );
+              case "paragraph":
+                return (
+                  <ReportableBlock key={idx} text={block.text} as="p" className="whitespace-pre-wrap mb-4">
+                    {cleanText(block.text)}
+                  </ReportableBlock>
+                );
+              case "quote":
+                return (
+                  <ReportableBlock
+                    key={idx}
+                    text={block.text}
+                    as="blockquote"
+                    className="border-s-[3px] border-[var(--primary)] ps-3 sm:ps-4 text-[#1f6f3e] my-4 italic"
+                  >
+                    {cleanText(block.text)}
+                    {block.reference && <p className="mt-1"><small>{block.reference}</small></p>}
+                  </ReportableBlock>
+                );
+              default:
+                return (
+                  <ReportableBlock key={idx} text={block.text} as="p" className="mb-4">
+                    {cleanText(block.text)}
+                  </ReportableBlock>
+                );
             }
           })}
         </div>
@@ -153,5 +204,7 @@ export default function BookContent({
       </div>
 
     </div>
+
+    </ReportableContent>
   );
 }

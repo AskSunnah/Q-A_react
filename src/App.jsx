@@ -24,7 +24,8 @@ import AddBook from './Pages/Admin/AddBook';
 import AllBooks from './Pages/Admin/AllBooks';
 import UserQuestions from './Pages/Admin/UserQuestions';
 import EditBook from './Pages/Admin/EditBook';
-import Feedback from './Pages/Admin/Feedback'
+import Feedback from './Pages/Admin/Feedback';
+import AdminReports from "./Pages/Admin/Reports";
 //payment imports
 import ManageSubscription from './Pages/ManageSubscription';
 import Success from './Pages/Success';
@@ -84,6 +85,7 @@ function App() {
           <Route path="/supervised/user-feedback" element={
             <ProtectedRoute><Feedback /></ProtectedRoute>
           } />
+          <Route path="/supervised/reports" element={<AdminReports />} />
           <Route path="/supervised/books/en" element={<AllBooks lang="en" />} />
           <Route path="/supervised/books/ar" element={<AllBooks lang="ar" />} />
           <Route path="/managesubscription" element={<ManageSubscription />} />
