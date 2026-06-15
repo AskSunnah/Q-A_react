@@ -491,12 +491,26 @@ useEffect(() => {
           </div>
 
           {/* Book content */}
+          {/* <div className="px-3 pb-2">
+            <BookContent
+              blocks={page.blocks || []}
+              references={page.references || []}
+              fontSize={fontSize}
+              removeTashkeel={isTashkeelRemoved}
+            />
+          </div> */}
+
+          {/* Book content */}
           <div className="px-3 pb-2">
             <BookContent
               blocks={page.blocks || []}
               references={page.references || []}
               fontSize={fontSize}
               removeTashkeel={isTashkeelRemoved}
+              lang={lang}
+              bookId={book._id}
+              chapterNumber={book.chapters[page.chapterIndex]?.number}
+              pageNumber={page.number}
             />
           </div>
         </main>
