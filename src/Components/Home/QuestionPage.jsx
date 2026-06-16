@@ -6,8 +6,7 @@ import Navbar from "../Navbar";
 import { useSearchParams } from "react-router-dom";
 import { fetchFatwaBySlug } from "../../api/fatwa";
 import {
-  ReportableContent,
-  ReportableBlock,
+  ReportableContent
 } from "../common/ReportableContent";
 
 function QuestionPage({
@@ -190,14 +189,14 @@ function QuestionPage({
 
       if (typeof el === "string") {
         return (
-          <ReportableBlock
+          <p
             key={idx}
             text={el}
             as="p"
             className="whitespace-pre-wrap leading-[1.7] mb-4"
           >
             {renderTextWithRefs(el, idx)}
-          </ReportableBlock>
+          </p>
         );
       }
 
@@ -206,7 +205,7 @@ function QuestionPage({
       if (el.type === "section") {
         const sectionNumber = manualSectionCounter++;
         return (
-          <ReportableBlock
+          <div
             key={idx}
             text={el.heading}
             as="div"
@@ -220,7 +219,7 @@ function QuestionPage({
                 </li>
               ))}
             </ul>
-          </ReportableBlock>
+          </div>
         );
       }
 
@@ -275,13 +274,13 @@ function QuestionPage({
             {data.heading}
           </h1>
 
-          <ReportableBlock
+          <p
             text={data.question}
             as="p"
             className={`mb-5 leading-[1.8] ${direction === "rtl" ? "text-right" : "text-left"}`}
           >
             <strong>{labels.question}</strong> <span>{data.question}</span>
-          </ReportableBlock>
+          </p>
           {/* Conclusion / Summary box */}
           {data.conclusion && (
             <div className="mb-6">
@@ -289,7 +288,7 @@ function QuestionPage({
                 {labels.conclusion}
               </h2>
 
-              <ReportableBlock
+              {/* <div
                 text={data.conclusion}
                 as="div"
                 className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
@@ -304,7 +303,18 @@ function QuestionPage({
                     {renderTextWithRefs(data.conclusion, 0)}
                   </p>
                 </div>
-              </ReportableBlock>
+              </div> */}
+              <div
+              className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
+              style={{
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+              }}
+            >
+              <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
+                {renderTextWithRefs(data.conclusion, 0)}
+              </p>
+            </div>
             </div>
           )}
 
@@ -328,14 +338,14 @@ function QuestionPage({
 
               if (section.type === "normal") {
                 return (
-                  <ReportableBlock
+                  <p
                     key={idx}
                     text={section.text}
                     as="p"
                     className="whitespace-pre-wrap leading-[1.7] mb-4"
                   >
                     {renderTextWithRefs(section.text, idx)}
-                  </ReportableBlock>
+                  </p>
                 );
               }
               const items = Array.isArray(section.items)
@@ -373,18 +383,16 @@ function QuestionPage({
                             {item.narrator}
                           </em>
                         )}
-                        <ReportableBlock
-                          text={item.text}
-                          as="blockquote"
-                          className={`
+                       <blockquote
+                        className={`
                           bg-[var(--bg-light)] border-s-[5px] border-[var(--bg-color-header)]
                           my-5 px-5 py-4 italic mb-2
                           max-[480px]:px-4 max-[480px]:py-3 max-[480px]:my-4
                           ${direction === "rtl" ? "text-right" : "text-left"}
                         `}
-                        >
-                          {renderTextWithRefs(item.text, idx)}
-                        </ReportableBlock>
+                      >
+                        {renderTextWithRefs(item.text, idx)}
+                      </blockquote>
                         {item.commentary && (
                           <p className="whitespace-pre-wrap leading-[1.7] mb-4">
                             {renderTextWithRefs(item.commentary, idx)}
