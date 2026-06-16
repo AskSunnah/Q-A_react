@@ -331,6 +331,11 @@ function ReportCard({ report, meta, updatingId, deletingId, onStatusChange, onDe
               <span className="text-gray-400 text-[0.7rem]">Click to expand</span>
             </div>
 
+              <div>
+                {report.email && (
+                  <p className="text-[0.8rem] text-gray-400 italic mb-2">Reported by: {report.email}</p>
+                )}
+              </div>
             <div
               dir={isRTL ? "rtl" : "ltr"}
               onClick={() => onOpenModal(report)}

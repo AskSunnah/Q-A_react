@@ -10,6 +10,7 @@ export const submitReport = async ({
   pageNumber,
   reportedText,
   reason,
+  email
 }) => {
   const res = await fetch(`${API_BASE}/api/reports`, {
     method: "POST",
@@ -23,6 +24,7 @@ export const submitReport = async ({
       pageNumber,
       reportedText,
       reason,
+      email
     }),
   });
 
