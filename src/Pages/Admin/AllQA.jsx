@@ -32,8 +32,8 @@ export default function AllQA() {
     Promise.all([getAllQuestions("en"), getAllQuestions("ar")])
       .then(([eng, ar]) => {
         if (isMounted) {
-          setEnglishQuestions(eng);
-          setArabicQuestions(ar);
+        setEnglishQuestions(eng.slice().reverse());
+        setArabicQuestions(ar.slice().reverse());
         }
       })
       .catch(() => setMsg("Failed to load questions."))
