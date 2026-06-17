@@ -49,6 +49,7 @@ export default function AdminDashboard() {
     totalAnswers: "Loading...",
     pendingQuestions: "Loading...",
     totalFeedback: "Loading...",
+    reportsPending: "Loading...",
     breakdown: null,
   });
   const [loading, setLoading] = useState(true);
@@ -65,6 +66,7 @@ export default function AdminDashboard() {
           totalAnswers: data.totalAnswers || 0,
           pendingQuestions: data.pendingQuestions || 0,
           totalFeedback: data.feedbackTotal || 0,
+          reportsPending: data.reportsPending || 0,
           breakdown: {
             booksEn: data.booksEn || 0,
             booksAr: data.booksAr || 0,
@@ -80,6 +82,8 @@ export default function AdminDashboard() {
           totalBooks: "—",
           totalAnswers: "—",
           pendingQuestions: "—",
+          totalFeedback: "—",
+          reportsPending: "—",
           breakdown: null,
         });
       })
@@ -87,6 +91,7 @@ export default function AdminDashboard() {
   }, []);
 
   const pendingCount = Number(stats.pendingQuestions) || 0;
+  const pendingReportsCount = Number(stats.reportsPending) || 0;
 
   return (
     <AdminLayout>
@@ -121,7 +126,7 @@ export default function AdminDashboard() {
           <StatCard
             title="Pending Questions"
             value={stats.pendingQuestions}
-            icon={pendingCount > 0 ? MessageSquare : CheckCircle}
+            icon={pendingCount > 0 ? BookOpen : CheckCircle}
             color={pendingCount > 0 ? "#ea580c" : "#6b7280"}
           />
           <StatCard
@@ -133,6 +138,12 @@ export default function AdminDashboard() {
             }}
             icon={MessageSquare}
             color="#2563eb"
+          />
+          <StatCard
+            title="Pending Reports"
+            value={stats.reportsPending}
+            icon={pendingReportsCount > 0 ? FileText : CheckCircle}
+            color={pendingReportsCount > 0 ? "#ea580c" : "#6b7280"}
           />
         </div>
 
