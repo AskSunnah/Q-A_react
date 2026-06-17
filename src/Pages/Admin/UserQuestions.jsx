@@ -244,8 +244,9 @@ export default function UserQuestions() {
                         </>
                       )}
                     </span>
-                    <div className="flex gap-3">
-                      {q.status !== "answered" && (
+                    <div className="flex gap-3 flex-wrap">
+                    {q.status !== "answered" && (
+                      <>
                         <button
                           className="bg-green-600 text-white border-none px-5 py-2.5 rounded-xl font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-green-700 hover:-translate-y-px"
                           onClick={() => {
@@ -255,19 +256,30 @@ export default function UserQuestions() {
                               name: q.name || "Anonymous",
                               questionId: q._id,
                             });
+
                             navigate(`/supervised/add-qa?${params.toString()}`);
                           }}
                         >
                           Add Answer
                         </button>
-                      )}
-                      <button
-                        className="bg-red-50 text-red-600 border border-red-200 p-2.5 rounded-xl cursor-pointer transition-all hover:bg-red-100 hover:-translate-y-px"
-                        onClick={() => handleDeleteQuestion(q._id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+
+                        <button
+                          className="bg-blue-600 text-white border-none px-5 py-2.5 rounded-xl font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-blue-700 hover:-translate-y-px"
+                          onClick={() => handleMarkAsAnswered(q._id)}
+                        >
+                          <CheckCircle size={16} />
+                          Mark Answered
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      className="bg-red-50 text-red-600 border border-red-200 p-2.5 rounded-xl cursor-pointer transition-all hover:bg-red-100 hover:-translate-y-px"
+                      onClick={() => handleDeleteQuestion(q._id)}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                   </div>
                 </div>
 

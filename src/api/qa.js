@@ -1,38 +1,50 @@
 import { API_BASE } from "../../config";
 // for admin add qa, edit, delete and all qa
-export async function submitQA(qa, lang = "en") {
+export async function submitQA(data, lang = "en") {
   const endpoint =
     lang === "ar"
-      ? "/api/admin/submit_ar"
-      : "/api/admin/submit";
-  const res = await fetch(
-    `${API_BASE}` + endpoint,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(qa),
-    }
-  );
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+      ? `${API_BASE}/api/admin/submit_ar`
+      : `${API_BASE}/api/admin/submit`;
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result.message || "Could not save this Q&A. Please try again.");
+  }
+
+  return result;
 }
 
 // Edit an existing Q&A
-export async function editQA(qa, slug, lang = "en") {
+export async function editQA(data, slug, lang = "en") {
   const endpoint =
     lang === "ar"
-      ? `/api/admin/edit_ar/${slug}`
-      : `/api/admin/edit/${slug}`;
-  const res = await fetch(
-    `${API_BASE}` + endpoint,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(qa),
-    }
-  );
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+      ? `${API_BASE}/api/admin/edit_ar/${slug}`
+      : `${API_BASE}/api/admin/edit/${slug}`;
+
+  const res = await fetch(endpoint, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result.message || "Could not update this Q&A. Please try again.");
+  }
+
+  return result;
 }
 
 // Get Q&A by slug/lang (for edit form)
