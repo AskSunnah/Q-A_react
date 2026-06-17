@@ -27,21 +27,27 @@ export default function AllQA() {
   const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
-    Promise.all([getAllQuestions("en"), getAllQuestions("ar")])
-      .then(([eng, ar]) => {
-        if (isMounted) {
+  let isMounted = true;
+  setLoading(true);
+
+  Promise.all([getAllQuestions("en"), getAllQuestions("ar")])
+    .then(([eng, ar]) => {
+      if (isMounted) {
         setEnglishQuestions(eng.slice().reverse());
         setArabicQuestions(ar.slice().reverse());
-        }
-      })
-      .catch(() => setMsg("Failed to load questions."))
-      .finally(() => setLoading(false));
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      }
+    })
+    .catch(() => {
+      if (isMounted) setMsg("Failed to load questions.");
+    })
+    .finally(() => {
+      if (isMounted) setLoading(false);
+    });
+
+  return () => {
+    isMounted = false;
+  };
+}, []);
 
   const showConfirm = (message, action) => {
     setModalMessage(message);
@@ -141,25 +147,48 @@ export default function AllQA() {
     </div>
   );
 
-  const SectionBlock = ({ title, items, lang, baseUrl, qLabel, showLangBadge }) => (
+  const QACardSkeleton = () => (
+  <div className="bg-white rounded-[14px] p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-slate-200 border-l-4 border-l-slate-200 flex justify-between items-center gap-4 flex-wrap animate-pulse">
+    <div className="flex-1 min-w-[200px] flex items-start gap-2">
+      <div className="h-5 w-8 bg-slate-100 rounded shrink-0" />
+      <div className="flex-1">
+        <div className="h-4 bg-slate-100 rounded w-[85%] mb-2" />
+        <div className="h-4 bg-slate-100 rounded w-[55%]" />
+      </div>
+    </div>
+
+    <div className="flex items-center gap-2.5 shrink-0">
+      <div className="h-9 w-20 bg-slate-100 rounded-lg" />
+      <div className="h-9 w-10 bg-slate-100 rounded-lg" />
+    </div>
+  </div>
+);
+
+const SectionBlock = ({ title, items, lang, qLabel, showLangBadge }) => {
+  if (loading) {
+    return (
+      <section className="mb-10">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <QACardSkeleton key={i} />
+        ))}
+      </section>
+    );
+  }
+
+  return (
     <section className="mb-10">
       {title && (
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-slate-800 text-[1.15rem] font-bold m-0">{title}</h2>
+          <h2 className="text-slate-800 text-[1.15rem] font-bold m-0">
+            {title}
+          </h2>
           <span className="bg-slate-100 text-slate-500 text-[0.8rem] font-semibold px-2.5 py-1 rounded-full">
             {items.length}
           </span>
         </div>
       )}
 
-      {loading ? (
-        [1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-white rounded-[14px] p-5 mb-4 border border-slate-200 h-[64px] animate-pulse"
-          />
-        ))
-      ) : items.length === 0 ? (
+      {items.length === 0 ? (
         <div className="text-center py-12 px-6 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
           <AlertCircle size={32} className="mx-auto mb-3 text-slate-400" />
           <p className="m-0 font-medium">
@@ -185,6 +214,7 @@ export default function AllQA() {
       )}
     </section>
   );
+};
 
   return (
     <AdminLayout>
