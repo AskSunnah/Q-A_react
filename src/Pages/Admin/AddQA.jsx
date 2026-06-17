@@ -425,15 +425,44 @@ export default function AddQA() {
     if (msg.toLowerCase().includes("network") || msg.toLowerCase().includes("fetch")) return "Network error. Please check your connection and try again.";
     return msg || "Something went wrong while saving. Please try again.";
   };
+  const isValidSlug = (slug) => {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+};
 
+const getSlugError = (slug) => {
+  const trimmedSlug = slug.trim();
+
+  if (!trimmedSlug) {
+    return "Please enter a slug.";
+  }
+
+  if (trimmedSlug !== slug) {
+    return "Slug cannot start or end with spaces.";
+  }
+
+  if (!isValidSlug(trimmedSlug)) {
+    return "Slug can only contain lowercase letters, numbers, and hyphens. Do not use spaces or symbols like ?, /, #, &, or =.";
+  }
+
+  return null;
+};
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+  e.preventDefault();
+  setMessage("");
 
-    const qa = {
-      title: form.title,
-      slug: form.slug,
+  const slugError = getSlugError(form.slug);
+
+  if (slugError) {
+    setErrorModalMessage(slugError);
+    setErrorModalOpen(true);
+    return;
+  }
+
+  setLoading(true);
+
+  const qa = {
+    title: form.title,
+    slug: form.slug.trim(),
       question: form.question,
       answer: form.answer,
       conclusion: form.conclusion,
@@ -541,7 +570,21 @@ export default function AddQA() {
             <input type="text" name="title" value={form.title} onChange={handleInput} required className={fieldCls} />
 
             <label className={labelCls}>Slug:</label>
-            <input type="text" name="slug" value={form.slug} onChange={handleInput} required className={fieldCls} />
+            <input
+  type="text"
+  name="slug"
+  value={form.slug}
+  onChange={(e) => {
+    const value = e.target.value.toLowerCase();
+    setForm({ ...form, slug: value });
+  }}
+  required
+  placeholder="example: ruling-on-music"
+  className={fieldCls}
+/>
+<p className="text-xs text-gray-400 mt-[-10px] mb-4">
+  Use only lowercase letters, numbers, and hyphens. No spaces or symbols.
+</p>
 
             <label className={labelCls}>Question:</label>
             <textarea name="question" value={form.question} onChange={handleInput} required className={`${fieldCls} min-h-[62px]`} />

@@ -48,7 +48,7 @@ function StatusBadge({ status, lang }) {
       }`}
     >
       {answered ? <CheckCircle size={11} /> : <Clock size={11} />}
-      {lang === "en" ? "EN" : "AR"} {answered ? "Done" : "Pending"}
+      {lang === "en" ? "English" : "Arabic"} {answered ? "Done" : "Pending"}
     </span>
   );
 }
