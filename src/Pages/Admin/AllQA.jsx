@@ -1,15 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminHeader from "../../Components/Admin/Header";
 import { getAllQuestions, deleteQuestion } from "../../api/qa";
+import ConfirmationModal from "../../Components/ConfirmationModal";
 import AdminLayout from "../../Components/Admin/AdminLayout";
+import {
+  Pencil,
+  Trash2,
+  ExternalLink,
+  Search,
+  X,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
 
 export default function AllQA() {
   const [englishQuestions, setEnglishQuestions] = useState([]);
   const [arabicQuestions, setArabicQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
+  const [search, setSearch] = useState("");
+  const [langFilter, setLangFilter] = useState("en");
   const navigate = useNavigate();
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState(null);
+  const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -28,149 +43,260 @@ export default function AllQA() {
     };
   }, []);
 
-  const handleDelete = async (lang, slug) => {
-    if (!window.confirm("Are you sure you want to delete this question?"))
-      return;
-    try {
-      await deleteQuestion(lang, slug);
-      setMsg("Deleted successfully.");
-      if (lang === "en")
-        setEnglishQuestions(englishQuestions.filter((q) => q.slug !== slug));
-      else setArabicQuestions(arabicQuestions.filter((q) => q.slug !== slug));
-    } catch (e) {
-      setMsg(e.message || "Delete failed.");
-    }
+  const showConfirm = (message, action) => {
+    setModalMessage(message);
+    setModalAction(() => action);
+    setModalOpen(true);
+  };
+
+  const handleDelete = (lang, slug) => {
+    showConfirm("Permanently delete this Q&A? This cannot be undone.", async () => {
+      try {
+        await deleteQuestion(lang, slug);
+        setMsg("Deleted successfully.");
+        if (lang === "en")
+          setEnglishQuestions((prev) => prev.filter((q) => q.slug !== slug));
+        else setArabicQuestions((prev) => prev.filter((q) => q.slug !== slug));
+      } catch (e) {
+        setMsg(e.message || "Delete failed.");
+      }
+    });
   };
 
   const handleEdit = (lang, slug) => {
     navigate(`/supervised/add-qa?edit=1&lang=${lang}&slug=${slug}`);
   };
 
-  // Shared classes that mirror the original CSS
-  // li: background:#fff, margin:0.5rem 0, padding:1rem, borderLeft:5px solid var(--bg-color-header),
-  //     borderRadius:4px, boxShadow, display:flex, justifyContent:space-between, alignItems:center
-  const liCls =
-    "bg-white my-2 p-4 border-l-[5px] border-[var(--bg-color-header)] rounded-[4px] shadow-[0_2px_5px_rgba(0,0,0,0.05)] flex justify-between items-center";
+  const term = search.trim().toLowerCase();
+  const filteredEnglish = useMemo(
+    () =>
+      term
+        ? englishQuestions.filter((q) => q.heading?.toLowerCase().includes(term))
+        : englishQuestions,
+    [englishQuestions, term]
+  );
+  const filteredArabic = useMemo(
+    () =>
+      term
+        ? arabicQuestions.filter((q) => q.heading?.toLowerCase().includes(term))
+        : arabicQuestions,
+    [arabicQuestions, term]
+  );
+
+  const filteredBoth = useMemo(
+    () => [
+      ...filteredEnglish.map((q) => ({ ...q, _lang: "en" })),
+      ...filteredArabic.map((q) => ({ ...q, _lang: "ar" })),
+    ],
+    [filteredEnglish, filteredArabic]
+  );
+
+  const QACard = ({ q, index, lang, viewUrl, qLabel, showLangBadge }) => (
+    <div
+      key={q.slug}
+      className="bg-white rounded-[14px] p-5 mb-4 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-slate-200 border-l-4 border-l-[#c3a421] flex justify-between items-center gap-4 flex-wrap transition-all duration-200 hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+    >
+      <a
+        href={viewUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 min-w-[200px] text-slate-700 no-underline hover:underline flex items-start gap-2 group"
+      >
+        <span className="font-bold text-[#c3a421] shrink-0">
+          {qLabel}{index + 1}:
+        </span>
+        <span className="text-[0.98rem]">{q.heading}</span>
+        {showLangBadge && (
+          <span
+            className={`text-[0.7rem] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+              lang === "ar"
+                ? "bg-indigo-100 text-indigo-700"
+                : "bg-sky-100 text-sky-700"
+            }`}
+          >
+            {lang === "ar" ? "العربية" : "English"}
+          </span>
+        )}
+        <ExternalLink
+          size={14}
+          className="text-slate-400 shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        />
+      </a>
+
+      <div className="flex items-center gap-2.5 shrink-0">
+        <button
+          className="flex items-center gap-1.5 bg-slate-100 text-slate-700 border-none py-2 px-3.5 rounded-lg cursor-pointer font-medium text-[0.88rem] transition-all hover:bg-slate-200"
+          onClick={() => handleEdit(lang, q.slug)}
+        >
+          <Pencil size={15} /> Edit
+        </button>
+        <button
+          className="bg-red-50 text-red-600 border border-red-200 p-2.5 rounded-lg cursor-pointer transition-all hover:bg-red-100"
+          onClick={() => handleDelete(lang, q.slug)}
+          title="Delete"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
+    </div>
+  );
+
+  const SectionBlock = ({ title, items, lang, baseUrl, qLabel, showLangBadge }) => (
+    <section className="mb-10">
+      {title && (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-slate-800 text-[1.15rem] font-bold m-0">{title}</h2>
+          <span className="bg-slate-100 text-slate-500 text-[0.8rem] font-semibold px-2.5 py-1 rounded-full">
+            {items.length}
+          </span>
+        </div>
+      )}
+
+      {loading ? (
+        [1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="bg-white rounded-[14px] p-5 mb-4 border border-slate-200 h-[64px] animate-pulse"
+          />
+        ))
+      ) : items.length === 0 ? (
+        <div className="text-center py-12 px-6 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+          <AlertCircle size={32} className="mx-auto mb-3 text-slate-400" />
+          <p className="m-0 font-medium">
+            {term ? "No matching Q&As found." : "No questions found."}
+          </p>
+        </div>
+      ) : (
+        items.map((q, i) => (
+          <QACard
+            key={`${q._lang || lang}-${q.slug}`}
+            q={q}
+            index={i}
+            lang={q._lang || lang}
+            qLabel={q._lang === "ar" ? "س" : q._lang === "en" ? "Q" : qLabel}
+            viewUrl={`${
+              (q._lang || lang) === "ar"
+                ? "https://asksunnah.com/ar/questions/"
+                : "https://asksunnah.com/questions/"
+            }${q.slug}`}
+            showLangBadge={showLangBadge}
+          />
+        ))
+      )}
+    </section>
+  );
 
   return (
     <AdminLayout>
-      <style>{`
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; }
-      `}</style>
+      <ConfirmationModal
+        open={modalOpen}
+        title="Confirmation"
+        message={modalMessage}
+        onConfirm={() => {
+          modalAction && modalAction();
+          setModalOpen(false);
+        }}
+        onCancel={() => setModalOpen(false)}
+      />
 
-      {/*
-        .allqa-container:
-          font-family:'Segoe UI', max-width:920px, margin:2.5rem auto,
-          padding:1.2rem, background:#fff, border-radius:12px,
-          box-shadow:0 6px 24px rgba(40,115,70,0.10)
-      */}
-      <div className="font-[Segoe_UI,sans-serif] max-w-[920px] mx-auto mt-10 p-5 bg-white rounded-xl shadow-[0_6px_24px_rgba(40,115,70,0.10)]">
-        {/* h1: text-align:center, color:var(--bg-color-header), margin-bottom:2rem */}
-        <h1 className="text-center text-[var(--bg-color-header)] mb-8 text-2xl font-bold">
-          All Questions (English &amp; Arabic)
-        </h1>
+      <div className="max-w-[920px] mx-auto mt-10 px-4">
+        <div className="mb-6">
+          <h1 className="text-[1.85rem] font-bold text-slate-800 m-0 flex items-center gap-2.5">
+            <FileText size={26} className="text-[#c3a421]" />
+            All Q&amp;As
+          </h1>
+          <p className="text-[0.95rem] text-slate-500 mt-1 mb-0">
+            Browse, edit, and manage published English and Arabic answers
+          </p>
+        </div>
 
         {msg && (
-          <p
-            className="text-center"
-            style={{ color: msg.includes("fail") ? "#c91d1d" : "#287346" }}
+          <div
+            className={`text-center mb-5 px-4 py-2.5 rounded-xl text-[0.9rem] font-medium ${
+              msg.toLowerCase().includes("fail")
+                ? "bg-red-50 text-red-700 border border-red-200"
+                : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+            }`}
           >
             {msg}
-          </p>
+          </div>
         )}
 
-        {/* English section */}
-        <section>
-          {/* h2: color:var(--bg-color-header), margin-top:2.5rem */}
-          <h2 className="text-[var(--bg-color-header)] mt-10 text-xl font-bold">
-            English Questions
-          </h2>
-          <ul className="list-none p-0">
-            {loading ? (
-              <li className={liCls}>Loading...</li>
-            ) : englishQuestions.length === 0 ? (
-              <li className={liCls}>No questions found.</li>
-            ) : (
-              englishQuestions.map((q, i) => (
-                <li key={q.slug} className={liCls}>
-                  {/* .qa-link: color:#1e293b, text-decoration:none; hover:underline */}
-                  <a
-                    className="text-[#1e293b] no-underline hover:underline"
-                    href={`https://asksunnah.com/questions/${q.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <strong>Q{i + 1}:</strong> {q.heading}
-                  </a>
-                  {/*
-                    .qa-actions button:
-                      margin-left:12px, font-size:1em, padding:0.3em 0.8em,
-                      border-radius:3px, cursor:pointer, border:none, font-weight:500
-                  */}
-                  <span className="flex items-center">
-                    {/* .edit-btn: background:gray, color:white */}
-                    <button
-                      className="ml-3 text-[1em] py-[0.3em] px-[0.8em] rounded-[3px] cursor-pointer border-none font-medium bg-gray-500 text-white"
-                      onClick={() => handleEdit("en", q.slug)}
-                    >
-                      Edit
-                    </button>
-                    {/* .delete-btn: background:#e53e3e, color:white */}
-                    <button
-                      className="ml-3 text-[1em] py-[0.3em] px-[0.8em] rounded-[3px] cursor-pointer border-none font-medium bg-[#e53e3e] text-white"
-                      onClick={() => handleDelete("en", q.slug)}
-                      title="Delete"
-                    >
-                      &#128465;
-                    </button>
-                  </span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
+        {/* Language Toggle */}
+        <div className="bg-slate-100 p-1.5 rounded-xl flex gap-1.5 mb-6 max-w-[480px]">
+          <button
+            onClick={() => setLangFilter("all")}
+            className={`flex-1 px-4 py-2.5 rounded-[10px] font-semibold text-[0.9rem] cursor-pointer flex items-center justify-center gap-2 transition-all ${
+              langFilter === "all"
+                ? "bg-white text-slate-800 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            Both
+            <span className="bg-slate-300 text-slate-700 text-[0.72rem] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+              {englishQuestions.length + arabicQuestions.length}
+            </span>
+          </button>
+          <button
+            onClick={() => setLangFilter("en")}
+            className={`flex-1 px-4 py-2.5 rounded-[10px] font-semibold text-[0.9rem] cursor-pointer flex items-center justify-center gap-2 transition-all ${
+              langFilter === "en"
+                ? "bg-white text-slate-800 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            English
+            <span className="bg-slate-300 text-slate-700 text-[0.72rem] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+              {englishQuestions.length}
+            </span>
+          </button>
+          <button
+            onClick={() => setLangFilter("ar")}
+            className={`flex-1 px-4 py-2.5 rounded-[10px] font-semibold text-[0.9rem] cursor-pointer flex items-center justify-center gap-2 transition-all ${
+              langFilter === "ar"
+                ? "bg-white text-slate-800 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }`}
+          >
+            العربية
+            <span className="bg-slate-300 text-slate-700 text-[0.72rem] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+              {arabicQuestions.length}
+            </span>
+          </button>
+        </div>
 
-        {/* Arabic section */}
-        <section>
-          <h2 className="text-[var(--bg-color-header)] mt-10 text-xl font-bold">
-            Arabic Questions
-          </h2>
-          <ul className="list-none p-0">
-            {loading ? (
-              <li className={liCls}>Loading...</li>
-            ) : arabicQuestions.length === 0 ? (
-              <li className={liCls}>No questions found.</li>
-            ) : (
-              arabicQuestions.map((q, i) => (
-                <li key={q.slug} className={liCls}>
-                  <a
-                    className="text-[#1e293b] no-underline hover:underline"
-                    href={`https://asksunnah.com/ar/questions/${q.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <strong>س{i + 1}:</strong> {q.heading}
-                  </a>
-                  <span className="flex items-center">
-                    <button
-                      className="ml-3 text-[1em] py-[0.3em] px-[0.8em] rounded-[3px] cursor-pointer border-none font-medium bg-gray-500 text-white"
-                      onClick={() => handleEdit("ar", q.slug)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="ml-3 text-[1em] py-[0.3em] px-[0.8em] rounded-[3px] cursor-pointer border-none font-medium bg-[#e53e3e] text-white"
-                      onClick={() => handleDelete("ar", q.slug)}
-                      title="Delete"
-                    >
-                      &#128465;
-                    </button>
-                  </span>
-                </li>
-              ))
-            )}
-          </ul>
-        </section>
+        {/* Search */}
+        <div className="relative mb-8">
+          <Search
+            size={18}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search Q&As by title..."
+            className="w-full pl-10 pr-9 py-3 border-[1.5px] border-slate-200 rounded-xl text-[0.95rem] outline-none focus:border-[#c3a421] transition-all bg-white shadow-sm"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        {langFilter === "all" && (
+          <SectionBlock items={filteredBoth} showLangBadge />
+        )}
+        {langFilter === "en" && (
+          <SectionBlock items={filteredEnglish} lang="en" qLabel="Q" />
+        )}
+        {langFilter === "ar" && (
+          <SectionBlock items={filteredArabic} lang="ar" qLabel="س" />
+        )}
       </div>
     </AdminLayout>
   );

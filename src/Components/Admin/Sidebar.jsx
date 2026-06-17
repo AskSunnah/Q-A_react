@@ -16,13 +16,9 @@ import {
 
 const MENU = [
   { label: "Dashboard", icon: Home, route: "/supervised/dashboard" },
-  { label: "Add Q&A", icon: FilePlus, route: "/supervised/add-qa" },
-  { label: "All Q&As", icon: Files, route: "/supervised/all-qa" },
   {
-    label: "User Questions",
-    icon: MessageSquare,
-    route: "/supervised/user-questions",
-  },
+    label: "User Questions", icon: MessageSquare, route: "/supervised/user-questions",},
+  { label: "All Q&As", icon: Files, route: "/supervised/all-qa" },
   { label: "Add Book", icon: BookPlus, route: "/supervised/add-book" },
   { label: "English Books", icon: Library, route: "/supervised/books/en" },
   { label: "Arabic Books", icon: Library, route: "/supervised/books/ar" },

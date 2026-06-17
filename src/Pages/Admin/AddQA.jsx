@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { submitQA, editQA, getQA, getAllQuestions } from "../../api/qa";
 import AdminLayout from "../../Components/Admin/AdminLayout";
-import { updateQuestionStatus } from "../../api/questions";
 import { RxCross2 } from "react-icons/rx";
 
 const sectionOptions = [
@@ -19,7 +18,7 @@ function InsertRefModal({ onInsert, onClose }) {
   const [label, setLabel] = useState("");
   const [url, setUrl] = useState("");
   const [useUrl, setUseUrl] = useState(false);
-
+  
   const handle = () => {
     if (!label.trim()) return;
     if (useUrl) {
@@ -33,9 +32,8 @@ function InsertRefModal({ onInsert, onClose }) {
     }
     onClose();
   };
-
+  
   const ready = label.trim() && (useUrl ? url.trim() : slug.trim());
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl shadow-2xl p-7 w-[400px] max-w-[95vw]">
@@ -85,7 +83,7 @@ function InsertRefModal({ onInsert, onClose }) {
               placeholder="https://..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-            />
+              />
           </>
         )}
 
@@ -124,128 +122,35 @@ function InsertRefModal({ onInsert, onClose }) {
     </div>
   );
 }
+function ErrorModal({ open, message, onClose }) {
+  if (!open) return null;
 
-// ── Related Answers Modal ──────────────────────────────────────────────────
-// function RelatedModal({ lang, currentSlug, selected, onSave, onClose }) {
-//   const [all, setAll] = useState([]);
-//   const [search, setSearch] = useState("");
-//   const [checked, setChecked] = useState(new Set(selected.map((r) => r.slug)));
-//   const [loading, setLoading] = useState(true);
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[420px] max-w-[95vw] p-7 text-center">
+        <div className="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 text-3xl font-bold">
+          !
+        </div>
 
-//   useEffect(() => {
-//     setLoading(true);
-//     getAllQuestions(lang)
-//       .then((data) => {
-//         // exclude the question currently being edited
-//         setAll(data.filter((q) => q.slug !== currentSlug));
-//         setLoading(false);
-//       })
-//       .catch(() => setLoading(false));
-//   }, [lang, currentSlug]);
+        <h3 className="text-xl font-bold text-slate-800 mb-2">
+          Could not save Q&A
+        </h3>
 
-//   const toggle = (slug) => {
-//     setChecked((prev) => {
-//       const next = new Set(prev);
-//       next.has(slug) ? next.delete(slug) : next.add(slug);
-//       return next;
-//     });
-//   };
+        <p className="text-slate-600 text-[0.95rem] leading-relaxed mb-6">
+          {message || "Something went wrong. Please try again."}
+        </p>
 
-//   const handleSave = () => {
-//     const result = all
-//       .filter((q) => checked.has(q.slug))
-//       .map((q) => ({ slug: q.slug, lang }));
-//     onSave(result);
-//     onClose();
-//   };
-
-//   const filtered = all.filter(
-//     (q) =>
-//       q.heading?.toLowerCase().includes(search.toLowerCase()) ||
-//       q.slug?.toLowerCase().includes(search.toLowerCase()),
-//   );
-
-//   return (
-//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-//       <div className="bg-white rounded-2xl shadow-2xl w-[520px] max-w-[95vw] max-h-[85vh] flex flex-col">
-//         {/* header */}
-//         <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-//           <h3 className="text-[var(--bg-color-header)] text-[1.15rem] font-bold mb-3">
-//             Select Related Answers
-//             <span className="ml-2 text-xs font-normal text-gray-400 uppercase tracking-wide">
-//               {lang === "ar" ? "Arabic" : "English"}
-//             </span>
-//           </h3>
-//           <input
-//             autoFocus
-//             type="text"
-//             placeholder="Search questions..."
-//             value={search}
-//             onChange={(e) => setSearch(e.target.value)}
-//             className="w-full rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] px-3 py-2 text-sm"
-//           />
-//         </div>
-
-//         {/* list */}
-//         <div className="flex-1 overflow-y-auto px-6 py-3">
-//           {loading ? (
-//             <p className="text-sm text-gray-400 py-4 text-center">Loading...</p>
-//           ) : filtered.length === 0 ? (
-//             <p className="text-sm text-gray-400 py-4 text-center">
-//               No questions found.
-//             </p>
-//           ) : (
-//             filtered.map((q) => (
-//               <label
-//                 key={q.slug}
-//                 className={`
-//                   flex items-start gap-3 py-3 px-3 rounded-lg cursor-pointer mb-1
-//                   transition-colors hover:bg-[rgba(40,115,70,0.05)]
-//                   ${checked.has(q.slug) ? "bg-[rgba(40,115,70,0.07)]" : ""}
-//                 `}
-//               >
-//                 <input
-//                   type="checkbox"
-//                   checked={checked.has(q.slug)}
-//                   onChange={() => toggle(q.slug)}
-//                   className="mt-[3px] accent-[var(--bg-color-header)] w-4 h-4 shrink-0"
-//                 />
-//                 <div>
-//                   <p className="text-sm font-medium text-gray-800 leading-snug m-0">
-//                     {q.heading}
-//                   </p>
-//                   <p className="text-xs text-gray-400 m-0 mt-[2px]">{q.slug}</p>
-//                 </div>
-//               </label>
-//             ))
-//           )}
-//         </div>
-
-//         {/* footer */}
-//         <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-//           <span className="text-xs text-gray-400">{checked.size} selected</span>
-//           <div className="flex gap-3">
-//             <button
-//               type="button"
-//               onClick={onClose}
-//               className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm hover:bg-gray-50"
-//             >
-//               Cancel
-//             </button>
-//             <button
-//               type="button"
-//               onClick={handleSave}
-//               className="px-4 py-2 rounded-lg bg-[var(--bg-color-header)] text-white text-sm font-semibold hover:opacity-90"
-//             >
-//               Save ({checked.size})
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
+        <button
+          type="button"
+          onClick={onClose}
+          className="bg-red-600 text-white border-none rounded-xl px-6 py-3 font-semibold cursor-pointer hover:bg-red-700 transition-colors"
+        >
+          Okay
+        </button>
+      </div>
+    </div>
+  );
+}
 function RelatedModal({
   lang,
   currentSlug,
@@ -282,8 +187,8 @@ function RelatedModal({
 
   const handleSave = () => {
     const result = all
-      .filter((q) => checked.has(q.slug))
-      .map((q) => ({ slug: q.slug, lang }));
+    .filter((q) => checked.has(q.slug))
+    .map((q) => ({ slug: q.slug, lang }));
     onSave(result);
     onClose();
   };
@@ -297,7 +202,7 @@ function RelatedModal({
   // Split into: inline-referenced (shown first), rest
   const inlineItems = filtered.filter((q) => inlineSlugs.includes(q.slug));
   const regularItems = filtered.filter((q) => !inlineSlugs.includes(q.slug));
-
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl shadow-2xl w-[520px] max-w-[95vw] max-h-[85vh] flex flex-col">
@@ -372,7 +277,7 @@ function RelatedModal({
                 <label
                   key={q.slug}
                   className={`flex items-start gap-3 py-3 px-3 rounded-lg cursor-pointer mb-1 transition-colors hover:bg-[rgba(40,115,70,0.05)] ${checked.has(q.slug) ? "bg-[rgba(40,115,70,0.07)]" : ""}`}
-                >
+                  >
                   <input
                     type="checkbox"
                     checked={checked.has(q.slug)}
@@ -420,17 +325,18 @@ function RelatedModal({
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function AddQA() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const isEdit = searchParams.get("edit") === "1";
   const editSlug = searchParams.get("slug");
   const editLang = searchParams.get("lang");
-
+  const questionId = searchParams.get("questionId");
   const [loading, setLoading] = useState(false);
   const [sections, setSections] = useState([]);
   const [relatedQuestions, setRelatedQuestions] = useState([]);
   const [showRefModal, setShowRefModal] = useState(false);
   const [showRelatedModal, setShowRelatedModal] = useState(false);
   const answerRef = useRef(null);
-
+  
   const [form, setForm] = useState({
     language: "en",
     title: "",
@@ -440,7 +346,9 @@ export default function AddQA() {
     conclusion: "",
   });
   const [message, setMessage] = useState("");
-
+  const [selectedUserQuestionId, setSelectedUserQuestionId] = useState("");
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+const [errorModalMessage, setErrorModalMessage] = useState("");
   // Extract internal slugs from {{slug|text}} tokens in answer
   const extractInlineSlugs = (text) => {
     const slugs = [];
@@ -457,6 +365,13 @@ export default function AddQA() {
     });
     return [...new Set(slugs)];
   };
+  useEffect(() => {
+    if (isEdit) return;
+
+    if (!questionId) {
+      navigate("/supervised/user-questions", { replace: true });
+    }
+  }, [isEdit, questionId, navigate]);
 
   // fetch for edit
   useEffect(() => {
@@ -486,19 +401,28 @@ export default function AddQA() {
   // pre-fill from URL
   useEffect(() => {
     if (isEdit) return;
-    const params = new URLSearchParams(window.location.search);
-    const urlQ = params.get("question");
-    const urlN = params.get("name");
-    const urlL = params.get("lang");
-    if (urlQ)
+
+    const urlQ = searchParams.get("question");
+    const urlN = searchParams.get("name");
+    const urlL = searchParams.get("lang");
+    const qId = searchParams.get("questionId");
+
+    if (qId) {
+      setSelectedUserQuestionId(qId);
+    }
+
+    if (urlQ) {
       setForm((p) => ({
         ...p,
         question: decodeURIComponent(urlQ).trim(),
         language: urlL || "en",
       }));
-    if (urlN)
+    }
+
+    if (urlN) {
       setMessage(`Answering question from: ${decodeURIComponent(urlN)}`);
-  }, [isEdit]);
+    }
+  }, [isEdit, searchParams]);
 
   // Auto-sync inline slugs into relatedQuestions whenever answer changes
   useEffect(() => {
@@ -590,54 +514,91 @@ export default function AddQA() {
           : { ...sec, items: sec.items.filter((_, k) => k !== j) },
       ),
     );
+const getAdminFriendlyError = (err) => {
+  const msg = err?.message || "";
 
+  if (msg.toLowerCase().includes("slug")) {
+    return "This slug is already used. Please choose a different slug.";
+  }
+
+  if (msg.toLowerCase().includes("user question")) {
+    return msg;
+  }
+
+  if (msg.toLowerCase().includes("title")) {
+    return "Please enter a title.";
+  }
+
+  if (msg.toLowerCase().includes("question")) {
+    return "Please enter the question.";
+  }
+
+  if (msg.toLowerCase().includes("answer")) {
+    return "Please enter the answer.";
+  }
+
+  if (msg.toLowerCase().includes("summary") || msg.toLowerCase().includes("conclusion")) {
+    return "Please enter the summary.";
+  }
+
+  if (
+    msg.toLowerCase().includes("network") ||
+    msg.toLowerCase().includes("fetch")
+  ) {
+    return "Network error. Please check your internet connection and try again.";
+  }
+
+  return msg || "Something went wrong while saving. Please try again.";
+};
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    const qa = {
-      title: form.title,
-      slug: form.slug,
-      question: form.question,
-      answer: form.answer,
-      conclusion: form.conclusion,
-      content: sections,
-      relatedQuestions: relatedQuestions,
-    };
-    try {
-      if (isEdit) {
-        await editQA(qa, editSlug, editLang);
-        setMessage("Q&A updated successfully!");
-      } else {
-        await submitQA(qa, form.language);
-        const qId = searchParams.get("questionId");
-        if (qId) {
-          try {
-            await updateQuestionStatus(qId, "answered", form.language);
-            setMessage("Q&A saved and question marked as answered!");
-          } catch {
-            setMessage("Q&A saved, but failed to mark question as answered.");
-          }
-        } else {
-          setMessage("Q&A saved successfully!");
-        }
-        setForm({
-          language: form.language,
-          title: "",
-          slug: "",
-          question: "",
-          answer: "",
-          conclusion: "",
-        });
-        setSections([]);
-        setRelatedQuestions([]);
-      }
-    } catch (err) {
-      setMessage("Failed to save Q&A: " + (err.message || "Unknown error"));
-    } finally {
-      setLoading(false);
-    }
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
+
+  const qa = {
+    title: form.title,
+    slug: form.slug,
+    question: form.question, // admin-polished wording
+    answer: form.answer,
+    conclusion: form.conclusion,
+    content: sections,
+    relatedQuestions: relatedQuestions,
+
+    // important: backend will use this to mark original user question answered
+    userQuestionId: selectedUserQuestionId,
   };
+
+  try {
+    if (isEdit) {
+      await editQA(qa, editSlug, editLang);
+      setMessage("Q&A updated successfully!");
+    } else {
+      await submitQA(qa, form.language);
+
+      setMessage("Q&A saved and user question marked as answered!");
+
+      setForm({
+        language: form.language,
+        title: "",
+        slug: "",
+        question: "",
+        answer: "",
+        conclusion: "",
+      });
+
+      setSections([]);
+      setRelatedQuestions([]);
+      setSelectedUserQuestionId("");
+
+      navigate("/supervised/user-questions");
+    }
+ } catch (err) {
+  setErrorModalMessage(getAdminFriendlyError(err));
+  setErrorModalOpen(true);
+} finally {
+  setLoading(false);
+}
+};
 
   const fieldCls =
     "w-full mb-4 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-base box-border";
@@ -646,6 +607,14 @@ export default function AddQA() {
 
   return (
     <AdminLayout>
+      <ErrorModal
+      open={errorModalOpen}
+      message={errorModalMessage}
+      onClose={() => {
+        setErrorModalOpen(false);
+        setErrorModalMessage("");
+      }}
+    />
       {showRefModal && (
         <InsertRefModal
           onInsert={handleInsertRef}
@@ -995,7 +964,8 @@ export default function AddQA() {
 
         <div
           className="text-center mt-4 min-h-[18px] font-semibold"
-          style={{ color: message.includes("success") ? "#287346" : "#b71010" }}
+          style={{color:message.includes("saved") || message.includes("updated") ? "#287346": "#b71010",
+          }}
         >
           {message}
         </div>
