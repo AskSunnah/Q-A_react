@@ -11,20 +11,43 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Mail,
+  AlertCircle,
 } from "lucide-react";
-import {
-  getAllQuestions,
-  deleteQuestion,
-} from "../../api/questions";
+import { getAllQuestions, deleteQuestion } from "../../api/questions";
 
 const PAGE_SIZE = 10;
 
+// Get creation date safely.
+// If createdAt is missing, MongoDB _id can still be used as a fallback.
+const getDateValue = (q) => {
+  if (q.createdAt) return new Date(q.createdAt).getTime();
+
+  if (q._id && /^[0-9a-fA-F]{24}$/.test(q._id)) {
+    return parseInt(q._id.substring(0, 8), 16) * 1000;
+  }
+
+  return 0;
+};
+
 // Derive effective dual-status from a question doc.
-// Old docs may lack englishStatus/arabicStatus — treat missing as "unanswered".
-const getStatuses = (q) => ({
-  en: q.englishStatus || "unanswered",
-  ar: q.arabicStatus || "unanswered",
-});
+// Old docs may only have "status", so we support that too.
+const getStatuses = (q) => {
+  const hasNewStatus = q.englishStatus || q.arabicStatus;
+
+  if (!hasNewStatus && q.status === "answered") {
+    return {
+      en: "answered",
+      ar: "answered",
+    };
+  }
+
+  return {
+    en: q.englishStatus || "unanswered",
+    ar: q.arabicStatus || "unanswered",
+  };
+};
+
 const isFullyAnswered = (q) => {
   const { en, ar } = getStatuses(q);
   return en === "answered" && ar === "answered";
@@ -55,6 +78,7 @@ function StatusBadge({ status, lang }) {
 
 function AnswerButton({ status, lang, onClick }) {
   const answered = status === "answered";
+  const label = lang === "en" ? "English" : "Arabic";
 
   if (answered) {
     return (
@@ -63,7 +87,7 @@ function AnswerButton({ status, lang, onClick }) {
         className="flex items-center gap-1 text-xs font-semibold px-3 py-[7px] rounded-lg border border-green-300 bg-green-50 text-green-700 cursor-default opacity-80"
       >
         <CheckCircle size={13} />
-        {lang === "en" ? "English" : "Arabic"} Added ✓
+        {label} Added ✓
       </button>
     );
   }
@@ -73,14 +97,53 @@ function AnswerButton({ status, lang, onClick }) {
       onClick={onClick}
       className="flex items-center gap-1 text-xs font-bold px-3 py-[7px] rounded-lg border-2 border-red-500 text-red-600 bg-red-50 hover:bg-red-500 hover:text-white transition-all duration-150"
     >
-      + Add {lang === "en" ? "English" : "Arabic"} Answer
+      + Add {label} Answer
     </button>
+  );
+}
+
+function QuestionCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-gray-100 bg-white p-4 mb-3 shadow-sm animate-pulse">
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex gap-2 mb-3">
+            <div className="h-5 bg-gray-100 rounded-full w-24" />
+            <div className="h-5 bg-gray-100 rounded-full w-28" />
+          </div>
+
+          <div className="h-4 bg-gray-100 rounded w-[90%] mb-2" />
+          <div className="h-4 bg-gray-100 rounded w-[65%] mb-3" />
+
+          <div className="flex flex-wrap gap-2">
+            <div className="h-3 bg-gray-100 rounded w-24" />
+            <div className="h-3 bg-gray-100 rounded w-36" />
+            <div className="h-3 bg-gray-100 rounded w-28" />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 shrink-0">
+          <div className="h-6 bg-gray-100 rounded-full w-28" />
+          <div className="h-6 bg-gray-100 rounded-full w-28" />
+        </div>
+      </div>
+
+      <div className="flex gap-2 flex-wrap pt-2 border-t border-gray-100">
+        <div className="h-8 bg-gray-100 rounded-lg w-36" />
+        <div className="h-8 bg-gray-100 rounded-lg w-36" />
+        <div className="h-8 bg-gray-100 rounded-lg w-20 ml-auto" />
+      </div>
+    </div>
   );
 }
 
 function QuestionCard({ q, lang, onDelete, navigate }) {
   const { en: enStatus, ar: arStatus } = getStatuses(q);
   const fullyDone = enStatus === "answered" && arStatus === "answered";
+
+  const missing = [];
+  if (enStatus !== "answered") missing.push("English");
+  if (arStatus !== "answered") missing.push("Arabic");
 
   const handleAddAnswer = (answerLang) => {
     const params = new URLSearchParams({
@@ -98,30 +161,26 @@ function QuestionCard({ q, lang, onDelete, navigate }) {
       className={`rounded-xl border p-4 mb-3 transition-all duration-200 ${
         fullyDone
           ? "border-green-200 bg-white"
-          : "border-red-200 bg-red-50/30 shadow-sm"
+          : "border-red-200 bg-red-50/40 shadow-sm"
       }`}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-800 m-0 leading-snug">
-            {q.question}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
-            <span className="text-xs text-gray-500 flex items-center gap-1">
-              <User size={11} /> {q.name || "Anonymous"}
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span
+              className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-[3px] rounded-full border ${
+                fullyDone
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
+              {fullyDone ? (
+                <CheckCircle size={12} />
+              ) : (
+                <AlertCircle size={12} />
+              )}
+              {fullyDone ? "Completed" : `Needs ${missing.join(" + ")}`}
             </span>
-
-            {q.createdAt && (
-              <span className="text-xs text-gray-400 flex items-center gap-1">
-                <Calendar size={11} />
-                {new Date(q.createdAt).toLocaleDateString("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
-            )}
 
             <span
               className={`text-[10px] font-bold uppercase tracking-wide px-2 py-[2px] rounded-full border ${
@@ -130,8 +189,33 @@ function QuestionCard({ q, lang, onDelete, navigate }) {
                   : "border-blue-200 bg-blue-50 text-blue-600"
               }`}
             >
-              {lang === "ar" ? "Arabic Q" : "English Q"}
+              {lang === "ar" ? "Arabic Question" : "English Question"}
             </span>
+          </div>
+
+          <p className="text-sm font-semibold text-gray-800 m-0 leading-relaxed">
+            {q.question}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+            <span className="text-xs text-gray-500 flex items-center gap-1">
+              <User size={12} /> {q.name || "Anonymous"}
+            </span>
+
+            <span className="text-xs text-gray-500 flex items-center gap-1 break-all">
+              <Mail size={12} /> {q.email || "No email provided"}
+            </span>
+
+            {q.createdAt && (
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                <Calendar size={12} />
+                {new Date(q.createdAt).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
+            )}
           </div>
         </div>
 
@@ -141,7 +225,7 @@ function QuestionCard({ q, lang, onDelete, navigate }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-gray-100">
         <AnswerButton
           status={enStatus}
           lang="en"
@@ -224,8 +308,10 @@ export default function UserQuestions() {
       base = [
         ...enQuestions.map((q) => ({ ...q, _lang: "en" })),
         ...arQuestions.map((q) => ({ ...q, _lang: "ar" })),
-      ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      ];
     }
+
+    base = [...base].sort((a, b) => getDateValue(b) - getDateValue(a));
 
     if (statusFilter === "unanswered") {
       base = base.filter((q) => !isFullyAnswered(q));
@@ -239,7 +325,8 @@ export default function UserQuestions() {
       base = base.filter(
         (q) =>
           q.question?.toLowerCase().includes(s) ||
-          q.name?.toLowerCase().includes(s)
+          q.name?.toLowerCase().includes(s) ||
+          q.email?.toLowerCase().includes(s)
       );
     }
 
@@ -318,14 +405,14 @@ export default function UserQuestions() {
         loading={deleting}
       />
 
-      <div className="max-w-[820px] mx-auto mt-8 px-4">
+      <div className="max-w-[860px] mx-auto mt-8 px-4">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-800 m-0">
             User Questions
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Each question needs both an English and Arabic answer.
+            Each submitted question needs both an English and Arabic answer.
           </p>
         </div>
 
@@ -336,7 +423,7 @@ export default function UserQuestions() {
         </div>
 
         <div className="flex gap-3 mb-5 flex-wrap">
-          <div className="relative flex-1 min-w-[200px]">
+          <div className="relative flex-1 min-w-[220px]">
             <Search
               size={15}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -344,7 +431,7 @@ export default function UserQuestions() {
 
             <input
               type="text"
-              placeholder="Search by question or name..."
+              placeholder="Search by question, name, or email..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -380,11 +467,8 @@ export default function UserQuestions() {
 
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-gray-100 bg-gray-50 p-4 animate-pulse h-[110px]"
-              />
+            {[1, 2, 3, 4].map((i) => (
+              <QuestionCardSkeleton key={i} />
             ))}
           </div>
         ) : error ? (
