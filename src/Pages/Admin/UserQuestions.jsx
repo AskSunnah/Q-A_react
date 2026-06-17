@@ -29,7 +29,7 @@ export default function UserQuestions() {
   const [loading, setLoading] = useState(true);
   // "all" shows both languages merged; "en"/"ar" filters to one
   const [langFilter, setLangFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("unanswered");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
