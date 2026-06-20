@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { submitQA, submitStandaloneQA, editQA, getQA, getAllQuestions } from "../../api/qa";
+import {
+  submitQA,
+  submitStandaloneQA,
+  editQA,
+  getQA,
+  getAllQuestions,
+} from "../../api/qa";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 import { RxCross2 } from "react-icons/rx";
 
@@ -57,7 +63,9 @@ function InsertRefModal({ onInsert, onClose }) {
         </div>
         {!useUrl ? (
           <>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">Question Slug</label>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">
+              Question Slug
+            </label>
             <input
               autoFocus
               className="w-full mb-4 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-sm"
@@ -68,7 +76,9 @@ function InsertRefModal({ onInsert, onClose }) {
           </>
         ) : (
           <>
-            <label className="block text-sm font-semibold text-gray-600 mb-1">Direct URL</label>
+            <label className="block text-sm font-semibold text-gray-600 mb-1">
+              Direct URL
+            </label>
             <input
               autoFocus
               className="w-full mb-4 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-sm"
@@ -78,7 +88,9 @@ function InsertRefModal({ onInsert, onClose }) {
             />
           </>
         )}
-        <label className="block text-sm font-semibold text-gray-600 mb-1">Display Text</label>
+        <label className="block text-sm font-semibold text-gray-600 mb-1">
+          Display Text
+        </label>
         <input
           className="w-full mb-2 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-sm"
           placeholder="e.g. our previous answer on this topic"
@@ -89,7 +101,11 @@ function InsertRefModal({ onInsert, onClose }) {
           This inserts a clickable link inline inside your answer text.
         </p>
         <div className="flex gap-3 justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm hover:bg-gray-50">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm hover:bg-gray-50"
+          >
             Cancel
           </button>
           <button
@@ -111,8 +127,12 @@ function ErrorModal({ open, message, onClose }) {
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
       <div className="bg-white rounded-2xl shadow-2xl w-[420px] max-w-[95vw] p-7 text-center">
-        <div className="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 text-3xl font-bold">!</div>
-        <h3 className="text-xl font-bold text-slate-800 mb-2">Could not save Q&A</h3>
+        <div className="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4 text-3xl font-bold">
+          !
+        </div>
+        <h3 className="text-xl font-bold text-slate-800 mb-2">
+          Could not save Q&A
+        </h3>
         <p className="text-slate-600 text-[0.95rem] leading-relaxed mb-6">
           {message || "Something went wrong. Please try again."}
         </p>
@@ -128,10 +148,19 @@ function ErrorModal({ open, message, onClose }) {
   );
 }
 
-function RelatedModal({ lang, currentSlug, selected, inlineSlugs = [], onSave, onClose }) {
+function RelatedModal({
+  lang,
+  currentSlug,
+  selected,
+  inlineSlugs = [],
+  onSave,
+  onClose,
+}) {
   const [all, setAll] = useState([]);
   const [search, setSearch] = useState("");
-  const [checked, setChecked] = useState(() => new Set(selected.map((r) => r.slug)));
+  const [checked, setChecked] = useState(
+    () => new Set(selected.map((r) => r.slug)),
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -153,7 +182,9 @@ function RelatedModal({ lang, currentSlug, selected, inlineSlugs = [], onSave, o
   };
 
   const handleSave = () => {
-    const result = all.filter((q) => checked.has(q.slug)).map((q) => ({ slug: q.slug, lang }));
+    const result = all
+      .filter((q) => checked.has(q.slug))
+      .map((q) => ({ slug: q.slug, lang }));
     onSave(result);
     onClose();
   };
@@ -161,7 +192,7 @@ function RelatedModal({ lang, currentSlug, selected, inlineSlugs = [], onSave, o
   const filtered = all.filter(
     (q) =>
       q.heading?.toLowerCase().includes(search.toLowerCase()) ||
-      q.slug?.toLowerCase().includes(search.toLowerCase())
+      q.slug?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const inlineItems = filtered.filter((q) => inlineSlugs.includes(q.slug));
@@ -179,7 +210,8 @@ function RelatedModal({ lang, currentSlug, selected, inlineSlugs = [], onSave, o
           </h3>
           {inlineSlugs.length > 0 && (
             <p className="text-xs text-amber-600 mb-3 mt-1 font-medium">
-              ✦ {inlineSlugs.length} question{inlineSlugs.length > 1 ? "s" : ""} detected from inline references — pre-selected below
+              ✦ {inlineSlugs.length} question{inlineSlugs.length > 1 ? "s" : ""}{" "}
+              detected from inline references — pre-selected below
             </p>
           )}
           <input
@@ -195,7 +227,9 @@ function RelatedModal({ lang, currentSlug, selected, inlineSlugs = [], onSave, o
           {loading ? (
             <p className="text-sm text-gray-400 py-4 text-center">Loading...</p>
           ) : filtered.length === 0 ? (
-            <p className="text-sm text-gray-400 py-4 text-center">No questions found.</p>
+            <p className="text-sm text-gray-400 py-4 text-center">
+              No questions found.
+            </p>
           ) : (
             <>
               {inlineItems.length > 0 && (
@@ -204,25 +238,51 @@ function RelatedModal({ lang, currentSlug, selected, inlineSlugs = [], onSave, o
                     Referenced inline in answer
                   </p>
                   {inlineItems.map((q) => (
-                    <label key={q.slug} className={`flex items-start gap-3 py-3 px-3 rounded-lg cursor-pointer mb-1 transition-colors border border-amber-100 ${checked.has(q.slug) ? "bg-amber-50" : "hover:bg-amber-50/50"}`}>
-                      <input type="checkbox" checked={checked.has(q.slug)} onChange={() => toggle(q.slug)} className="mt-[3px] accent-[var(--bg-color-header)] w-4 h-4 shrink-0" />
+                    <label
+                      key={q.slug}
+                      className={`flex items-start gap-3 py-3 px-3 rounded-lg cursor-pointer mb-1 transition-colors border border-amber-100 ${checked.has(q.slug) ? "bg-amber-50" : "hover:bg-amber-50/50"}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked.has(q.slug)}
+                        onChange={() => toggle(q.slug)}
+                        className="mt-[3px] accent-[var(--bg-color-header)] w-4 h-4 shrink-0"
+                      />
                       <div>
-                        <p className="text-sm font-medium text-gray-800 leading-snug m-0">{q.heading}</p>
-                        <p className="text-xs text-gray-400 m-0 mt-[2px]">{q.slug}</p>
+                        <p className="text-sm font-medium text-gray-800 leading-snug m-0">
+                          {q.heading}
+                        </p>
+                        <p className="text-xs text-gray-400 m-0 mt-[2px]">
+                          {q.slug}
+                        </p>
                       </div>
                     </label>
                   ))}
                   {regularItems.length > 0 && (
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 mt-4">All questions</p>
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 mt-4">
+                      All questions
+                    </p>
                   )}
                 </>
               )}
               {regularItems.map((q) => (
-                <label key={q.slug} className={`flex items-start gap-3 py-3 px-3 rounded-lg cursor-pointer mb-1 transition-colors hover:bg-[rgba(40,115,70,0.05)] ${checked.has(q.slug) ? "bg-[rgba(40,115,70,0.07)]" : ""}`}>
-                  <input type="checkbox" checked={checked.has(q.slug)} onChange={() => toggle(q.slug)} className="mt-[3px] accent-[var(--bg-color-header)] w-4 h-4 shrink-0" />
+                <label
+                  key={q.slug}
+                  className={`flex items-start gap-3 py-3 px-3 rounded-lg cursor-pointer mb-1 transition-colors hover:bg-[rgba(40,115,70,0.05)] ${checked.has(q.slug) ? "bg-[rgba(40,115,70,0.07)]" : ""}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked.has(q.slug)}
+                    onChange={() => toggle(q.slug)}
+                    className="mt-[3px] accent-[var(--bg-color-header)] w-4 h-4 shrink-0"
+                  />
                   <div>
-                    <p className="text-sm font-medium text-gray-800 leading-snug m-0">{q.heading}</p>
-                    <p className="text-xs text-gray-400 m-0 mt-[2px]">{q.slug}</p>
+                    <p className="text-sm font-medium text-gray-800 leading-snug m-0">
+                      {q.heading}
+                    </p>
+                    <p className="text-xs text-gray-400 m-0 mt-[2px]">
+                      {q.slug}
+                    </p>
                   </div>
                 </label>
               ))}
@@ -232,8 +292,20 @@ function RelatedModal({ lang, currentSlug, selected, inlineSlugs = [], onSave, o
         <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
           <span className="text-xs text-gray-400">{checked.size} selected</span>
           <div className="flex gap-3">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm hover:bg-gray-50">Cancel</button>
-            <button type="button" onClick={handleSave} className="px-4 py-2 rounded-lg bg-[var(--bg-color-header)] text-white text-sm font-semibold hover:opacity-90">Save ({checked.size})</button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              className="px-4 py-2 rounded-lg bg-[var(--bg-color-header)] text-white text-sm font-semibold hover:opacity-90"
+            >
+              Save ({checked.size})
+            </button>
           </div>
         </div>
       </div>
@@ -356,7 +428,8 @@ export default function AddQA() {
     });
   }, [form.answer]);
 
-  const handleInput = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleInput = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleInsertRef = (token) => {
     const el = answerRef.current;
@@ -386,21 +459,26 @@ export default function AddQA() {
     setSections((s) =>
       s.map((sec, i) => {
         if (i !== idx) return sec;
-        if (field === "text" && sec.type === "normal") return { ...sec, text: value };
+        if (field === "text" && sec.type === "normal")
+          return { ...sec, text: value };
         if (subidx !== null) {
           const items = [...(sec.items || [])];
           items[subidx] = { ...items[subidx], [field]: value };
           return { ...sec, items };
         }
         return sec;
-      })
+      }),
     );
   };
   const addSection = () => {
     const type = document.getElementById("section-type").value;
-    setSections([...sections, type === "normal" ? { type, text: "" } : { type, items: [{}] }]);
+    setSections([
+      ...sections,
+      type === "normal" ? { type, text: "" } : { type, items: [{}] },
+    ]);
   };
-  const deleteSection = (idx) => setSections((s) => s.filter((_, i) => i !== idx));
+  const deleteSection = (idx) =>
+    setSections((s) => s.filter((_, i) => i !== idx));
   const moveSection = (idx, dir) =>
     setSections((s) => {
       const a = [...s];
@@ -410,59 +488,79 @@ export default function AddQA() {
       return a;
     });
   const addItem = (idx) =>
-    setSections((s) => s.map((sec, i) => i !== idx ? sec : { ...sec, items: [...(sec.items || []), {}] }));
+    setSections((s) =>
+      s.map((sec, i) =>
+        i !== idx ? sec : { ...sec, items: [...(sec.items || []), {}] },
+      ),
+    );
   const deleteItem = (idx, j) =>
-    setSections((s) => s.map((sec, i) => i !== idx ? sec : { ...sec, items: sec.items.filter((_, k) => k !== j) }));
+    setSections((s) =>
+      s.map((sec, i) =>
+        i !== idx
+          ? sec
+          : { ...sec, items: sec.items.filter((_, k) => k !== j) },
+      ),
+    );
 
   const getAdminFriendlyError = (err) => {
     const msg = err?.message || "";
-    if (msg.toLowerCase().includes("slug")) return "This slug is already used. Please choose a different slug.";
+    if (msg.toLowerCase().includes("slug"))
+      return "This slug is already used. Please choose a different slug.";
     if (msg.toLowerCase().includes("user question")) return msg;
     if (msg.toLowerCase().includes("title")) return "Please enter a title.";
-    if (msg.toLowerCase().includes("question")) return "Please enter the question.";
+    if (msg.toLowerCase().includes("question"))
+      return "Please enter the question.";
     if (msg.toLowerCase().includes("answer")) return "Please enter the answer.";
-    if (msg.toLowerCase().includes("summary") || msg.toLowerCase().includes("conclusion")) return "Please enter the summary.";
-    if (msg.toLowerCase().includes("network") || msg.toLowerCase().includes("fetch")) return "Network error. Please check your connection and try again.";
+    if (
+      msg.toLowerCase().includes("summary") ||
+      msg.toLowerCase().includes("conclusion")
+    )
+      return "Please enter the summary.";
+    if (
+      msg.toLowerCase().includes("network") ||
+      msg.toLowerCase().includes("fetch")
+    )
+      return "Network error. Please check your connection and try again.";
     return msg || "Something went wrong while saving. Please try again.";
   };
   const isValidSlug = (slug) => {
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
-};
+    return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+  };
 
-const getSlugError = (slug) => {
-  const trimmedSlug = slug.trim();
+  const getSlugError = (slug) => {
+    const trimmedSlug = slug.trim();
 
-  if (!trimmedSlug) {
-    return "Please enter a slug.";
-  }
+    if (!trimmedSlug) {
+      return "Please enter a slug.";
+    }
 
-  if (trimmedSlug !== slug) {
-    return "Slug cannot start or end with spaces.";
-  }
+    if (trimmedSlug !== slug) {
+      return "Slug cannot start or end with spaces.";
+    }
 
-  if (!isValidSlug(trimmedSlug)) {
-    return "Slug can only contain lowercase letters, numbers, and hyphens. Do not use spaces or symbols like ?, /, #, &, or =.";
-  }
+    if (!isValidSlug(trimmedSlug)) {
+      return "Slug can only contain lowercase letters, numbers, and hyphens. Do not use spaces or symbols like ?, /, #, &, or =.";
+    }
 
-  return null;
-};
+    return null;
+  };
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setMessage("");
+    e.preventDefault();
+    setMessage("");
 
-  const slugError = getSlugError(form.slug);
+    const slugError = getSlugError(form.slug);
 
-  if (slugError) {
-    setErrorModalMessage(slugError);
-    setErrorModalOpen(true);
-    return;
-  }
+    if (slugError) {
+      setErrorModalMessage(slugError);
+      setErrorModalOpen(true);
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  const qa = {
-    title: form.title,
-    slug: form.slug.trim(),
+    const qa = {
+      title: form.title,
+      slug: form.slug.trim(),
       question: form.question,
       answer: form.answer,
       conclusion: form.conclusion,
@@ -480,7 +578,14 @@ const getSlugError = (slug) => {
         // No linked user question
         await submitStandaloneQA(qa);
         setMessage("Q&A saved successfully!");
-        setForm({ language: form.language, title: "", slug: "", question: "", answer: "", conclusion: "" });
+        setForm({
+          language: form.language,
+          title: "",
+          slug: "",
+          question: "",
+          answer: "",
+          conclusion: "",
+        });
         setSections([]);
         setRelatedQuestions([]);
       } else {
@@ -497,21 +602,40 @@ const getSlugError = (slug) => {
     }
   };
 
-  const fieldCls = "w-full mb-4 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-base box-border";
-  const labelCls = "mt-2 mb-[3px] block text-[var(--bg-color-header)] text-[17px] font-bold";
+  const fieldCls =
+    "w-full mb-4 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-base box-border";
+  const labelCls =
+    "mt-2 mb-[3px] block text-[var(--bg-color-header)] text-[17px] font-bold";
+  const isArabic = form.language === "ar";
 
+  const contentDirectionProps = isArabic
+    ? { dir: "rtl", lang: "ar" }
+    : { dir: "ltr", lang: "en" };
+
+  const contentFieldCls = `${fieldCls} ${isArabic ? "text-right leading-8" : "text-left"}`;
+  const slugFieldCls = `${fieldCls} text-left`;
   // Determine page title and mode banner
-  const pageTitle = isEdit ? "Edit Q&A" : isStandalone ? "Add Standalone Q&A" : `Add ${form.language === "ar" ? "Arabic" : "English"} Answer`;
+  const pageTitle = isEdit
+    ? "Edit Q&A"
+    : isStandalone
+      ? "Add Standalone Q&A"
+      : `Add ${form.language === "ar" ? "Arabic" : "English"} Answer`;
 
   return (
     <AdminLayout>
       <ErrorModal
         open={errorModalOpen}
         message={errorModalMessage}
-        onClose={() => { setErrorModalOpen(false); setErrorModalMessage(""); }}
+        onClose={() => {
+          setErrorModalOpen(false);
+          setErrorModalMessage("");
+        }}
       />
       {showRefModal && (
-        <InsertRefModal onInsert={handleInsertRef} onClose={() => setShowRefModal(false)} />
+        <InsertRefModal
+          onInsert={handleInsertRef}
+          onClose={() => setShowRefModal(false)}
+        />
       )}
       {showRelatedModal && (
         <RelatedModal
@@ -531,13 +655,15 @@ const getSlugError = (slug) => {
 
         {/* Mode banner */}
         {!isEdit && (
-          <div className={`text-center text-xs font-semibold px-3 py-2 rounded-lg mb-5 ${
-            isStandalone
-              ? "bg-amber-50 text-amber-700 border border-amber-200"
-              : form.language === "ar"
-              ? "bg-purple-50 text-purple-700 border border-purple-200"
-              : "bg-blue-50 text-blue-700 border border-blue-200"
-          }`}>
+          <div
+            className={`text-center text-xs font-semibold px-3 py-2 rounded-lg mb-5 ${
+              isStandalone
+                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                : form.language === "ar"
+                  ? "bg-purple-50 text-purple-700 border border-purple-200"
+                  : "bg-blue-50 text-blue-700 border border-blue-200"
+            }`}
+          >
             {isStandalone
               ? "Standalone — this answer has no linked user question"
               : `Answering in ${form.language === "ar" ? "Arabic" : "English"} — this will mark the ${form.language === "ar" ? "Arabic" : "English"} status as answered`}
@@ -548,7 +674,6 @@ const getSlugError = (slug) => {
           <p>Loading...</p>
         ) : (
           <form onSubmit={handleSubmit} autoComplete="off">
-
             {/* Language selector — shown in standalone and edit modes only */}
             {(isStandalone || isEdit) && (
               <>
@@ -567,30 +692,50 @@ const getSlugError = (slug) => {
             )}
 
             <label className={labelCls}>Title:</label>
-            <input type="text" name="title" value={form.title} onChange={handleInput} required className={fieldCls} />
+            <input
+              type="text"
+              name="title"
+              value={form.title}
+              onChange={handleInput}
+              required
+              {...contentDirectionProps}
+              className={contentFieldCls}
+            />
 
             <label className={labelCls}>Slug:</label>
             <input
-  type="text"
-  name="slug"
-  value={form.slug}
-  onChange={(e) => {
-    const value = e.target.value.toLowerCase();
-    setForm({ ...form, slug: value });
-  }}
-  required
-  placeholder="example: ruling-on-music"
-  className={fieldCls}
-/>
-<p className="text-xs text-gray-400 mt-[-10px] mb-4">
-  Use only lowercase letters, numbers, and hyphens. No spaces or symbols.
-</p>
+              type="text"
+              name="slug"
+              value={form.slug}
+              onChange={(e) => {
+                const value = e.target.value.toLowerCase();
+                setForm({ ...form, slug: value });
+              }}
+              required
+              placeholder="example: ruling-on-music"
+              dir="ltr"
+              lang="en"
+              className={slugFieldCls}
+            />
+            <p className="text-xs text-gray-400 mt-[-10px] mb-4">
+              Use only lowercase letters, numbers, and hyphens. No spaces or
+              symbols.
+            </p>
 
             <label className={labelCls}>Question:</label>
-            <textarea name="question" value={form.question} onChange={handleInput} required className={`${fieldCls} min-h-[62px]`} />
+            <textarea
+              name="question"
+              value={form.question}
+              onChange={handleInput}
+              required
+              {...contentDirectionProps}
+              className={`${contentFieldCls} min-h-[62px]`}
+            />
 
             <div className="flex items-center justify-between mt-2 mb-[3px]">
-              <span className="text-[var(--bg-color-header)] text-[17px] font-bold">Answer:</span>
+              <span className="text-[var(--bg-color-header)] text-[17px] font-bold">
+                Answer:
+              </span>
               <button
                 type="button"
                 onClick={() => setShowRefModal(true)}
@@ -599,7 +744,15 @@ const getSlugError = (slug) => {
                 + Insert Reference
               </button>
             </div>
-            <textarea ref={answerRef} name="answer" value={form.answer} onChange={handleInput} required className={`${fieldCls} min-h-[62px]`} />
+            <textarea
+              ref={answerRef}
+              name="answer"
+              value={form.answer}
+              onChange={handleInput}
+              required
+              {...contentDirectionProps}
+              className={`${contentFieldCls} min-h-[62px]`}
+            />
 
             <hr className="my-[18px]" />
 
@@ -607,63 +760,206 @@ const getSlugError = (slug) => {
             <div>
               {sections.map((section, idx) =>
                 section.type === "normal" ? (
-                  <div key={idx} className="border border-[#cfe7d8] rounded-[10px] mb-[18px] bg-white p-4">
-                    <label className={labelCls}>{section.type.toUpperCase()}</label>
-                    <textarea required placeholder="Text" value={section.text || ""} onChange={(e) => handleSectionInput(idx, "text", e.target.value)} className={`${fieldCls} min-h-[62px]`} />
+                  <div
+                    key={idx}
+                    className="border border-[#cfe7d8] rounded-[10px] mb-[18px] bg-white p-4"
+                  >
+                    <label className={labelCls}>
+                      {section.type.toUpperCase()}
+                    </label>
+                    <textarea
+                      required
+                      placeholder="Text"
+                      value={section.text || ""}
+                      onChange={(e) =>
+                        handleSectionInput(idx, "text", e.target.value)
+                      }
+                      {...contentDirectionProps}
+                      className={`${contentFieldCls} min-h-[62px]`}
+                    />
                     <div className="mt-[9px] flex gap-[7px]">
-                      <button type="button" onClick={() => moveSection(idx, -1)} className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer">↑</button>
-                      <button type="button" onClick={() => moveSection(idx, 1)} className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer">↓</button>
-                      <button type="button" onClick={() => deleteSection(idx)} className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer">Delete Section</button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, -1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, 1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteSection(idx)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer"
+                      >
+                        Delete Section
+                      </button>
                     </div>
                   </div>
                 ) : (
-                  <div key={idx} className="border border-[#cfe7d8] rounded-[10px] mb-[18px] bg-white p-4">
-                    <label className={labelCls}>{section.type.toUpperCase()}</label>
+                  <div
+                    key={idx}
+                    className="border border-[#cfe7d8] rounded-[10px] mb-[18px] bg-white p-4"
+                  >
+                    <label className={labelCls}>
+                      {section.type.toUpperCase()}
+                    </label>
                     {(section.items || []).map((item, subidx) => (
-                      <div key={subidx} className="border-b border-[#e5e9ec] mb-[9px] pb-[7px] last:border-0">
-                        <input type="text" placeholder="Reference" value={item.reference || ""} required onChange={(e) => handleSectionInput(idx, "reference", e.target.value, subidx)} className={fieldCls} />
+                      <div
+                        key={subidx}
+                        className="border-b border-[#e5e9ec] mb-[9px] pb-[7px] last:border-0"
+                      >
+                        <input
+                          type="text"
+                          placeholder="Reference"
+                          value={item.reference || ""}
+                          required
+                          onChange={(e) =>
+                            handleSectionInput(
+                              idx,
+                              "reference",
+                              e.target.value,
+                              subidx,
+                            )
+                          }
+                          {...contentDirectionProps}
+                          className={contentFieldCls}
+                        />
                         {section.type === "sunnah" && (
-                          <input type="text" placeholder="Narrator" value={item.narrator || ""} onChange={(e) => handleSectionInput(idx, "narrator", e.target.value, subidx)} className={fieldCls} />
+                          <input
+                            type="text"
+                            placeholder="Narrator"
+                            value={item.narrator || ""}
+                            onChange={(e) =>
+                              handleSectionInput(
+                                idx,
+                                "narrator",
+                                e.target.value,
+                                subidx,
+                              )
+                            }
+                            {...contentDirectionProps}
+                            className={contentFieldCls}
+                          />
                         )}
-                        <textarea placeholder="Text" value={item.text || ""} onChange={(e) => handleSectionInput(idx, "text", e.target.value, subidx)} className={`${fieldCls} min-h-[62px]`} />
-                        <textarea placeholder="Commentary" value={item.commentary || ""} onChange={(e) => handleSectionInput(idx, "commentary", e.target.value, subidx)} className={`${fieldCls} min-h-[62px]`} />
-                        <button type="button" onClick={() => deleteItem(idx, subidx)} className="px-[22px] py-[10px] bg-[#c3a421] text-white rounded-[7px] cursor-pointer font-semibold">Remove</button>
+                        <textarea
+                          placeholder="Text"
+                          value={item.text || ""}
+                          onChange={(e) =>
+                            handleSectionInput(
+                              idx,
+                              "text",
+                              e.target.value,
+                              subidx,
+                            )
+                          }
+                          {...contentDirectionProps}
+                          className={`${contentFieldCls} min-h-[62px]`}
+                        />
+                        <textarea
+                          placeholder="Commentary"
+                          value={item.commentary || ""}
+                          onChange={(e) =>
+                            handleSectionInput(
+                              idx,
+                              "commentary",
+                              e.target.value,
+                              subidx,
+                            )
+                          }
+                          {...contentDirectionProps}
+                          className={`${contentFieldCls} min-h-[62px]`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => deleteItem(idx, subidx)}
+                          className="px-[22px] py-[10px] bg-[#c3a421] text-white rounded-[7px] cursor-pointer font-semibold"
+                        >
+                          Remove
+                        </button>
                       </div>
                     ))}
-                    <button type="button" onClick={() => addItem(idx)} className="px-[22px] py-[10px] bg-[#c3a421] text-white rounded-[7px] cursor-pointer font-semibold">Add {section.type} Entry</button>
+                    <button
+                      type="button"
+                      onClick={() => addItem(idx)}
+                      className="px-[22px] py-[10px] bg-[#c3a421] text-white rounded-[7px] cursor-pointer font-semibold"
+                    >
+                      Add {section.type} Entry
+                    </button>
                     <div className="mt-[9px] flex gap-[7px]">
-                      <button type="button" onClick={() => moveSection(idx, -1)} className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer">↑</button>
-                      <button type="button" onClick={() => moveSection(idx, 1)} className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer">↓</button>
-                      <button type="button" onClick={() => deleteSection(idx)} className="px-[22px] py-[10px] bg-[#c3a421] text-white rounded-[7px] cursor-pointer font-semibold">Delete Section</button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, -1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveSection(idx, 1)}
+                        className="border border-gray-500 bg-white text-[var(--bg-color-header)] text-base py-[6px] px-3 rounded-[7px] cursor-pointer"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteSection(idx)}
+                        className="px-[22px] py-[10px] bg-[#c3a421] text-white rounded-[7px] cursor-pointer font-semibold"
+                      >
+                        Delete Section
+                      </button>
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
 
             <div className="flex gap-3 items-center mb-5">
-              <select id="section-type" className="flex-1 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-base min-w-[120px]">
+              <select
+                id="section-type"
+                className="flex-1 rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-[10px] text-base min-w-[120px]"
+              >
                 {sectionOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
-              <button type="button" onClick={addSection} className="bg-[var(--bg-color-header)] text-white border-none rounded-lg py-[13px] px-[18px] text-base cursor-pointer mt-[-7px]">
+              <button
+                type="button"
+                onClick={addSection}
+                className="bg-[var(--bg-color-header)] text-white border-none rounded-lg py-[13px] px-[18px] text-base cursor-pointer mt-[-7px]"
+              >
                 Add Section
               </button>
             </div>
 
             <label className={labelCls}>Summary:</label>
-            <textarea name="conclusion" value={form.conclusion} onChange={handleInput} required className={`${fieldCls} min-h-[62px]`} />
-
+            <textarea
+              name="conclusion"
+              value={form.conclusion}
+              onChange={handleInput}
+              required
+              {...contentDirectionProps}
+              className={`${contentFieldCls} min-h-[62px]`}
+            />
             <hr className="my-[18px]" />
 
             {/* Related Answers */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-[var(--bg-color-header)] text-[17px] font-bold m-0">Related Answers</h3>
+                  <h3 className="text-[var(--bg-color-header)] text-[17px] font-bold m-0">
+                    Related Answers
+                  </h3>
                   <p className="text-xs text-gray-400 mt-1 m-0">
-                    Showing {form.language === "ar" ? "Arabic" : "English"} questions — change language above to switch
+                    Showing {form.language === "ar" ? "Arabic" : "English"}{" "}
+                    questions — change language above to switch
                   </p>
                 </div>
                 <button
@@ -681,14 +977,25 @@ const getSlugError = (slug) => {
               ) : (
                 <ul className="m-0 p-0 list-none space-y-2">
                   {relatedQuestions.map((rq, i) => (
-                    <li key={i} className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-[#cfe7d8] bg-[#f8fcf9]">
+                    <li
+                      key={i}
+                      className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg border border-[#cfe7d8] bg-[#f8fcf9]"
+                    >
                       <div>
-                        <p className="m-0 text-sm font-semibold text-gray-700">{rq.slug}</p>
-                        <p className="m-0 text-xs text-gray-400 mt-[2px] uppercase tracking-wide">{rq.lang}</p>
+                        <p className="m-0 text-sm font-semibold text-gray-700">
+                          {rq.slug}
+                        </p>
+                        <p className="m-0 text-xs text-gray-400 mt-[2px] uppercase tracking-wide">
+                          {rq.lang}
+                        </p>
                       </div>
                       <button
                         type="button"
-                        onClick={() => setRelatedQuestions((r) => r.filter((_, idx) => idx !== i))}
+                        onClick={() =>
+                          setRelatedQuestions((r) =>
+                            r.filter((_, idx) => idx !== i),
+                          )
+                        }
                         className="text-gray-400 hover:text-gray-600 font-bold text-lg px-1 cursor-pointer"
                       >
                         <RxCross2 />
@@ -711,7 +1018,12 @@ const getSlugError = (slug) => {
 
         <div
           className="text-center mt-4 min-h-[18px] font-semibold"
-          style={{ color: message.includes("saved") || message.includes("updated") ? "#287346" : "#b71010" }}
+          style={{
+            color:
+              message.includes("saved") || message.includes("updated")
+                ? "#287346"
+                : "#b71010",
+          }}
         >
           {message}
         </div>
