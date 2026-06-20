@@ -161,7 +161,17 @@ export default function AddBook() {
   const fieldCls =
     "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
   const labelCls = "font-bold mt-4 block text-[var(--bg-color-header)]";
+  const isArabic = form.language === "ar";
 
+  const contentDirectionProps = isArabic
+    ? { dir: "rtl", lang: "ar" }
+    : { dir: "ltr", lang: "en" };
+
+  const contentFieldCls = `${fieldCls} ${isArabic ? "text-right leading-8" : "text-left"}`;
+
+  const referenceFieldCls = `flex-1 mb-0 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${
+    isArabic ? "text-right leading-8" : "text-left"
+  }`;
   return (
     <AdminLayout>
       {/* .container */}
@@ -178,7 +188,8 @@ export default function AddBook() {
         >
           <label className={labelCls}>Title:</label>
           <input
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="title"
             value={form.title}
             onChange={handleFormChange}
@@ -201,14 +212,16 @@ export default function AddBook() {
           </select>
           <label className={labelCls}>Author:</label>
           <input
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="author"
             value={form.author}
             onChange={handleFormChange}
           />
           <label className={labelCls}>About the Author:</label>
           <textarea
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="authorBio"
             value={form.authorBio}
             onChange={handleFormChange}
@@ -216,14 +229,16 @@ export default function AddBook() {
           />
           <label className={labelCls}>Description (if any):</label>
           <textarea
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="description"
             value={form.description}
             onChange={handleFormChange}
           />
           <label className={labelCls}>About the Book:</label>
           <textarea
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="aboutBook"
             value={form.aboutBook}
             onChange={handleFormChange}
@@ -243,7 +258,6 @@ export default function AddBook() {
               </option>
             ))}
           </select>
-
 
           {/* Chapters */}
           {chapters.map((ch, chIdx) => (
@@ -265,7 +279,8 @@ export default function AddBook() {
 
               <label className={labelCls}>Chapter Title:</label>
               <input
-                className={fieldCls}
+                {...contentDirectionProps}
+                className={contentFieldCls}
                 value={ch.title}
                 onChange={(e) =>
                   updateChapter(chIdx, {
@@ -311,7 +326,8 @@ export default function AddBook() {
                         className="flex items-center gap-2 mb-2"
                       >
                         <input
-                          className="flex-1 mb-0 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+                          {...contentDirectionProps}
+                          className={referenceFieldCls}
                           value={ref}
                           onChange={(e) =>
                             updateReference(
@@ -366,7 +382,8 @@ export default function AddBook() {
 
                         <label className={labelCls}>Type</label>
                         <select
-                          className={fieldCls}
+                          {...contentDirectionProps}
+                          className={contentFieldCls}
                           value={block.type}
                           onChange={(e) =>
                             updateBlock(chIdx, pgIdx, blockIdx, {
@@ -384,7 +401,8 @@ export default function AddBook() {
 
                         <label className={labelCls}>Text</label>
                         <textarea
-                          className={fieldCls}
+                          {...contentDirectionProps}
+                          className={contentFieldCls}
                           value={block.text}
                           onChange={(e) =>
                             updateBlock(chIdx, pgIdx, blockIdx, {
@@ -399,7 +417,8 @@ export default function AddBook() {
                           <>
                             <label className={labelCls}>Reference</label>
                             <input
-                              className={fieldCls}
+                              {...contentDirectionProps}
+                              className={contentFieldCls}
                               value={block.reference}
                               onChange={(e) =>
                                 updateBlock(chIdx, pgIdx, blockIdx, {
@@ -415,7 +434,8 @@ export default function AddBook() {
                           <>
                             <label className={labelCls}>Narrator</label>
                             <input
-                              className={fieldCls}
+                              {...contentDirectionProps}
+                              className={contentFieldCls}
                               value={block.narrator}
                               onChange={(e) =>
                                 updateBlock(chIdx, pgIdx, blockIdx, {
@@ -431,7 +451,8 @@ export default function AddBook() {
                           <>
                             <label className={labelCls}>Commentary</label>
                             <textarea
-                              className={fieldCls}
+                              {...contentDirectionProps}
+                              className={contentFieldCls}
                               value={block.commentary}
                               onChange={(e) =>
                                 updateBlock(chIdx, pgIdx, blockIdx, {
