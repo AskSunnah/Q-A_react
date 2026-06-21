@@ -5,9 +5,8 @@ import Footer from "../Footer";
 import Navbar from "../Navbar";
 import { useSearchParams } from "react-router-dom";
 import { fetchFatwaBySlug } from "../../api/fatwa";
-import {
-  ReportableContent
-} from "../common/ReportableContent";
+import { ReportableContent } from "../common/ReportableContent";
+import { Share2 } from "lucide-react";
 
 function QuestionPage({
   fetchQuestionBySlug,
@@ -100,6 +99,26 @@ function QuestionPage({
     console.error(`No data found for slug: ${slug}`);
   }
 
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    const shareData = {
+      title: data?.heading || "",
+      text: language === "ar" ? "اقرأ هذه الفتوى" : "Read this answer",
+      url,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert(language === "ar" ? "تم نسخ الرابط" : "Link copied");
+      }
+    } catch (err) {
+      console.log("Share cancelled");
+    }
+  };
   const sectionTitleMap = {
     quran: labels.fromQuran,
     sunnah: labels.fromSunnah,
@@ -186,7 +205,6 @@ function QuestionPage({
     let manualSectionCounter = 1;
 
     return elements.map((el, idx) => {
-
       if (typeof el === "string") {
         return (
           <p
@@ -200,17 +218,10 @@ function QuestionPage({
         );
       }
 
-
-
       if (el.type === "section") {
         const sectionNumber = manualSectionCounter++;
         return (
-          <div
-            key={idx}
-            text={el.heading}
-            as="div"
-            className="mb-6"
-          >
+          <div key={idx} text={el.heading} as="div" className="mb-6">
             <p className="text-[1.05em] font-medium mb-2">{`${sectionNumber}. ${el.heading}`}</p>
             <ul className="pl-6">
               {el.bullets.map((b, i) => (
@@ -274,6 +285,30 @@ function QuestionPage({
             {data.heading}
           </h1>
 
+          <div
+            className={`flex mb-5 ${
+              direction === "rtl" ? "justify-start" : "justify-end"
+            }`}
+          >
+            <button
+              onClick={handleShare}
+              aria-label="Share"
+              className="
+    px-3 py-2
+    rounded-lg
+    border
+    border-[rgba(40,115,70,0.25)]
+    flex
+    items-center
+    justify-center
+    text-[var(--bg-color-header)]
+    hover:bg-[rgba(40,115,70,0.08)]
+    transition-all
+  "
+            >
+              <Share2 size={17} />
+            </button>
+          </div>
           <p
             text={data.question}
             as="p"
@@ -287,34 +322,17 @@ function QuestionPage({
               <h2 className="text-[1.05em] font-bold text-[#c3a421] mb-2">
                 {labels.conclusion}
               </h2>
-
-              {/* <div
-                text={data.conclusion}
-                as="div"
-                className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
-              >
-                <div
-                  style={{
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
-                  }}
-                >
-                  <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
-                    {renderTextWithRefs(data.conclusion, 0)}
-                  </p>
-                </div>
-              </div> */}
               <div
-              className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
-              style={{
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-              }}
-            >
-              <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
-                {renderTextWithRefs(data.conclusion, 0)}
-              </p>
-            </div>
+                className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
+                style={{
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                }}
+              >
+                <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
+                  {renderTextWithRefs(data.conclusion, 0)}
+                </p>
+              </div>
             </div>
           )}
 
@@ -366,8 +384,6 @@ function QuestionPage({
                   )}
                   <ul className="ps-5 list-disc">
                     {items.map((item, i) => (
-                     
-
                       <li key={i} className="mb-6">
                         {item.reference && (
                           <strong
@@ -383,16 +399,16 @@ function QuestionPage({
                             {item.narrator}
                           </em>
                         )}
-                       <blockquote
-                        className={`
+                        <blockquote
+                          className={`
                           bg-[var(--bg-light)] border-s-[5px] border-[var(--bg-color-header)]
                           my-5 px-5 py-4 italic mb-2
                           max-[480px]:px-4 max-[480px]:py-3 max-[480px]:my-4
                           ${direction === "rtl" ? "text-right" : "text-left"}
                         `}
-                      >
-                        {renderTextWithRefs(item.text, idx)}
-                      </blockquote>
+                        >
+                          {renderTextWithRefs(item.text, idx)}
+                        </blockquote>
                         {item.commentary && (
                           <p className="whitespace-pre-wrap leading-[1.7] mb-4">
                             {renderTextWithRefs(item.commentary, idx)}
