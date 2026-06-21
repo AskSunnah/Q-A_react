@@ -1,7 +1,7 @@
 // src/pages/AddBook.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminHeader from "../../Components/Admin/Header";
-import { submitBook } from "../../api/adminBook";
+import { submitBook, fetchAuthors } from "../../api/adminBook";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 
 const CATEGORIES = [
@@ -19,6 +19,7 @@ const LANGS = [
 export default function AddBook() {
   const [form, setForm] = useState({
     title: "",
+    authorId: "",
     author: "",
     description: "",
     authorBio: "",
@@ -29,7 +30,12 @@ export default function AddBook() {
   const [chapters, setChapters] = useState([]);
   const [modal, setModal] = useState({ show: false, title: "", message: "" });
   const [deletePageIndex, setDeletePageIndex] = useState(null);
-
+  const [authors, setAuthors] = useState([]);
+  useEffect(() => {
+    fetchAuthors(form.language)
+      .then(setAuthors)
+      .catch(() => setAuthors([]));
+  }, [form.language]);
   // 🔢 Get global page number for a chapter/page index
   const getGlobalPageNumber = (chapterIdx, pageIdx) => {
     let counter = 1;
@@ -110,8 +116,49 @@ export default function AddBook() {
   };
 
   // --- Form Handlers ---
-  const handleFormChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "language") {
+      setForm({
+        ...form,
+        language: value,
+        authorId: "",
+        author: "",
+        authorBio: "",
+      });
+      return;
+    }
+
+    setForm({
+      ...form,
+      [name]: value,
+    });
+  };
+  const handleAuthorSelect = (e) => {
+    const selectedAuthorId = e.target.value;
+
+    if (!selectedAuthorId) {
+      setForm({
+        ...form,
+        authorId: "",
+        author: "",
+        authorBio: "",
+      });
+      return;
+    }
+
+    const selectedAuthor = authors.find((a) => a._id === selectedAuthorId);
+
+    if (!selectedAuthor) return;
+
+    setForm({
+      ...form,
+      authorId: selectedAuthor._id,
+      author: selectedAuthor.name,
+      authorBio: selectedAuthor.bio || "",
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -135,6 +182,8 @@ export default function AddBook() {
 
     try {
       await submitBook(bookData);
+      const updatedAuthors = await fetchAuthors(form.language);
+      setAuthors(updatedAuthors);
       setModal({
         show: true,
         title: "Success",
@@ -142,6 +191,7 @@ export default function AddBook() {
       });
       setForm({
         title: "",
+        authorId: "",
         author: "",
         description: "",
         authorBio: "",
@@ -210,6 +260,21 @@ export default function AddBook() {
               </option>
             ))}
           </select>
+          <label className={labelCls}>Saved Author:</label>
+          <select
+            className={fieldCls}
+            name="authorId"
+            value={form.authorId}
+            onChange={handleAuthorSelect}
+          >
+            <option value="">-- Select saved author or add new below --</option>
+            {authors.map((author) => (
+              <option key={author._id} value={author._id}>
+                {author.name}
+              </option>
+            ))}
+          </select>
+
           <label className={labelCls}>Author:</label>
           <input
             {...contentDirectionProps}
@@ -217,7 +282,9 @@ export default function AddBook() {
             name="author"
             value={form.author}
             onChange={handleFormChange}
+            disabled={!!form.authorId}
           />
+
           <label className={labelCls}>About the Author:</label>
           <textarea
             {...contentDirectionProps}
@@ -225,6 +292,7 @@ export default function AddBook() {
             name="authorBio"
             value={form.authorBio}
             onChange={handleFormChange}
+            disabled={!!form.authorId}
             placeholder="Write a short biography or background of the author"
           />
           <label className={labelCls}>Description (if any):</label>
