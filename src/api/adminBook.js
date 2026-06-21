@@ -130,3 +130,19 @@ export async function createAuthor(authorData) {
 
   return data.author;
 }
+
+export async function updateAuthor(authorId, authorData) {
+  const res = await fetch(`${API_BASE}/api/authors/${authorId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(authorData),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to update author");
+  }
+
+  return data.author;
+}

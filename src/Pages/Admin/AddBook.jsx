@@ -1,6 +1,6 @@
 // src/pages/AddBook.jsx
 import React, { useState, useEffect } from "react";
-import { submitBook, fetchAuthors } from "../../api/adminBook";
+import { submitBook, fetchAuthors, updateAuthor } from "../../api/adminBook";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 
 const CATEGORIES = [
@@ -31,6 +31,7 @@ export default function AddBook() {
   const [modal, setModal] = useState({ show: false, title: "", message: "" });
   const [deletePageIndex, setDeletePageIndex] = useState(null);
   const [authors, setAuthors] = useState([]);
+  const [editingAuthor, setEditingAuthor] = useState(null); // { _id, name, bio } | null
 
   const isArabic = form.language === "ar";
 
@@ -213,6 +214,54 @@ export default function AddBook() {
     });
   };
 
+  // --- Author Edit Handlers ---
+  const openEditAuthor = () => {
+    const a = authors.find((x) => x._id === form.authorId);
+    if (a) setEditingAuthor({ ...a });
+  };
+
+  const closeEditAuthor = () => {
+    setEditingAuthor(null);
+  };
+
+  const handleSaveAuthor = async () => {
+    if (!editingAuthor?.name?.trim()) {
+      setModal({
+        show: true,
+        title: "Error",
+        message: "Author name is required.",
+      });
+      return;
+    }
+
+    try {
+      const updated = await updateAuthor(editingAuthor._id, {
+        name: editingAuthor.name,
+        bio: editingAuthor.bio,
+      });
+
+      setAuthors((prev) =>
+        prev.map((a) => (a._id === updated._id ? updated : a)),
+      );
+
+      // Sync the currently-open form too, since it holds a local
+      // copy of author/authorBio (denormalized onto the book on submit).
+      setForm((f) =>
+        f.authorId === updated._id
+          ? { ...f, author: updated.name, authorBio: updated.bio }
+          : f,
+      );
+
+      setEditingAuthor(null);
+    } catch (err) {
+      setModal({
+        show: true,
+        title: "Error",
+        message: err.message,
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -310,20 +359,35 @@ export default function AddBook() {
           </select>
 
           <label className={labelCls}>Saved Author:</label>
-          <select
-            {...contentDirectionProps}
-            className={selectFieldCls}
-            name="authorId"
-            value={form.authorId}
-            onChange={handleAuthorSelect}
-          >
-            <option value="">-- Select saved author or add new below --</option>
-            {authors.map((author) => (
-              <option key={author._id} value={author._id}>
-                {author.name}
+          <div className="flex items-center gap-2">
+            <select
+              {...contentDirectionProps}
+              className={`${selectFieldCls} flex-1`}
+              name="authorId"
+              value={form.authorId}
+              onChange={handleAuthorSelect}
+            >
+              <option value="">
+                -- Select saved author or add new below --
               </option>
-            ))}
-          </select>
+              {authors.map((author) => (
+                <option key={author._id} value={author._id}>
+                  {author.name}
+                </option>
+              ))}
+            </select>
+
+            {form.authorId && (
+              <button
+                type="button"
+                title="Edit author details"
+                onClick={openEditAuthor}
+                className="p-2 rounded-lg border border-[#ccc] hover:bg-gray-50 shrink-0"
+              >
+                ✏️
+              </button>
+            )}
+          </div>
 
           <label className={labelCls}>Author:</label>
           <input
@@ -627,6 +691,48 @@ export default function AddBook() {
           </button>
         </form>
       </div>
+
+      {/* Edit Author Modal */}
+      {editingAuthor && (
+        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[500px]">
+          <strong className="block text-[1.1rem] mb-3">Edit Author</strong>
+
+          <label className={labelCls}>Name:</label>
+          <input
+            className={fieldCls}
+            value={editingAuthor.name}
+            onChange={(e) =>
+              setEditingAuthor({ ...editingAuthor, name: e.target.value })
+            }
+          />
+
+          <label className={labelCls}>Bio:</label>
+          <textarea
+            className={fieldCls}
+            value={editingAuthor.bio || ""}
+            onChange={(e) =>
+              setEditingAuthor({ ...editingAuthor, bio: e.target.value })
+            }
+          />
+
+          <div className="flex gap-3 mt-4">
+            <button
+              type="button"
+              className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
+              onClick={handleSaveAuthor}
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
+              onClick={closeEditAuthor}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Success/Error Modal */}
       {modal.show && (
