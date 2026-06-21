@@ -1,6 +1,5 @@
 // src/pages/AddBook.jsx
 import React, { useState, useEffect } from "react";
-import AdminHeader from "../../Components/Admin/Header";
 import { submitBook, fetchAuthors } from "../../api/adminBook";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 
@@ -27,40 +26,86 @@ export default function AddBook() {
     category: "",
     language: "en",
   });
+
   const [chapters, setChapters] = useState([]);
   const [modal, setModal] = useState({ show: false, title: "", message: "" });
   const [deletePageIndex, setDeletePageIndex] = useState(null);
   const [authors, setAuthors] = useState([]);
+
+  const isArabic = form.language === "ar";
+
+  const contentDirectionProps = isArabic
+    ? {
+        dir: "rtl",
+        lang: "ar",
+        style: { unicodeBidi: "plaintext" },
+      }
+    : {
+        dir: "ltr",
+        lang: "en",
+        style: { unicodeBidi: "plaintext" },
+      };
+
+  const fieldCls =
+    "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
+
+  const labelCls = "font-bold mt-4 block text-[var(--bg-color-header)]";
+
+  const contentFieldCls = `${fieldCls} ${
+    isArabic ? "text-right leading-8" : "text-left"
+  }`;
+
+  const selectFieldCls = `${fieldCls} ${isArabic ? "text-right" : "text-left"}`;
+
+  const referenceFieldCls = `flex-1 mb-0 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${
+    isArabic ? "text-right leading-8" : "text-left"
+  }`;
+
+  const referenceRowCls = `flex items-center gap-2 mb-2 ${
+    isArabic ? "flex-row-reverse" : ""
+  }`;
+
   useEffect(() => {
     fetchAuthors(form.language)
       .then(setAuthors)
       .catch(() => setAuthors([]));
   }, [form.language]);
+
   // 🔢 Get global page number for a chapter/page index
   const getGlobalPageNumber = (chapterIdx, pageIdx) => {
     let counter = 1;
+
     for (let i = 0; i < chapters.length; i++) {
       for (let j = 0; j < chapters[i].pages.length; j++) {
         if (i === chapterIdx && j === pageIdx) return counter;
         counter++;
       }
     }
+
     return counter;
   };
 
   // --- Chapter Helpers ---
-  const addChapter = () => setChapters([...chapters, { title: "", pages: [] }]);
-  const updateChapter = (idx, newChapter) =>
+  const addChapter = () => {
+    setChapters([...chapters, { title: "", pages: [] }]);
+  };
+
+  const updateChapter = (idx, newChapter) => {
     setChapters(chapters.map((ch, i) => (i === idx ? newChapter : ch)));
-  const removeChapter = (idx) =>
+  };
+
+  const removeChapter = (idx) => {
     setChapters(chapters.filter((_, i) => i !== idx));
+  };
 
   const addPage = (chapterIdx) => {
     const chs = [...chapters];
+
     chs[chapterIdx].pages.push({
       references: [],
       blocks: [],
     });
+
     setChapters(chs);
   };
 
@@ -72,6 +117,7 @@ export default function AddBook() {
           : { ...ch, pages: ch.pages.filter((_, j) => j !== pageIdx) },
       ),
     );
+
     setDeletePageIndex(null);
   };
 
@@ -81,11 +127,13 @@ export default function AddBook() {
     chs[chapterIdx].pages[pageIdx].references.push("");
     setChapters(chs);
   };
+
   const updateReference = (chapterIdx, pageIdx, refIdx, val) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].references[refIdx] = val;
     setChapters(chs);
   };
+
   const removeReference = (chapterIdx, pageIdx, refIdx) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].references.splice(refIdx, 1);
@@ -95,6 +143,7 @@ export default function AddBook() {
   // --- Block Helpers ---
   const addBlock = (chapterIdx, pageIdx) => {
     const chs = [...chapters];
+
     chs[chapterIdx].pages[pageIdx].blocks.push({
       type: "heading",
       text: "",
@@ -102,13 +151,16 @@ export default function AddBook() {
       narrator: "",
       commentary: "",
     });
+
     setChapters(chs);
   };
+
   const updateBlock = (chapterIdx, pageIdx, blockIdx, block) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].blocks[blockIdx] = block;
     setChapters(chs);
   };
+
   const removeBlock = (chapterIdx, pageIdx, blockIdx) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].blocks.splice(blockIdx, 1);
@@ -135,6 +187,7 @@ export default function AddBook() {
       [name]: value,
     });
   };
+
   const handleAuthorSelect = (e) => {
     const selectedAuthorId = e.target.value;
 
@@ -172,6 +225,7 @@ export default function AddBook() {
           ...pg,
           number: pageCounter++,
         }));
+
         return {
           ...ch,
           number: chIdx + 1,
@@ -182,13 +236,16 @@ export default function AddBook() {
 
     try {
       await submitBook(bookData);
+
       const updatedAuthors = await fetchAuthors(form.language);
       setAuthors(updatedAuthors);
+
       setModal({
         show: true,
         title: "Success",
         message: "Book added successfully!",
       });
+
       setForm({
         title: "",
         authorId: "",
@@ -199,39 +256,28 @@ export default function AddBook() {
         category: "",
         language: "en",
       });
+
       setChapters([]);
     } catch (err) {
-      setModal({ show: true, title: "Error", message: err.message });
+      setModal({
+        show: true,
+        title: "Error",
+        message: err.message,
+      });
     }
   };
 
-  const closeModal = () => setModal({ ...modal, show: false });
+  const closeModal = () => {
+    setModal({ ...modal, show: false });
+  };
 
-  // Shared input/select/textarea classes (mirrors original: block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border)
-  const fieldCls =
-    "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
-  const labelCls = "font-bold mt-4 block text-[var(--bg-color-header)]";
-  const isArabic = form.language === "ar";
-
-  const contentDirectionProps = isArabic
-    ? { dir: "rtl", lang: "ar" }
-    : { dir: "ltr", lang: "en" };
-
-  const contentFieldCls = `${fieldCls} ${isArabic ? "text-right leading-8" : "text-left"}`;
-
-  const referenceFieldCls = `flex-1 mb-0 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${
-    isArabic ? "text-right leading-8" : "text-left"
-  }`;
   return (
     <AdminLayout>
-      {/* .container */}
       <div className="w-full max-w-[850px] flex flex-col items-center mx-auto font-[Segoe_UI,sans-serif]">
-        {/* h1 */}
         <h1 className="text-[2rem] mb-6 text-center text-[var(--bg-color-header)]">
           Add a New Book
         </h1>
 
-        {/* form */}
         <form
           onSubmit={handleSubmit}
           className="bg-white p-8 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.08)] w-full"
@@ -253,6 +299,8 @@ export default function AddBook() {
             value={form.language}
             onChange={handleFormChange}
             required
+            dir="ltr"
+            lang="en"
           >
             {LANGS.map((l) => (
               <option key={l.value} value={l.value}>
@@ -260,9 +308,11 @@ export default function AddBook() {
               </option>
             ))}
           </select>
+
           <label className={labelCls}>Saved Author:</label>
           <select
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={selectFieldCls}
             name="authorId"
             value={form.authorId}
             onChange={handleAuthorSelect}
@@ -295,6 +345,7 @@ export default function AddBook() {
             disabled={!!form.authorId}
             placeholder="Write a short biography or background of the author"
           />
+
           <label className={labelCls}>Description (if any):</label>
           <textarea
             {...contentDirectionProps}
@@ -303,6 +354,7 @@ export default function AddBook() {
             value={form.description}
             onChange={handleFormChange}
           />
+
           <label className={labelCls}>About the Book:</label>
           <textarea
             {...contentDirectionProps}
@@ -312,6 +364,7 @@ export default function AddBook() {
             onChange={handleFormChange}
             placeholder="Write details about the book, its purpose, topic, and importance"
           />
+
           <label className={labelCls}>Category:</label>
           <select
             className={fieldCls}
@@ -319,6 +372,8 @@ export default function AddBook() {
             value={form.category}
             onChange={handleFormChange}
             required
+            dir="ltr"
+            lang="en"
           >
             {CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
@@ -329,12 +384,10 @@ export default function AddBook() {
 
           {/* Chapters */}
           {chapters.map((ch, chIdx) => (
-            // .page-block
             <div
               key={chIdx}
               className="border border-[#ccc] p-4 mb-8 bg-[#fefefe] relative rounded-lg"
             >
-              {/* .remove-btn */}
               <button
                 type="button"
                 className="absolute top-[10px] right-[10px] bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
@@ -363,7 +416,6 @@ export default function AddBook() {
               {/* Pages */}
               <div>
                 {ch.pages.map((pg, pgIdx) => (
-                  // .page-block (nested)
                   <div
                     key={pgIdx}
                     className="border border-[#ccc] p-4 mb-8 bg-[#f9f9f9] relative rounded-lg"
@@ -383,16 +435,15 @@ export default function AddBook() {
                     </h4>
 
                     <label className={labelCls}>References:</label>
+
                     {pg.references.length === 0 && (
                       <p className="italic text-[#888]">
                         No references added yet.
                       </p>
                     )}
+
                     {pg.references.map((ref, refIdx) => (
-                      <div
-                        key={refIdx}
-                        className="flex items-center gap-2 mb-2"
-                      >
+                      <div key={refIdx} className={referenceRowCls}>
                         <input
                           {...contentDirectionProps}
                           className={referenceFieldCls}
@@ -407,6 +458,7 @@ export default function AddBook() {
                           }
                           placeholder="Reference"
                         />
+
                         <button
                           type="button"
                           className="bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
@@ -416,7 +468,7 @@ export default function AddBook() {
                         </button>
                       </div>
                     ))}
-                    {/* .add-btn */}
+
                     <button
                       type="button"
                       className="bg-[var(--bg-color-header)] text-white border-none py-2 px-4 mt-2 cursor-pointer font-bold rounded-lg w-fit"
@@ -428,6 +480,7 @@ export default function AddBook() {
                     <hr className="my-6 border-t border-[#ccc]" />
 
                     <label className={labelCls}>Content:</label>
+
                     {pg.blocks.length === 0 && (
                       <p className="italic text-[#888]">
                         No content on this page yet.
@@ -435,7 +488,6 @@ export default function AddBook() {
                     )}
 
                     {pg.blocks.map((block, blockIdx) => (
-                      // .block
                       <div
                         key={blockIdx}
                         className="border border-dashed border-[#999] my-4 p-4 bg-[#f9f9f9] relative rounded-lg box-border"
@@ -450,8 +502,7 @@ export default function AddBook() {
 
                         <label className={labelCls}>Type</label>
                         <select
-                          {...contentDirectionProps}
-                          className={contentFieldCls}
+                          className={fieldCls}
                           value={block.type}
                           onChange={(e) =>
                             updateBlock(chIdx, pgIdx, blockIdx, {
@@ -459,6 +510,8 @@ export default function AddBook() {
                               type: e.target.value,
                             })
                           }
+                          dir="ltr"
+                          lang="en"
                         >
                           <option value="heading">Heading</option>
                           <option value="paragraph">Paragraph</option>
@@ -583,6 +636,7 @@ export default function AddBook() {
           <br />
           <br />
           <button
+            type="button"
             onClick={closeModal}
             className="bg-[#287346] text-white border-none py-2 px-4 font-bold rounded-[6px] cursor-pointer"
           >
@@ -603,6 +657,7 @@ export default function AddBook() {
           <br />
           <br />
           <button
+            type="button"
             className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer mr-4"
             onClick={() =>
               removePage(deletePageIndex.chapter, deletePageIndex.page)
@@ -611,6 +666,7 @@ export default function AddBook() {
             Yes
           </button>
           <button
+            type="button"
             className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
             onClick={() => setDeletePageIndex(null)}
           >
