@@ -15,7 +15,7 @@ function Home() {
     <>
       <Header
         title="Ask Sunnah"
-        subtitle="Authentic answers from Dr. Sheikh Falah Kurkully – grounded in Qur'an and Sunnah"
+        subtitle="Authentic answers from Dr. Sheikh Falah Kurkully , grounded in Qur'an and Sunnah"
       />
       <Navbar
         dir="ltr"
