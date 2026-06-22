@@ -6,6 +6,7 @@ import Header from "../../Components/Home/Header";
 import IntroSection from "../../Components/Home/IntroSection";
 import RecentAnswers from "../../Components/Home/RecentAnswers";
 import AskQuestionModal from "../../Components/Home/AskQuestionModal";
+import PinnedSection from "../../Components/Home/PinnedSection";
 import { fetchAllFatwas } from "../../api/fatwa";
 
 function Home() {
@@ -15,7 +16,7 @@ function Home() {
     <>
       <Header
         title="Ask Sunnah"
-        subtitle="Authentic answers from Dr. Sheikh Falah Kurkully – grounded in Qur'an and Sunnah"
+        subtitle="Ask. Learn. Follow Sunnah"
       />
       <Navbar
         dir="ltr"
@@ -40,9 +41,13 @@ function Home() {
           max-md:px-4 max-md:py-4 max-md:mx-4 max-md:bg-white max-md:rounded-none max-md:shadow-none
         "
       >
+        {/* Pinned section now leads — first thing after the hero, before
+            the Ask a Question CTA. See PinnedSection.jsx for placement notes. */}
+        <PinnedSection lang="en" direction="ltr" />
+
         <IntroSection
-          heading="Ask a Question!"
-          description="Have a question about Islam? Submit it and get a response directly from Dr. Sheikh Falah Kurkully, based on one clear opinion from trusted scholars."
+          heading="Ask about your Religion"
+          description="Send your question and receive an authentic, evidence-based answer drawn from the Qur’an and Sunnah, according to the understanding of the Salaf of this Ummah and the explanations of trusted scholars, answered by Dr. Sheikh Falah Kurkully"
           buttonLabel="Submit Your Question"
           buttonLangLink="/ar/"
           onOpenModal={() => setIsModalOpen(true)}

@@ -39,6 +39,7 @@ import FeedbackFormArabicPage from './Pages/FeedbackFormPageArabic';
 import TermsArabic from "./Pages/Terms/TermsArabic";
 import TermsEnglish from "./Pages/Terms/TermsEnglish";
 import SearchResults from "./Pages/Home/SearchResults";
+import PinnedSectionPage from "./Pages/Admin/PinnedSectionPage";
 
 import './App.css';
 function App() {
@@ -85,6 +86,7 @@ function App() {
           <Route path="/supervised/user-feedback" element={
             <ProtectedRoute><Feedback /></ProtectedRoute>
           } />
+          <Route path="/supervised/pinned-section" element={<PinnedSectionPage />} />
           <Route path="/supervised/reports" element={<AdminReports />} />
           <Route path="/supervised/books/en" element={<AllBooks lang="en" />} />
           <Route path="/supervised/books/ar" element={<AllBooks lang="ar" />} />

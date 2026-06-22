@@ -11,7 +11,8 @@ import {
   X,
   ArrowUpRight,
   MessageCircleHeart,
-  Flag
+  Flag,
+  Pin
 } from "lucide-react";
 
 const MENU = [
@@ -28,6 +29,11 @@ const MENU = [
     route: "/supervised/user-feedback",
   },
    { label: "Reports", icon: Flag, route: "/supervised/reports" },
+   {
+  label: "Pinned section",
+  icon: Pin, 
+  route: "/supervised/pinned-section",
+}
 ];
 
 export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
