@@ -1,7 +1,6 @@
 // src/pages/AddBook.jsx
-import React, { useState } from "react";
-import AdminHeader from "../../Components/Admin/Header";
-import { submitBook } from "../../api/adminBook";
+import React, { useState, useEffect } from "react";
+import { submitBook, fetchAuthors, updateAuthor } from "../../api/adminBook";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 
 const CATEGORIES = [
@@ -19,6 +18,7 @@ const LANGS = [
 export default function AddBook() {
   const [form, setForm] = useState({
     title: "",
+    authorId: "",
     author: "",
     description: "",
     authorBio: "",
@@ -26,35 +26,87 @@ export default function AddBook() {
     category: "",
     language: "en",
   });
+
   const [chapters, setChapters] = useState([]);
   const [modal, setModal] = useState({ show: false, title: "", message: "" });
   const [deletePageIndex, setDeletePageIndex] = useState(null);
+  const [authors, setAuthors] = useState([]);
+  const [editingAuthor, setEditingAuthor] = useState(null); // { _id, name, bio } | null
+
+  const isArabic = form.language === "ar";
+
+  const contentDirectionProps = isArabic
+    ? {
+        dir: "rtl",
+        lang: "ar",
+        style: { unicodeBidi: "plaintext" },
+      }
+    : {
+        dir: "ltr",
+        lang: "en",
+        style: { unicodeBidi: "plaintext" },
+      };
+
+  const fieldCls =
+    "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
+
+  const labelCls = "font-bold mt-4 block text-[var(--bg-color-header)]";
+
+  const contentFieldCls = `${fieldCls} ${
+    isArabic ? "text-right leading-8" : "text-left"
+  }`;
+
+  const selectFieldCls = `${fieldCls} ${isArabic ? "text-right" : "text-left"}`;
+
+  const referenceFieldCls = `flex-1 mb-0 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${
+    isArabic ? "text-right leading-8" : "text-left"
+  }`;
+
+  const referenceRowCls = `flex items-center gap-2 mb-2 ${
+    isArabic ? "flex-row-reverse" : ""
+  }`;
+
+  useEffect(() => {
+    fetchAuthors(form.language)
+      .then(setAuthors)
+      .catch(() => setAuthors([]));
+  }, [form.language]);
 
   // 🔢 Get global page number for a chapter/page index
   const getGlobalPageNumber = (chapterIdx, pageIdx) => {
     let counter = 1;
+
     for (let i = 0; i < chapters.length; i++) {
       for (let j = 0; j < chapters[i].pages.length; j++) {
         if (i === chapterIdx && j === pageIdx) return counter;
         counter++;
       }
     }
+
     return counter;
   };
 
   // --- Chapter Helpers ---
-  const addChapter = () => setChapters([...chapters, { title: "", pages: [] }]);
-  const updateChapter = (idx, newChapter) =>
+  const addChapter = () => {
+    setChapters([...chapters, { title: "", pages: [] }]);
+  };
+
+  const updateChapter = (idx, newChapter) => {
     setChapters(chapters.map((ch, i) => (i === idx ? newChapter : ch)));
-  const removeChapter = (idx) =>
+  };
+
+  const removeChapter = (idx) => {
     setChapters(chapters.filter((_, i) => i !== idx));
+  };
 
   const addPage = (chapterIdx) => {
     const chs = [...chapters];
+
     chs[chapterIdx].pages.push({
       references: [],
       blocks: [],
     });
+
     setChapters(chs);
   };
 
@@ -66,6 +118,7 @@ export default function AddBook() {
           : { ...ch, pages: ch.pages.filter((_, j) => j !== pageIdx) },
       ),
     );
+
     setDeletePageIndex(null);
   };
 
@@ -75,11 +128,13 @@ export default function AddBook() {
     chs[chapterIdx].pages[pageIdx].references.push("");
     setChapters(chs);
   };
+
   const updateReference = (chapterIdx, pageIdx, refIdx, val) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].references[refIdx] = val;
     setChapters(chs);
   };
+
   const removeReference = (chapterIdx, pageIdx, refIdx) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].references.splice(refIdx, 1);
@@ -89,6 +144,7 @@ export default function AddBook() {
   // --- Block Helpers ---
   const addBlock = (chapterIdx, pageIdx) => {
     const chs = [...chapters];
+
     chs[chapterIdx].pages[pageIdx].blocks.push({
       type: "heading",
       text: "",
@@ -96,13 +152,16 @@ export default function AddBook() {
       narrator: "",
       commentary: "",
     });
+
     setChapters(chs);
   };
+
   const updateBlock = (chapterIdx, pageIdx, blockIdx, block) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].blocks[blockIdx] = block;
     setChapters(chs);
   };
+
   const removeBlock = (chapterIdx, pageIdx, blockIdx) => {
     const chs = [...chapters];
     chs[chapterIdx].pages[pageIdx].blocks.splice(blockIdx, 1);
@@ -110,8 +169,98 @@ export default function AddBook() {
   };
 
   // --- Form Handlers ---
-  const handleFormChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "language") {
+      setForm({
+        ...form,
+        language: value,
+        authorId: "",
+        author: "",
+        authorBio: "",
+      });
+      return;
+    }
+
+    setForm({
+      ...form,
+      [name]: value,
+    });
+  };
+
+  const handleAuthorSelect = (e) => {
+    const selectedAuthorId = e.target.value;
+
+    if (!selectedAuthorId) {
+      setForm({
+        ...form,
+        authorId: "",
+        author: "",
+        authorBio: "",
+      });
+      return;
+    }
+
+    const selectedAuthor = authors.find((a) => a._id === selectedAuthorId);
+
+    if (!selectedAuthor) return;
+
+    setForm({
+      ...form,
+      authorId: selectedAuthor._id,
+      author: selectedAuthor.name,
+      authorBio: selectedAuthor.bio || "",
+    });
+  };
+
+  // --- Author Edit Handlers ---
+  const openEditAuthor = () => {
+    const a = authors.find((x) => x._id === form.authorId);
+    if (a) setEditingAuthor({ ...a });
+  };
+
+  const closeEditAuthor = () => {
+    setEditingAuthor(null);
+  };
+
+  const handleSaveAuthor = async () => {
+    if (!editingAuthor?.name?.trim()) {
+      setModal({
+        show: true,
+        title: "Error",
+        message: "Author name is required.",
+      });
+      return;
+    }
+
+    try {
+      const updated = await updateAuthor(editingAuthor._id, {
+        name: editingAuthor.name,
+        bio: editingAuthor.bio,
+      });
+
+      setAuthors((prev) =>
+        prev.map((a) => (a._id === updated._id ? updated : a)),
+      );
+
+      // Sync the currently-open form too, since it holds a local
+      // copy of author/authorBio (denormalized onto the book on submit).
+      setForm((f) =>
+        f.authorId === updated._id
+          ? { ...f, author: updated.name, authorBio: updated.bio }
+          : f,
+      );
+
+      setEditingAuthor(null);
+    } catch (err) {
+      setModal({
+        show: true,
+        title: "Error",
+        message: err.message,
+      });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -125,6 +274,7 @@ export default function AddBook() {
           ...pg,
           number: pageCounter++,
         }));
+
         return {
           ...ch,
           number: chIdx + 1,
@@ -135,13 +285,19 @@ export default function AddBook() {
 
     try {
       await submitBook(bookData);
+
+      const updatedAuthors = await fetchAuthors(form.language);
+      setAuthors(updatedAuthors);
+
       setModal({
         show: true,
         title: "Success",
         message: "Book added successfully!",
       });
+
       setForm({
         title: "",
+        authorId: "",
         author: "",
         description: "",
         authorBio: "",
@@ -149,36 +305,36 @@ export default function AddBook() {
         category: "",
         language: "en",
       });
+
       setChapters([]);
     } catch (err) {
-      setModal({ show: true, title: "Error", message: err.message });
+      setModal({
+        show: true,
+        title: "Error",
+        message: err.message,
+      });
     }
   };
 
-  const closeModal = () => setModal({ ...modal, show: false });
-
-  // Shared input/select/textarea classes (mirrors original: block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border)
-  const fieldCls =
-    "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
-  const labelCls = "font-bold mt-4 block text-[var(--bg-color-header)]";
+  const closeModal = () => {
+    setModal({ ...modal, show: false });
+  };
 
   return (
     <AdminLayout>
-      {/* .container */}
       <div className="w-full max-w-[850px] flex flex-col items-center mx-auto font-[Segoe_UI,sans-serif]">
-        {/* h1 */}
         <h1 className="text-[2rem] mb-6 text-center text-[var(--bg-color-header)]">
           Add a New Book
         </h1>
 
-        {/* form */}
         <form
           onSubmit={handleSubmit}
           className="bg-white p-8 rounded-[10px] shadow-[0_2px_8px_rgba(0,0,0,0.08)] w-full"
         >
           <label className={labelCls}>Title:</label>
           <input
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="title"
             value={form.title}
             onChange={handleFormChange}
@@ -192,6 +348,8 @@ export default function AddBook() {
             value={form.language}
             onChange={handleFormChange}
             required
+            dir="ltr"
+            lang="en"
           >
             {LANGS.map((l) => (
               <option key={l.value} value={l.value}>
@@ -199,36 +357,78 @@ export default function AddBook() {
               </option>
             ))}
           </select>
+
+          <label className={labelCls}>Saved Author:</label>
+          <div className="flex items-center gap-2">
+            <select
+              {...contentDirectionProps}
+              className={`${selectFieldCls} flex-1`}
+              name="authorId"
+              value={form.authorId}
+              onChange={handleAuthorSelect}
+            >
+              <option value="">
+                -- Select saved author or add new below --
+              </option>
+              {authors.map((author) => (
+                <option key={author._id} value={author._id}>
+                  {author.name}
+                </option>
+              ))}
+            </select>
+
+            {form.authorId && (
+              <button
+                type="button"
+                title="Edit author details"
+                onClick={openEditAuthor}
+                className="p-2 rounded-lg border border-[#ccc] hover:bg-gray-50 shrink-0"
+              >
+                ✏️
+              </button>
+            )}
+          </div>
+
           <label className={labelCls}>Author:</label>
           <input
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="author"
             value={form.author}
             onChange={handleFormChange}
+            disabled={!!form.authorId}
           />
+
           <label className={labelCls}>About the Author:</label>
           <textarea
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="authorBio"
             value={form.authorBio}
             onChange={handleFormChange}
+            disabled={!!form.authorId}
             placeholder="Write a short biography or background of the author"
           />
+
           <label className={labelCls}>Description (if any):</label>
           <textarea
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="description"
             value={form.description}
             onChange={handleFormChange}
           />
+
           <label className={labelCls}>About the Book:</label>
           <textarea
-            className={fieldCls}
+            {...contentDirectionProps}
+            className={contentFieldCls}
             name="aboutBook"
             value={form.aboutBook}
             onChange={handleFormChange}
             placeholder="Write details about the book, its purpose, topic, and importance"
           />
+
           <label className={labelCls}>Category:</label>
           <select
             className={fieldCls}
@@ -236,6 +436,8 @@ export default function AddBook() {
             value={form.category}
             onChange={handleFormChange}
             required
+            dir="ltr"
+            lang="en"
           >
             {CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
@@ -244,15 +446,12 @@ export default function AddBook() {
             ))}
           </select>
 
-
           {/* Chapters */}
           {chapters.map((ch, chIdx) => (
-            // .page-block
             <div
               key={chIdx}
               className="border border-[#ccc] p-4 mb-8 bg-[#fefefe] relative rounded-lg"
             >
-              {/* .remove-btn */}
               <button
                 type="button"
                 className="absolute top-[10px] right-[10px] bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
@@ -265,7 +464,8 @@ export default function AddBook() {
 
               <label className={labelCls}>Chapter Title:</label>
               <input
-                className={fieldCls}
+                {...contentDirectionProps}
+                className={contentFieldCls}
                 value={ch.title}
                 onChange={(e) =>
                   updateChapter(chIdx, {
@@ -280,7 +480,6 @@ export default function AddBook() {
               {/* Pages */}
               <div>
                 {ch.pages.map((pg, pgIdx) => (
-                  // .page-block (nested)
                   <div
                     key={pgIdx}
                     className="border border-[#ccc] p-4 mb-8 bg-[#f9f9f9] relative rounded-lg"
@@ -300,18 +499,18 @@ export default function AddBook() {
                     </h4>
 
                     <label className={labelCls}>References:</label>
+
                     {pg.references.length === 0 && (
                       <p className="italic text-[#888]">
                         No references added yet.
                       </p>
                     )}
+
                     {pg.references.map((ref, refIdx) => (
-                      <div
-                        key={refIdx}
-                        className="flex items-center gap-2 mb-2"
-                      >
+                      <div key={refIdx} className={referenceRowCls}>
                         <input
-                          className="flex-1 mb-0 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+                          {...contentDirectionProps}
+                          className={referenceFieldCls}
                           value={ref}
                           onChange={(e) =>
                             updateReference(
@@ -323,6 +522,7 @@ export default function AddBook() {
                           }
                           placeholder="Reference"
                         />
+
                         <button
                           type="button"
                           className="bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
@@ -332,7 +532,7 @@ export default function AddBook() {
                         </button>
                       </div>
                     ))}
-                    {/* .add-btn */}
+
                     <button
                       type="button"
                       className="bg-[var(--bg-color-header)] text-white border-none py-2 px-4 mt-2 cursor-pointer font-bold rounded-lg w-fit"
@@ -344,6 +544,7 @@ export default function AddBook() {
                     <hr className="my-6 border-t border-[#ccc]" />
 
                     <label className={labelCls}>Content:</label>
+
                     {pg.blocks.length === 0 && (
                       <p className="italic text-[#888]">
                         No content on this page yet.
@@ -351,7 +552,6 @@ export default function AddBook() {
                     )}
 
                     {pg.blocks.map((block, blockIdx) => (
-                      // .block
                       <div
                         key={blockIdx}
                         className="border border-dashed border-[#999] my-4 p-4 bg-[#f9f9f9] relative rounded-lg box-border"
@@ -374,6 +574,8 @@ export default function AddBook() {
                               type: e.target.value,
                             })
                           }
+                          dir="ltr"
+                          lang="en"
                         >
                           <option value="heading">Heading</option>
                           <option value="paragraph">Paragraph</option>
@@ -384,7 +586,8 @@ export default function AddBook() {
 
                         <label className={labelCls}>Text</label>
                         <textarea
-                          className={fieldCls}
+                          {...contentDirectionProps}
+                          className={contentFieldCls}
                           value={block.text}
                           onChange={(e) =>
                             updateBlock(chIdx, pgIdx, blockIdx, {
@@ -399,7 +602,8 @@ export default function AddBook() {
                           <>
                             <label className={labelCls}>Reference</label>
                             <input
-                              className={fieldCls}
+                              {...contentDirectionProps}
+                              className={contentFieldCls}
                               value={block.reference}
                               onChange={(e) =>
                                 updateBlock(chIdx, pgIdx, blockIdx, {
@@ -415,7 +619,8 @@ export default function AddBook() {
                           <>
                             <label className={labelCls}>Narrator</label>
                             <input
-                              className={fieldCls}
+                              {...contentDirectionProps}
+                              className={contentFieldCls}
                               value={block.narrator}
                               onChange={(e) =>
                                 updateBlock(chIdx, pgIdx, blockIdx, {
@@ -431,7 +636,8 @@ export default function AddBook() {
                           <>
                             <label className={labelCls}>Commentary</label>
                             <textarea
-                              className={fieldCls}
+                              {...contentDirectionProps}
+                              className={contentFieldCls}
                               value={block.commentary}
                               onChange={(e) =>
                                 updateBlock(chIdx, pgIdx, blockIdx, {
@@ -486,6 +692,48 @@ export default function AddBook() {
         </form>
       </div>
 
+      {/* Edit Author Modal */}
+      {editingAuthor && (
+        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[500px]">
+          <strong className="block text-[1.1rem] mb-3">Edit Author</strong>
+
+          <label className={labelCls}>Name:</label>
+          <input
+            className={fieldCls}
+            value={editingAuthor.name}
+            onChange={(e) =>
+              setEditingAuthor({ ...editingAuthor, name: e.target.value })
+            }
+          />
+
+          <label className={labelCls}>Bio:</label>
+          <textarea
+            className={fieldCls}
+            value={editingAuthor.bio || ""}
+            onChange={(e) =>
+              setEditingAuthor({ ...editingAuthor, bio: e.target.value })
+            }
+          />
+
+          <div className="flex gap-3 mt-4">
+            <button
+              type="button"
+              className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
+              onClick={handleSaveAuthor}
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
+              onClick={closeEditAuthor}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Success/Error Modal */}
       {modal.show && (
         <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-4 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[9999] w-[90%] max-w-[600px] text-center text-base">
@@ -494,6 +742,7 @@ export default function AddBook() {
           <br />
           <br />
           <button
+            type="button"
             onClick={closeModal}
             className="bg-[#287346] text-white border-none py-2 px-4 font-bold rounded-[6px] cursor-pointer"
           >
@@ -514,6 +763,7 @@ export default function AddBook() {
           <br />
           <br />
           <button
+            type="button"
             className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer mr-4"
             onClick={() =>
               removePage(deletePageIndex.chapter, deletePageIndex.page)
@@ -522,6 +772,7 @@ export default function AddBook() {
             Yes
           </button>
           <button
+            type="button"
             className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
             onClick={() => setDeletePageIndex(null)}
           >

@@ -17,7 +17,7 @@ export async function fetchBooksAdmin(
   lang = "en",
   page = 1,
   limit = 20,
-  search = ""
+  search = "",
 ) {
   const params = new URLSearchParams();
 
@@ -103,4 +103,46 @@ export async function reorderBooksAdmin(lang, bookId, newOrder) {
   }
 
   return data.books;
+}
+export async function fetchAuthors(lang = "en") {
+  const res = await fetch(`${API_BASE}/api/authors?language=${lang}`);
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to fetch authors");
+  }
+
+  return data.authors;
+}
+
+export async function createAuthor(authorData) {
+  const res = await fetch(`${API_BASE}/api/authors`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(authorData),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to save author");
+  }
+
+  return data.author;
+}
+
+export async function updateAuthor(authorId, authorData) {
+  const res = await fetch(`${API_BASE}/api/authors/${authorId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(authorData),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to update author");
+  }
+
+  return data.author;
 }
