@@ -10,7 +10,7 @@ const AboutEnglish = () => {
     <>
       <Header
         title="About Us"
-        subtitle="Authentic answers from Dr. Sheikh Falah Kurkully – grounded in Qur'an and Sunnah"
+          subtitleLines={["Ask. Learn.", "Follow the Sunnah."]}
       />
       <Navbar
         dir="ltr"
