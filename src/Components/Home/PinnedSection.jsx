@@ -77,6 +77,13 @@ function SelectedBlock({ section, direction, isRTL }) {
     ? "إجابات موثوقة يكثر السؤال عنها"
     : "Trusted answers people are asking about most";
 
+  // With a single pinned question, a narrow card centered in a wide
+  // gradient box just shifts dead space from "beside the card" to
+  // "both sides of the card." Instead, render it full-width as a
+  // horizontal featured row (handled below) so it fills the space
+  // intentionally rather than floating in it.
+  const isSingle = questions.length === 1;
+
   return (
     <section dir={direction} className="mb-8">
       <div
@@ -107,7 +114,7 @@ function SelectedBlock({ section, direction, isRTL }) {
               shadow-sm shrink-0
             "
           >
-            <Sparkles size={19} className="text-white" />
+            <Sparkles size={18} className="text-white" fill="white" />
           </div>
 
 
@@ -132,7 +139,125 @@ function SelectedBlock({ section, direction, isRTL }) {
 
 
         {/* Questions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {isSingle ? (
+          // Single pinned question: instead of squeezing it into the same
+          // narrow vertical card used for grids (which either stretches
+          // awkwardly or leaves dead space beside it), render it as one
+          // full-width horizontal "featured" row — title + snippet on one
+          // side, a clear CTA on the other. Reads as a deliberate spotlight.
+          (() => {
+            const q = questions[0];
+            const href =
+              q.lang === "ar"
+                ? `/ar/questions/${q.slug}`
+                : `/questions/${q.slug}`;
+            const readMoreLabel = isRTL
+              ? "اقرأ الإجابة كاملة"
+              : "Read full answer";
+
+            return (
+              <Link
+                to={href}
+                dir={direction}
+                className={`
+                  group
+                  flex flex-col sm:flex-row
+                  items-stretch sm:items-center
+                  justify-between
+                  gap-4
+                  rounded-2xl
+                  bg-white
+                  border border-gray-100
+                  px-6 py-5
+                  shadow-sm
+                  hover:shadow-md
+                  hover:border-[#c3a421]/40
+                  transition-all duration-300
+                  no-underline
+                `}
+              >
+                <div
+                  className={`flex flex-col gap-1.5 min-w-0 ${isRTL ? "text-right" : "text-left"}`}
+                >
+                  <p
+                    className="
+                      m-0
+                      text-[1.02rem]
+                      font-semibold
+                      leading-relaxed
+                      text-[var(--text-main)]
+                      group-hover:text-[var(--bg-color-header)]
+                      transition-colors
+                    "
+                  >
+                    {q.heading}
+                  </p>
+
+                  {q.snippet && (
+                    <p
+                      className="
+                        m-0
+                        text-[0.85rem]
+                        leading-relaxed
+                        text-gray-500
+                        line-clamp-2
+                      "
+                    >
+                      {q.snippet}
+                    </p>
+                  )}
+                </div>
+
+                <div
+                  className={`
+                    flex items-center gap-2 shrink-0
+                    ${isRTL ? "self-start sm:self-auto" : "self-end sm:self-auto"}
+                  `}
+                >
+                  <span
+                    className="
+                      text-[0.85rem]
+                      font-semibold
+                      text-[#c3a421]
+                      group-hover:text-[var(--bg-color-header)]
+                      transition-colors
+                      whitespace-nowrap
+                    "
+                  >
+                    {readMoreLabel}
+                  </span>
+
+                  <span
+                    className="
+                      w-8 h-8
+                      rounded-lg
+                      bg-[#fff8dc]
+                      flex items-center justify-center
+                      shrink-0
+                      group-hover:bg-[#c3a421]
+                      transition-colors
+                    "
+                  >
+                    <ArrowRight
+                      size={15}
+                      className="
+                        text-[#c3a421]
+                        group-hover:text-white
+                        transition-colors
+                      "
+                      style={
+                        isRTL
+                          ? { transform: "rotate(180deg)" }
+                          : undefined
+                      }
+                    />
+                  </span>
+                </div>
+              </Link>
+            );
+          })()
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           {questions.map((q, i) => {
 
@@ -251,7 +376,8 @@ function SelectedBlock({ section, direction, isRTL }) {
             );
           })}
 
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

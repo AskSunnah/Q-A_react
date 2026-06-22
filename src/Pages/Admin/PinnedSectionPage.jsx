@@ -263,6 +263,14 @@ function SectionsList({ sections, loading, onCreateNew, onEdit, onToggle, onDele
           {sections.map((s) => {
             const isBusy = busyId === s._id;
             const expired = s.expiresAt && new Date(s.expiresAt) < new Date();
+
+            // Only show the title(s) for whichever language(s) this
+            // section actually targets. Sections saved as "en" or "ar"
+            // only get one title shown, even though the schema mirrors
+            // the same text into both title.en/title.ar under the hood.
+            const showEn = s.lang === "en" || s.lang === "both";
+            const showAr = s.lang === "ar" || s.lang === "both";
+
             return (
               <li
                 key={s._id}
@@ -272,8 +280,10 @@ function SectionsList({ sections, loading, onCreateNew, onEdit, onToggle, onDele
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <strong className="font-bold text-slate-800">{s.title?.en}</strong>
-                    {s.title?.ar && (
+                    {showEn && (
+                      <strong className="font-bold text-slate-800">{s.title?.en}</strong>
+                    )}
+                    {showAr && s.title?.ar && (
                       <span dir="rtl" className="text-slate-500 font-medium">
                         {s.title.ar}
                       </span>
@@ -423,13 +433,15 @@ function SectionForm({ editingSection, onBack, onSaved, token }) {
 
     try {
       const body = {
-        // Store whichever language's title was actually filled — if only
-        // one language is active, mirror it into the other slot too so
-        // the schema's required en/ar fields are always satisfied and
-        // nothing breaks if lang is changed to "both" later.
+        // Only persist the title(s) that are actually in scope for this
+        // section's language. We previously mirrored whichever title was
+        // filled into both en/ar slots — that's what caused single-language
+        // sections to display both an English and an Arabic title in the
+        // admin list. Now an "en"-only or "ar"-only section stores just
+        // that one field; the unused slot is left empty.
         title: {
-          en: resolvedTitleEn || resolvedTitleAr,
-          ar: resolvedTitleAr || resolvedTitleEn,
+          en: needsEn ? resolvedTitleEn : "",
+          ar: needsAr ? resolvedTitleAr : "",
         },
         type: needsEn ? form.en.preset : form.ar.preset,
         lang: form.lang,
@@ -760,7 +772,7 @@ export default function PinnedSectionPage() {
   };
 
   const handleDelete = async (section) => {
-    const name = section.title?.en || "this section";
+    const name = section.title?.en || section.title?.ar || "this section";
     if (!window.confirm(`Permanently delete "${name}"? This cannot be undone.`)) return;
 
     setBusyId(section._id);
