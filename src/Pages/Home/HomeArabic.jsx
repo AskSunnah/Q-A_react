@@ -6,6 +6,7 @@ import Header from "../../Components/Home/Header";
 import IntroSection from "../../Components/Home/IntroSection";
 import RecentAnswers from "../../Components/Home/RecentAnswers";
 import AskQuestionModal from "../../Components/Home/AskQuestionModal";
+import PinnedSection from "../../Components/Home/PinnedSection";
 import { fetchAllFatwasArabic } from "../../api/fatwa";
 
 function Home() {
@@ -15,7 +16,7 @@ function Home() {
     <>
       <Header
         title="اسأل السنة"
-        subtitle="احصل على إجابات شرعية موثوقة من الشيخ الدكتور فلاح كركولي — مستندة من القرآن والسنة"
+        subtitle="اسأل. تعلم. اتبع السنة."
         dir="rtl"
       />
       <Navbar
@@ -41,9 +42,13 @@ function Home() {
           max-md:px-4 max-md:py-4 max-md:mx-4 max-md:bg-white max-md:rounded-none max-md:shadow-none
         "
       >
+        {/* Pinned section now leads — first thing after the hero, before
+            the Ask a Question CTA. See PinnedSection.jsx for placement notes. */}
+        <PinnedSection lang="ar" direction="rtl" />
+
         <IntroSection
-          heading="أرسل سؤالك"
-          description="هل لديك سؤال عن الإسلام؟ أرسله الآن وستتلقى الرد من د. الشيخ فلاح كركولي وفق رأي موثوق من العلماء."
+          heading="اسأل عن دينك "
+          description="أرسل سؤالك، واحصل على جواب مؤصل من الكتاب والسنة، على فهم سلف الأمة وأقوال العلماء المعتبرين، يقدمه د.الشيخ فلاح كركولي"
           buttonLabel="أرسل سؤالك"
           buttonLangLink="/"
           onOpenModal={() => setIsModalOpen(true)}
