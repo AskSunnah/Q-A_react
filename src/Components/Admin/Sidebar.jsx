@@ -12,14 +12,24 @@ import {
   ArrowUpRight,
   MessageCircleHeart,
   Flag,
-  Pin
+  Pin,
+  PenLine,
 } from "lucide-react";
 
 const MENU = [
   { label: "Dashboard", icon: Home, route: "/supervised/dashboard" },
   {
-    label: "User Questions", icon: MessageSquare, route: "/supervised/user-questions",},
+    label: "User Questions",
+    icon: MessageSquare,
+    route: "/supervised/user-questions",
+  },
   { label: "All Q&As", icon: Files, route: "/supervised/all-qa" },
+  {
+    label: "Add Extra Q&A",
+    icon: PenLine,
+    route: "/supervised/add-qa-standalone",
+    // Standalone: no user question link
+  },
   { label: "Add Book", icon: BookPlus, route: "/supervised/add-book" },
   { label: "English Books", icon: Library, route: "/supervised/books/en" },
   { label: "Arabic Books", icon: Library, route: "/supervised/books/ar" },
@@ -105,7 +115,12 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
         {/* Menu */}
         <nav className="flex-1 overflow-y-auto mt-[10px] pb-[80px]">
           {MENU.map(({ label, icon: Icon, route }) => {
-            const isActive = pathname.includes(route);
+            // Active check: for standalone route, only match exactly
+            const isActive =
+              route === "/supervised/add-qa-standalone"
+                ? pathname === route
+                : pathname.startsWith(route);
+
             return (
               <NavLink
                 key={label}

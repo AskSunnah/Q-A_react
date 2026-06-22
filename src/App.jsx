@@ -65,6 +65,9 @@ function App() {
           <Route path="/supervised/dashboard" element={
             <ProtectedRoute><AdminDashboard /></ProtectedRoute>
           } />
+          <Route path="/supervised/add-qa-standalone" element={
+          <ProtectedRoute><AddQA /></ProtectedRoute>
+        } />
           <Route path="/supervised/add-qa" element={
             <ProtectedRoute><AddQA /></ProtectedRoute>
           } />

@@ -1,434 +1,531 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  getAllQuestions,
-  updateQuestionStatus,
-  deleteQuestion,
-} from "../../api/questions";
+import { useNavigate } from "react-router-dom";
+import AdminLayout from "../../Components/Admin/AdminLayout";
 import ConfirmationModal from "../../Components/ConfirmationModal";
 import {
   CheckCircle,
   Clock,
   Trash2,
-  Globe,
   User,
   Calendar,
-  Filter,
-  AlertCircle,
-  Mail,
   Search,
-  X,
+  ChevronLeft,
+  ChevronRight,
+  Mail,
+  AlertCircle,
 } from "lucide-react";
-import AdminLayout from "../../Components/Admin/AdminLayout";
-import { useNavigate } from "react-router-dom";
+import { getAllQuestions, deleteQuestion } from "../../api/questions";
 
 const PAGE_SIZE = 10;
 
+// Get creation date safely.
+// If createdAt is missing, MongoDB _id can still be used as a fallback.
+const getDateValue = (q) => {
+  if (q.createdAt) return new Date(q.createdAt).getTime();
+
+  if (q._id && /^[0-9a-fA-F]{24}$/.test(q._id)) {
+    return parseInt(q._id.substring(0, 8), 16) * 1000;
+  }
+
+  return 0;
+};
+
+// Derive effective dual-status from a question doc.
+// Old docs may only have "status", so we support that too.
+const getStatuses = (q) => {
+  const hasNewStatus = q.englishStatus || q.arabicStatus;
+
+  if (!hasNewStatus && q.status === "answered") {
+    return {
+      en: "answered",
+      ar: "answered",
+    };
+  }
+
+  return {
+    en: q.englishStatus || "unanswered",
+    ar: q.arabicStatus || "unanswered",
+  };
+};
+
+const isFullyAnswered = (q) => {
+  const { en, ar } = getStatuses(q);
+  return en === "answered" && ar === "answered";
+};
+
+const normalizeQuestions = (data) => {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.questions)) return data.questions;
+  return [];
+};
+
+function StatusBadge({ status, lang }) {
+  const answered = status === "answered";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-[3px] rounded-full border ${
+        answered
+          ? "bg-green-50 border-green-300 text-green-700"
+          : "bg-red-50 border-red-300 text-red-600"
+      }`}
+    >
+      {answered ? <CheckCircle size={11} /> : <Clock size={11} />}
+      {lang === "en" ? "English" : "Arabic"} {answered ? "Done" : "Pending"}
+    </span>
+  );
+}
+
+function AnswerButton({ status, lang, onClick }) {
+  const answered = status === "answered";
+  const label = lang === "en" ? "English" : "Arabic";
+
+  if (answered) {
+    return (
+      <button
+        disabled
+        className="flex items-center gap-1 text-xs font-semibold px-3 py-[7px] rounded-lg border border-green-300 bg-green-50 text-green-700 cursor-default opacity-80"
+      >
+        <CheckCircle size={13} />
+        {label} Added ✓
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-1 text-xs font-bold px-3 py-[7px] rounded-lg border-2 border-red-500 text-red-600 bg-red-50 hover:bg-red-500 hover:text-white transition-all duration-150"
+    >
+      + Add {label} Answer
+    </button>
+  );
+}
+
+function QuestionCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-gray-100 bg-white p-4 mb-3 shadow-sm animate-pulse">
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex gap-2 mb-3">
+            <div className="h-5 bg-gray-100 rounded-full w-24" />
+            <div className="h-5 bg-gray-100 rounded-full w-28" />
+          </div>
+
+          <div className="h-4 bg-gray-100 rounded w-[90%] mb-2" />
+          <div className="h-4 bg-gray-100 rounded w-[65%] mb-3" />
+
+          <div className="flex flex-wrap gap-2">
+            <div className="h-3 bg-gray-100 rounded w-24" />
+            <div className="h-3 bg-gray-100 rounded w-36" />
+            <div className="h-3 bg-gray-100 rounded w-28" />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 shrink-0">
+          <div className="h-6 bg-gray-100 rounded-full w-28" />
+          <div className="h-6 bg-gray-100 rounded-full w-28" />
+        </div>
+      </div>
+
+      <div className="flex gap-2 flex-wrap pt-2 border-t border-gray-100">
+        <div className="h-8 bg-gray-100 rounded-lg w-36" />
+        <div className="h-8 bg-gray-100 rounded-lg w-36" />
+        <div className="h-8 bg-gray-100 rounded-lg w-20 ml-auto" />
+      </div>
+    </div>
+  );
+}
+
+function QuestionCard({ q, lang, onDelete, navigate }) {
+  const { en: enStatus, ar: arStatus } = getStatuses(q);
+  const fullyDone = enStatus === "answered" && arStatus === "answered";
+
+  const missing = [];
+  if (enStatus !== "answered") missing.push("English");
+  if (arStatus !== "answered") missing.push("Arabic");
+
+  const handleAddAnswer = (answerLang) => {
+    const params = new URLSearchParams({
+      questionId: q._id,
+      question: q.question || "",
+      name: q.name || "",
+      lang: answerLang,
+    });
+
+    navigate(`/supervised/add-qa?${params.toString()}`);
+  };
+
+  return (
+    <div
+      className={`rounded-xl border p-4 mb-3 transition-all duration-200 ${
+        fullyDone
+          ? "border-green-200 bg-white"
+          : "border-red-200 bg-red-50/40 shadow-sm"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span
+              className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-[3px] rounded-full border ${
+                fullyDone
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
+              {fullyDone ? (
+                <CheckCircle size={12} />
+              ) : (
+                <AlertCircle size={12} />
+              )}
+              {fullyDone ? "Completed" : `Needs ${missing.join(" + ")}`}
+            </span>
+
+            <span
+              className={`text-[10px] font-bold uppercase tracking-wide px-2 py-[2px] rounded-full border ${
+                lang === "ar"
+                  ? "border-purple-200 bg-purple-50 text-purple-600"
+                  : "border-blue-200 bg-blue-50 text-blue-600"
+              }`}
+            >
+              {lang === "ar" ? "Arabic Question" : "English Question"}
+            </span>
+          </div>
+
+          <p className="text-sm font-semibold text-gray-800 m-0 leading-relaxed">
+            {q.question}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+            <span className="text-xs text-gray-500 flex items-center gap-1">
+              <User size={12} /> {q.name || "Anonymous"}
+            </span>
+
+            <span className="text-xs text-gray-500 flex items-center gap-1 break-all">
+              <Mail size={12} /> {q.email || "No email provided"}
+            </span>
+
+            {q.createdAt && (
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                <Calendar size={12} />
+                {new Date(q.createdAt).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1 items-end shrink-0">
+          <StatusBadge status={enStatus} lang="en" />
+          <StatusBadge status={arStatus} lang="ar" />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-gray-100">
+        <AnswerButton
+          status={enStatus}
+          lang="en"
+          onClick={() => handleAddAnswer("en")}
+        />
+
+        <AnswerButton
+          status={arStatus}
+          lang="ar"
+          onClick={() => handleAddAnswer("ar")}
+        />
+
+        <button
+          onClick={() => onDelete(q._id, lang)}
+          className="ml-auto flex items-center gap-1 text-xs text-gray-400 hover:text-red-600 px-2 py-[7px] rounded-lg hover:bg-red-50 transition-colors border border-transparent hover:border-red-200"
+        >
+          <Trash2 size={13} /> Delete
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function UserQuestions() {
-  const [questionsEn, setQuestionsEn] = useState([]);
-  const [questionsAr, setQuestionsAr] = useState([]);
+  const navigate = useNavigate();
+
+  const [enQuestions, setEnQuestions] = useState([]);
+  const [arQuestions, setArQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  // "all" shows both languages merged; "en"/"ar" filters to one
-  const [langFilter, setLangFilter] = useState("all");
+  const [error, setError] = useState(null);
+
+  const [langFilter, setLangFilter] = useState("both");
   const [statusFilter, setStatusFilter] = useState("unanswered");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const navigate = useNavigate();
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalAction, setModalAction] = useState(null);
-  const [modalMessage, setModalMessage] = useState("");
+  const [deleteModal, setDeleteModal] = useState({
+    open: false,
+    id: null,
+    lang: null,
+  });
+  const [deleting, setDeleting] = useState(false);
 
-  const fetchQuestions = async () => {
+  const fetchAllQuestions = async () => {
     setLoading(true);
+    setError(null);
+
     try {
-      const [resEn, resAr] = await Promise.all([
+      const [enData, arData] = await Promise.all([
         getAllQuestions("en"),
         getAllQuestions("ar"),
       ]);
-      setQuestionsEn(
-        (resEn.questions || []).map((q) => ({ ...q, _lang: "en" }))
-      );
-      setQuestionsAr(
-        (resAr.questions || []).map((q) => ({ ...q, _lang: "ar" }))
-      );
+
+      setEnQuestions(normalizeQuestions(enData));
+      setArQuestions(normalizeQuestions(arData));
     } catch (err) {
-      alert("Failed to load questions");
+      console.error("Failed to load user questions:", err);
+      setError("Failed to load questions. Please refresh.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchQuestions();
+    fetchAllQuestions();
   }, []);
 
-  const showConfirm = (message, action) => {
-    setModalMessage(message);
-    setModalAction(() => action);
-    setModalOpen(true);
-  };
+  const enPending = enQuestions.filter((q) => !isFullyAnswered(q)).length;
+  const arPending = arQuestions.filter((q) => !isFullyAnswered(q)).length;
+  const bothPending = enPending + arPending;
 
-  const handleMarkAsAnswered = (id, lang) => {
-    showConfirm("Mark this question as answered?", async () => {
-      await updateQuestionStatus(id, "answered", lang);
-      fetchQuestions();
-    });
-  };
+  const filteredList = useMemo(() => {
+    let base = [];
 
-  const handleDeleteQuestion = (id, lang) => {
-    showConfirm("Permanently delete this question?", async () => {
-      await deleteQuestion(id, lang);
-      fetchQuestions();
-    });
-  };
-
-  // Pending counts per language — always visible regardless of which tab is active
-  const pendingEnCount = questionsEn.filter((q) => q.status !== "answered").length;
-  const pendingArCount = questionsAr.filter((q) => q.status !== "answered").length;
-
-  const allQuestions = useMemo(
-    () => [...questionsEn, ...questionsAr],
-    [questionsEn, questionsAr]
-  );
-
-  const filtered = useMemo(() => {
-    let result = allQuestions;
-
-    if (langFilter !== "all") {
-      result = result.filter((q) => q._lang === langFilter);
+    if (langFilter === "en") {
+      base = enQuestions.map((q) => ({ ...q, _lang: "en" }));
+    } else if (langFilter === "ar") {
+      base = arQuestions.map((q) => ({ ...q, _lang: "ar" }));
+    } else {
+      base = [
+        ...enQuestions.map((q) => ({ ...q, _lang: "en" })),
+        ...arQuestions.map((q) => ({ ...q, _lang: "ar" })),
+      ];
     }
 
+    base = [...base].sort((a, b) => getDateValue(b) - getDateValue(a));
+
     if (statusFilter === "unanswered") {
-      result = result.filter((q) => q.status !== "answered");
+      base = base.filter((q) => !isFullyAnswered(q));
     } else if (statusFilter === "answered") {
-      result = result.filter((q) => q.status === "answered");
+      base = base.filter((q) => isFullyAnswered(q));
     }
 
     if (search.trim()) {
-      const term = search.trim().toLowerCase();
-      result = result.filter(
+      const s = search.toLowerCase();
+
+      base = base.filter(
         (q) =>
-          q.question?.toLowerCase().includes(term) ||
-          q.name?.toLowerCase().includes(term)
+          q.question?.toLowerCase().includes(s) ||
+          q.name?.toLowerCase().includes(s) ||
+          q.email?.toLowerCase().includes(s)
       );
     }
 
-    // newest first
-    return [...result].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    );
-  }, [allQuestions, langFilter, statusFilter, search]);
+    return base;
+  }, [enQuestions, arQuestions, langFilter, statusFilter, search]);
 
-  // Reset to page 1 whenever filters/search change so user isn't stranded on an empty page
-  useEffect(() => {
-    setPage(1);
-  }, [langFilter, statusFilter, search]);
+  const totalPages = Math.ceil(filteredList.length / PAGE_SIZE);
+  const paginated = filteredList.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const resetPage = () => setPage(1);
 
-  const filterBtnClass = (val) =>
-    `px-5 py-2.5 border-[1.5px] rounded-xl font-medium text-[0.92rem] cursor-pointer flex items-center gap-2 transition-all
-    ${
-      statusFilter === val
-        ? "bg-[#c3a421] text-white border-[#c3a421]"
-        : "bg-transparent border-slate-200 text-slate-700 hover:border-[#c3a421] hover:bg-amber-50"
-    }`;
+  const handleDelete = async () => {
+    if (!deleteModal.id || !deleteModal.lang) return;
 
-  const badgeClass = (val) =>
-    `px-2.5 py-0.5 rounded-full text-xs font-semibold
-    ${statusFilter === val ? "bg-white/30" : "bg-black/10"}`;
+    setDeleting(true);
 
-  const langSegmentClass = (val) =>
-    `flex-1 px-4 py-2.5 rounded-[10px] font-semibold text-[0.9rem] cursor-pointer flex items-center justify-center gap-2 transition-all
-    ${
-      langFilter === val
-        ? "bg-white text-slate-800 shadow-sm"
-        : "text-slate-500 hover:text-slate-700"
-    }`;
+    try {
+      await deleteQuestion(deleteModal.id, deleteModal.lang);
+
+      if (deleteModal.lang === "en") {
+        setEnQuestions((prev) =>
+          prev.filter((q) => q._id !== deleteModal.id)
+        );
+      } else {
+        setArQuestions((prev) =>
+          prev.filter((q) => q._id !== deleteModal.id)
+        );
+      }
+    } catch (err) {
+      console.error("Delete question error:", err);
+      setError("Failed to delete question. Please try again.");
+    } finally {
+      setDeleting(false);
+      setDeleteModal({ open: false, id: null, lang: null });
+    }
+  };
+
+  const tabBtn = (value, label, count) => (
+    <button
+      onClick={() => {
+        setLangFilter(value);
+        resetPage();
+      }}
+      className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 ${
+        langFilter === value
+          ? "bg-[#c3a421] text-white shadow-sm"
+          : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+      }`}
+    >
+      {label}
+
+      {count > 0 && (
+        <span
+          className={`text-[10px] font-bold px-[6px] py-[1px] rounded-full ${
+            langFilter === value
+              ? "bg-white/30 text-white"
+              : "bg-red-500 text-white"
+          }`}
+        >
+          {count}
+        </span>
+      )}
+    </button>
+  );
 
   return (
     <AdminLayout>
       <ConfirmationModal
-        open={modalOpen}
-        title="Confirmation"
-        message={modalMessage}
-        onConfirm={() => {
-          modalAction && modalAction();
-          setModalOpen(false);
-        }}
-        onCancel={() => setModalOpen(false)}
+        open={deleteModal.open}
+        message="Delete this question? This cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteModal({ open: false, id: null, lang: null })}
+        loading={deleting}
       />
 
-      <div className="min-h-screen py-8 px-4">
-        <div className="max-w-[1100px] mx-auto">
-          {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-[1.85rem] font-bold text-slate-800 m-0">
-              User Questions
-            </h1>
-            <p className="text-[0.95rem] text-slate-500 mt-1 mb-0">
-              Manage and respond to user-submitted questions
+      <div className="max-w-[860px] mx-auto mt-8 px-4">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 m-0">
+            User Questions
+          </h1>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Each submitted question needs both an English and Arabic answer.
+          </p>
+        </div>
+
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {tabBtn("both", "Both", bothPending)}
+          {tabBtn("en", "English", enPending)}
+          {tabBtn("ar", "العربية", arPending)}
+        </div>
+
+        <div className="flex gap-3 mb-5 flex-wrap">
+          <div className="relative flex-1 min-w-[220px]">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+
+            <input
+              type="text"
+              placeholder="Search by question, name, or email..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                resetPage();
+              }}
+              className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:border-[#c3a421]"
+            />
+          </div>
+
+          <div className="flex rounded-lg overflow-hidden border border-gray-200 text-sm font-semibold shrink-0">
+            {["unanswered", "all", "answered"].map((v) => (
+              <button
+                key={v}
+                onClick={() => {
+                  setStatusFilter(v);
+                  resetPage();
+                }}
+                className={`px-4 py-2 transition-colors capitalize ${
+                  statusFilter === v
+                    ? "bg-[#c3a421] text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {v === "unanswered"
+                  ? "Pending"
+                  : v === "answered"
+                  ? "Done"
+                  : "All"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="space-y-3">
+            {[1, 2, 3, 4].map((i) => (
+              <QuestionCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 text-red-500 text-sm">
+            {error}
+          </div>
+        ) : paginated.length === 0 ? (
+          <div className="text-center py-12 text-gray-400 text-sm">
+            {search
+              ? "No questions match your search."
+              : "No questions in this view."}
+          </div>
+        ) : (
+          <>
+            <p className="text-xs text-gray-400 mb-3">
+              {filteredList.length} question
+              {filteredList.length !== 1 ? "s" : ""}
+              {statusFilter === "unanswered" ? " needing attention" : ""}
             </p>
-          </div>
 
-          {/* Language Segmented Control — both languages always visible with live pending counts */}
-          <div className="bg-slate-100 p-1.5 rounded-xl flex gap-1.5 mb-6 max-w-[480px]">
-            <button
-              className={langSegmentClass("all")}
-              onClick={() => setLangFilter("all")}
-            >
-              <Globe size={16} /> Both
-              {pendingEnCount + pendingArCount > 0 && (
-                <span className="bg-[#ea580c] text-white text-[0.72rem] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
-                  {pendingEnCount + pendingArCount}
-                </span>
-              )}
-            </button>
-            <button
-              className={langSegmentClass("en")}
-              onClick={() => setLangFilter("en")}
-            >
-              English
-              {pendingEnCount > 0 && (
-                <span className="bg-[#ea580c] text-white text-[0.72rem] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
-                  {pendingEnCount}
-                </span>
-              )}
-            </button>
-            <button
-              className={langSegmentClass("ar")}
-              onClick={() => setLangFilter("ar")}
-            >
-              العربية
-              {pendingArCount > 0 && (
-                <span className="bg-[#ea580c] text-white text-[0.72rem] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
-                  {pendingArCount}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {/* Search + Status Filter Bar */}
-          <div className="bg-white px-6 py-5 rounded-xl shadow-sm border border-slate-100 mb-6 flex items-center gap-5 flex-wrap">
-            {/* Search */}
-            <div className="relative flex-1 min-w-[220px]">
-              <Search
-                size={18}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-              />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by question or name..."
-                className="w-full pl-10 pr-9 py-2.5 border-[1.5px] border-slate-200 rounded-xl text-[0.92rem] outline-none focus:border-[#c3a421] transition-all"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-
-            <div className="w-px h-8 bg-slate-200 max-[640px]:hidden" />
-
-            <div className="font-semibold text-slate-600 flex items-center gap-2">
-              <Filter size={18} />
-            </div>
-            <div className="flex gap-3 flex-wrap">
-              <button
-                className={filterBtnClass("all")}
-                onClick={() => setStatusFilter("all")}
-              >
-                All{" "}
-                <span className={badgeClass("all")}>{allQuestions.length}</span>
-              </button>
-              <button
-                className={filterBtnClass("unanswered")}
-                onClick={() => setStatusFilter("unanswered")}
-              >
-                <Clock size={16} /> Unanswered
-                <span className={badgeClass("unanswered")}>
-                  {pendingEnCount + pendingArCount}
-                </span>
-              </button>
-              <button
-                className={filterBtnClass("answered")}
-                onClick={() => setStatusFilter("answered")}
-              >
-                <CheckCircle size={16} /> Answered
-                <span className={badgeClass("answered")}>
-                  {allQuestions.filter((q) => q.status === "answered").length}
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Loading State */}
-          {loading && (
-            <div>
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-xl p-7 mb-6 shadow-sm border border-slate-200"
-                >
-                  {[35, 100, 70, 50].map((w, j) => (
-                    <div
-                      key={j}
-                      className="h-5 mb-3.5 rounded-md bg-slate-100 animate-pulse"
-                      style={{
-                        width: `${w}%`,
-                        marginTop: j === 3 ? "1rem" : undefined,
-                      }}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!loading && filtered.length === 0 && (
-            <div className="text-center py-20 px-8 text-slate-500">
-              <div className="w-[90px] h-[90px] bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertCircle size={44} color="#94a3b8" />
-              </div>
-              <h3 className="text-2xl mb-2">
-                {search
-                  ? "No questions match your search"
-                  : `No ${statusFilter === "all" ? "" : statusFilter} questions found`}
-              </h3>
-              <p>
-                {search
-                  ? "Try a different name or keyword."
-                  : statusFilter === "unanswered"
-                  ? "Great job! All questions have been answered."
-                  : "Try adjusting your filter."}
-              </p>
-            </div>
-          )}
-
-          {/* Questions List */}
-          {!loading &&
-            paginated.map((q) => (
-              <div
+            {paginated.map((q) => (
+              <QuestionCard
                 key={`${q._lang}-${q._id}`}
-                className="bg-white rounded-[14px] p-7 mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-200 transition-all duration-[250ms] hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)]"
-              >
-                <div className="flex justify-between items-start mb-5 flex-wrap gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <div className="font-semibold text-slate-800 text-[1.05rem] flex items-center gap-2">
-                      <User size={18} /> {q.name}
-                      <span
-                        className={`text-[0.72rem] font-bold px-2 py-0.5 rounded-full ${
-                          q._lang === "ar"
-                            ? "bg-indigo-100 text-indigo-700"
-                            : "bg-sky-100 text-sky-700"
-                        }`}
-                      >
-                        {q._lang === "ar" ? "العربية" : "English"}
-                      </span>
-                    </div>
-                    <div className="text-[0.88rem] text-slate-500 flex items-center gap-1.5">
-                      <Calendar size={16} />
-                      {new Date(q.createdAt).toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </div>
-                    <div className="text-[0.88rem] text-slate-500 flex items-center gap-1.5">
-                      <Mail size={16} />
-                      {q.email || "No email provided"}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span
-                      className={`px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-2 ${q.status === "answered" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}
-                    >
-                      {q.status === "answered" ? (
-                        <>
-                          <CheckCircle size={16} /> Answered
-                        </>
-                      ) : (
-                        <>
-                          <Clock size={16} /> Pending
-                        </>
-                      )}
-                    </span>
-                    <div className="flex gap-3 flex-wrap">
-                      {q.status !== "answered" && (
-                        <>
-                          <button
-                            className="bg-green-600 text-white border-none px-5 py-2.5 rounded-xl font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-green-700 hover:-translate-y-px"
-                            onClick={() => {
-                              const params = new URLSearchParams({
-                                lang: q._lang,
-                                question: q.question,
-                                name: q.name || "Anonymous",
-                                questionId: q._id,
-                              });
-
-                              navigate(`/supervised/add-qa?${params.toString()}`);
-                            }}
-                          >
-                            Add Answer
-                          </button>
-
-                          <button
-                            className="bg-blue-600 text-white border-none px-5 py-2.5 rounded-xl font-semibold cursor-pointer flex items-center gap-2 transition-all hover:bg-blue-700 hover:-translate-y-px"
-                            onClick={() => handleMarkAsAnswered(q._id, q._lang)}
-                          >
-                            <CheckCircle size={16} />
-                            Mark Answered
-                          </button>
-                        </>
-                      )}
-
-                      <button
-                        className="bg-red-50 text-red-600 border border-red-200 p-2.5 rounded-xl cursor-pointer transition-all hover:bg-red-100 hover:-translate-y-px"
-                        onClick={() => handleDeleteQuestion(q._id, q._lang)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-slate-50 border border-slate-200 border-l-4 border-l-[#c3a421] px-6 py-5 rounded-xl text-[1.05rem] leading-relaxed text-slate-700 mt-4">
-                  {q.question}
-                </div>
-              </div>
+                q={q}
+                lang={q._lang}
+                navigate={navigate}
+                onDelete={(id, lang) =>
+                  setDeleteModal({ open: true, id, lang })
+                }
+              />
             ))}
 
-          {/* Pagination */}
-          {!loading && filtered.length > PAGE_SIZE && (
-            <div className="flex items-center justify-center gap-2 mt-8 mb-4">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#c3a421] hover:text-[#c3a421] transition-all"
-              >
-                Previous
-              </button>
-              <span className="px-3 text-[0.9rem] text-slate-500 font-medium">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:border-[#c3a421] hover:text-[#c3a421] transition-all"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                <span className="text-sm text-gray-600 font-medium">
+                  Page {page} of {totalPages}
+                </span>
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="p-2 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </AdminLayout>
   );
