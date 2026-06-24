@@ -6,7 +6,12 @@ import FeedbackForm from "../Components/FeedbackForm";
 const ContributeP = () => {
   return (
     <>
-      <Header title="FeedBack" />
+      <Header title=" نقدر رأيك" 
+        buttonLabel="أرسل سؤالك"
+        buttonLangLink="/"
+        onOpenModal={() => setIsModalOpen(true)}
+        dir="rtl"
+        />
       <Navbar
         dir="rtl"
         navItems={[

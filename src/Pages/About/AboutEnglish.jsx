@@ -10,7 +10,10 @@ const AboutEnglish = () => {
     <>
       <Header
         title="About Us"
-          subtitleLines={["Ask. Learn.", "Follow the Sunnah."]}
+        subtitleLines={["Ask. Learn.", "Follow the Sunnah."]}
+        buttonLabel="Ask a Question"
+        buttonLangLink="/ar"
+        onOpenModal={() => setIsModalOpen(true)}
       />
       <Navbar
         dir="ltr"

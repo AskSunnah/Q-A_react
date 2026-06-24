@@ -18,6 +18,9 @@ function Home() {
       <Header
         title="اسأل السنة"
         subtitleLines={["اسأل. تعلم.", "واتبع السنة."]}
+        buttonLabel="أرسل سؤالك"
+        buttonLangLink="/"
+        onOpenModal={() => setIsModalOpen(true)}
         dir="rtl"
       />
       <Navbar

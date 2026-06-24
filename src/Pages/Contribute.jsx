@@ -10,7 +10,9 @@ import Header from "../Components/Home/Header";
 const ContributeP = () => {
   return (
     <>
-      <Header title="Contribute to AskSunnah" />
+      <Header title="Contribute to AskSunnah"  buttonLabel="Ask a Question"
+        buttonLangLink="/ar"
+        onOpenModal={() => setIsModalOpen(true)} />
       <Navbar
         dir="ltr"
         navItems={[

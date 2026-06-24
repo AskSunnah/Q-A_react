@@ -82,8 +82,7 @@ function PinnedSidebar({ language, direction, onLoaded }) {
                 ${isRTL ? "text-right" : "text-left"}
               `}
             >
-              {section.title ||
-                (isRTL ? "أسئلة مختارة" : "Selected Questions")}
+              {section.title || (isRTL ? "أسئلة مختارة" : "Selected Questions")}
             </h3>
           </div>
 
@@ -245,9 +244,13 @@ function RelatedAnswersSidebar({ relatedData, relatedQuestions, direction }) {
           const rq = relatedQuestions?.[i];
           if (!rq) return null;
           const href =
-            rq.lang === "ar" ? `/ar/questions/${rq.slug}` : `/questions/${rq.slug}`;
+            rq.lang === "ar"
+              ? `/ar/questions/${rq.slug}`
+              : `/questions/${rq.slug}`;
           const isCardRTL = rq.lang === "ar";
-          const readMoreLabel = isCardRTL ? "اقرأ الإجابة كاملة" : "Read full answer";
+          const readMoreLabel = isCardRTL
+            ? "اقرأ الإجابة كاملة"
+            : "Read full answer";
 
           return (
             <Link
@@ -318,7 +321,9 @@ function RelatedAnswersSidebar({ relatedData, relatedQuestions, direction }) {
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  style={isCardRTL ? { transform: "rotate(180deg)" } : undefined}
+                  style={
+                    isCardRTL ? { transform: "rotate(180deg)" } : undefined
+                  }
                 >
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
@@ -627,21 +632,26 @@ function QuestionPage({
       */}
       <div
         className={`
-          max-w-[1320px] mx-auto mt-8 px-4
-          flex flex-col gap-10
-          ${direction === "rtl" ? "lg:flex-row-reverse" : "lg:flex-row"}
-          max-[768px]:mt-6 max-[768px]:px-3
-        `}
+    max-w-[1320px] mx-auto mt-8 px-4
+    flex flex-col gap-10 lg:items-start
+    ${direction === "rtl" ? "lg:flex-row-reverse" : "lg:flex-row"}
+    max-[768px]:mt-6 max-[768px]:px-3
+  `}
       >
-        <ReportableContent lang={language} contentType="question" slug={slug}>
+        <ReportableContent
+          lang={language}
+          contentType="question"
+          slug={slug}
+          className="flex-1 min-w-0 lg:min-w-[600px]"
+        >
           <div
             dir={direction}
             lang={language}
             className="
-            flex-1 min-w-0
-            p-8 text-[17px]
-            max-[768px]:p-6 max-[768px]:text-[16px]
-            max-[480px]:p-4 max-[480px]:text-[15px]
+        p-8 text-[17px]
+        max-[768px]:p-6 max-[768px]:text-[16px]
+        max-[480px]:p-4 max-[480px]:text-[15px]
+      
           "
           >
             {/* H1 — display size, keeps its own breakpoints */}
