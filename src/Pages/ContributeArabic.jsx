@@ -10,7 +10,9 @@ import Header from "../Components/Home/Header";
 const ContributePageAr = () => {
   return (
     <>
-      <Header title="ساهم معنا" dir="rtl" />
+      <Header title="ساهم معنا" dir="rtl" buttonLabel="أرسل سؤالك"
+        buttonLangLink="/"
+        onOpenModal={() => setIsModalOpen(true)} />
       <Navbar
         dir="rtl"
         navItems={[

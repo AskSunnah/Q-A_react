@@ -8,6 +8,7 @@ import {
   getAllQuestions,
 } from "../../api/qa";
 import AdminLayout from "../../Components/Admin/AdminLayout";
+import PreviewModal from "../../Components/Admin/PreviewModal";
 import { RxCross2 } from "react-icons/rx";
 
 const sectionOptions = [
@@ -334,6 +335,8 @@ export default function AddQA() {
   const [showRelatedModal, setShowRelatedModal] = useState(false);
   const answerRef = useRef(null);
 
+  const [showPreview, setShowPreview] = useState(false);
+
   const [form, setForm] = useState({
     language: urlLang || "en",
     title: "",
@@ -648,6 +651,14 @@ export default function AddQA() {
         />
       )}
 
+      {showPreview && (
+        <PreviewModal
+          open={showPreview}
+          onClose={() => setShowPreview(false)}
+          form={form}
+          sections={sections}
+        />
+      )}
       <div className="font-[Segoe_UI,sans-serif] bg-white max-w-[750px] mt-12 mx-auto rounded-[1.4rem] shadow-[0_6px_24px_rgba(40,115,70,0.12)] px-10 py-8">
         <h2 className="text-center text-[var(--bg-color-header)] text-[2rem] mb-2 font-[Montserrat,Arial,sans-serif]">
           {pageTitle}
@@ -1005,14 +1016,36 @@ export default function AddQA() {
                 </ul>
               )}
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-[var(--bg-color-header)] text-white border-none rounded-[10px] py-[13px] px-0 text-[1.16rem] font-bold w-full mt-[9px] cursor-pointer disabled:opacity-60"
-            >
-              {loading ? "Saving..." : isEdit ? "Update Q&A" : "Save Q&A"}
-            </button>
+            <div className="flex gap-3 mt-[9px]">
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="flex-1 flex items-center justify-center gap-2 border border-[var(--bg-color-header)] text-[var(--bg-color-header)] bg-white rounded-[10px] py-[13px] text-[1.05rem] font-bold hover:bg-[rgba(40,115,70,0.05)] transition-colors"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                Preview
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-[var(--bg-color-header)] text-white border-none rounded-[10px] py-[13px] text-[1.16rem] font-bold cursor-pointer disabled:opacity-60"
+              >
+                {loading ? "Saving..." : isEdit ? "Update Q&A" : "Save Q&A"}
+              </button>
+            </div>
           </form>
         )}
 

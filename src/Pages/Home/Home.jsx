@@ -15,8 +15,13 @@ function Home() {
   return (
     <>
       <Header
+       
         title="Ask Sunnah"
         subtitleLines={["Ask. Learn.", "Follow the Sunnah."]}
+        buttonLabel="Ask a Question"
+        buttonLangLink="/ar"
+        onOpenModal={() => setIsModalOpen(true)}
+        dir="ltr"
       />
       <Navbar
         dir="ltr"

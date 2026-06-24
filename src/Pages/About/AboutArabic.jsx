@@ -9,8 +9,11 @@ const AboutArabic = () => {
   return (
     <>
       <Header
-        title="اسأل السنة"
-       subtitleLines={["اسأل. تعلم.", "واتبع السنة."]}
+        title="عن الموقع"
+        subtitleLines={["اسأل. تعلم.", "واتبع السنة."]}
+         buttonLabel="أرسل سؤالك"
+        buttonLangLink="/"
+        onOpenModal={() => setIsModalOpen(true)}
         dir="rtl"
       />
       <Navbar
