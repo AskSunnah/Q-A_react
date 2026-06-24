@@ -17,7 +17,7 @@ function Home() {
       <Header
        
         title="Ask Sunnah"
-        subtitleLines={["Ask. Learn.", "Follow the Sunnah."]}
+         subtitle="A platform for Islamic knowledge based on the Qur'an and Sunnah."
         buttonLabel="Ask a Question"
         buttonLangLink="/ar"
         onOpenModal={() => setIsModalOpen(true)}

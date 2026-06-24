@@ -66,10 +66,9 @@ const Footer = ({ lang = "en" }) => {
           {t.logoText}
         </h2>
 
-        {/* Tagline — single line, truncates gracefully */}
-        <p className="text-[0.82rem] sm:text-[0.95rem] text-[#f0f0f0] whitespace-nowrap overflow-hidden text-ellipsis w-full max-w-[600px] px-2">
-          {t.tagline}
-        </p>
+     <p className="text-[0.82rem] sm:text-[0.95rem] text-[#f0f0f0] text-center max-w-[600px] px-2 break-words">
+  {t.tagline}
+</p>
 
         {/* Social icons — no labels */}
         <div className="flex justify-center gap-4 sm:gap-5 flex-wrap items-center">

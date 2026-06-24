@@ -10,7 +10,7 @@ const AboutArabic = () => {
     <>
       <Header
         title="عن الموقع"
-        subtitleLines={["اسأل. تعلم.", "واتبع السنة."]}
+        subtitle="منصة للمعرفة الإسلامية المبنية على القرآن والسنة"
          buttonLabel="أرسل سؤالك"
         buttonLangLink="/"
         onOpenModal={() => setIsModalOpen(true)}
