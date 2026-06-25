@@ -358,7 +358,6 @@ function ReportModalUI({
     document.body,
   );
 }
-
 // ─── For QuestionPage / Fatwa — wraps content, shows a trigger button ─────────
 export function ReportableContent({
   lang = "en",
@@ -368,6 +367,7 @@ export function ReportableContent({
   chapterNumber,
   pageNumber,
   bottomOffset = "5.5rem",
+    className = "",
   children,
 }) {
   const t = LABELS[lang] || LABELS.en;
@@ -380,7 +380,7 @@ export function ReportableContent({
 
   return (
     <>
-      <div className="relative">
+     <div className={`relative ${className}`}> 
         {children}
 
         {/* Report button */}

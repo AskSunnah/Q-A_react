@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { submitBook, fetchAuthors, updateAuthor } from "../../api/adminBook";
 import AdminLayout from "../../Components/Admin/AdminLayout";
+import BookPreview from "../../Components/Admin/BookPreview";
 
 const CATEGORIES = [
   { value: "", label: "-- Select Category --" },
@@ -683,9 +684,21 @@ export default function AddBook() {
           <br />
           <br />
 
-          <button
+          {/* <button
             type="submit"
             className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-6 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
+          >
+            Submit Book
+          </button> */}
+
+          {/* Preview — live, no save needed */}
+          <div className="mt-6 flex justify-center">
+            <BookPreview book={{ ...form, chapters }} lang={form.language} />
+          </div>
+
+          <button
+            type="submit"
+            className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-4 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
           >
             Submit Book
           </button>
