@@ -1,47 +1,46 @@
-
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 //library imports
-import Library from './Pages/library/library';
-import LibraryAr from './Pages/library/library_ar';
+import Library from "./Pages/library/library";
+import LibraryAr from "./Pages/library/library_ar";
 import EngBooksPage from "./Pages/library/libraryBooks";
 import ArabicBooksPage from "./Pages/library/libraryBooks_ar";
 import ReadBookPage from "./Pages/library/readBook";
-import BookDetails from './Components/library/BookDetails';
+import BookDetails from "./Components/library/BookDetails";
 //home imports
-import HomeArabic from './Pages/Home/HomeArabic';
-import Home from './Pages/Home/Home';
-import QuestionPageArabic from './Pages/Home/QuestionPageArabic';
-import QuestionPageEnglish from './Pages/Home/QuestionPageEnglish';
-import AboutArabic from './Pages/About/AboutArabic';
-import AboutEnglish from './Pages/About/AboutEnglish';
+import HomeArabic from "./Pages/Home/HomeArabic";
+import Home from "./Pages/Home/Home";
+import QuestionPageArabic from "./Pages/Home/QuestionPageArabic";
+import QuestionPageEnglish from "./Pages/Home/QuestionPageEnglish";
+import AboutArabic from "./Pages/About/AboutArabic";
+import AboutEnglish from "./Pages/About/AboutEnglish";
 //admin imports
-import AdminLogin from './Pages/Admin/AdminLogin';
-import AdminDashboard from './Pages/Admin/AdminDashboard';
-import ProtectedRoute from './Components/Admin/ProtectedRoute';
-import AddQA from './Pages/Admin/AddQA';
-import AllQA from './Pages/Admin/AllQA';
-import AddBook from './Pages/Admin/AddBook';
-import AllBooks from './Pages/Admin/AllBooks';
-import UserQuestions from './Pages/Admin/UserQuestions';
-import EditBook from './Pages/Admin/EditBook';
-import Feedback from './Pages/Admin/Feedback';
+import AdminLogin from "./Pages/Admin/AdminLogin";
+import AdminDashboard from "./Pages/Admin/AdminDashboard";
+import ProtectedRoute from "./Components/Admin/ProtectedRoute";
+import AddQA from "./Pages/Admin/AddQA";
+import AllQA from "./Pages/Admin/AllQA";
+import AddBook from "./Pages/Admin/AddBook";
+import AllBooks from "./Pages/Admin/AllBooks";
+import UserQuestions from "./Pages/Admin/UserQuestions";
+import EditBook from "./Pages/Admin/EditBook";
+import Feedback from "./Pages/Admin/Feedback";
 import AdminReports from "./Pages/Admin/Reports";
 //payment imports
-import ManageSubscription from './Pages/ManageSubscription';
-import Success from './Pages/Success';
-import Cancel from './Pages/Cancel';
+import ManageSubscription from "./Pages/ManageSubscription";
+import Success from "./Pages/Success";
+import Cancel from "./Pages/Cancel";
 //shared
-import ContributePage from './Pages/Contribute';
-import ContributePageAr from './Pages/ContributeArabic';
+import ContributePage from "./Pages/Contribute";
+import ContributePageAr from "./Pages/ContributeArabic";
 import ChatbaseLoader from "./Components/ChatbaseLoader";
-import FeedbackFormPage from './Pages/FeedbackFormPage';
-import FeedbackFormArabicPage from './Pages/FeedbackFormPageArabic';
+import FeedbackFormPage from "./Pages/FeedbackFormPage";
+import FeedbackFormArabicPage from "./Pages/FeedbackFormPageArabic";
 import TermsArabic from "./Pages/Terms/TermsArabic";
 import TermsEnglish from "./Pages/Terms/TermsEnglish";
 import SearchResults from "./Pages/Home/SearchResults";
 import PinnedSectionPage from "./Pages/Admin/PinnedSectionPage";
 
-import './App.css';
+import "./App.css";
 function App() {
   return (
     <Router>
@@ -60,36 +59,84 @@ function App() {
           <Route path="/library/arabicbooks" element={<ArabicBooksPage />} />
           <Route path="/library/read/:lang/:slug" element={<ReadBookPage />} />
           <Route path="/books/:lang/:slug" element={<BookDetails />} />
-          
+
           <Route path="/supervised" element={<AdminLogin />} />
-          <Route path="/supervised/dashboard" element={
-            <ProtectedRoute><AdminDashboard /></ProtectedRoute>
-          } />
-          <Route path="/supervised/add-qa-standalone" element={
-          <ProtectedRoute><AddQA /></ProtectedRoute>
-        } />
-          <Route path="/supervised/add-qa" element={
-            <ProtectedRoute><AddQA /></ProtectedRoute>
-          } />
-          <Route path="/supervised/all-qa" element={
-            <ProtectedRoute><AllQA /></ProtectedRoute>
-          } />
-          <Route path="/supervised/add-book" element={
-            <ProtectedRoute><AddBook /></ProtectedRoute>
-          } />
-          <Route path="/supervised/all-books" element={
-            <ProtectedRoute><AllBooks /></ProtectedRoute>
-          } />
-          <Route path="/supervised/books/edit/:lang/:slug" element={
-            <ProtectedRoute><EditBook /></ProtectedRoute>
-          } />
-          <Route path="/supervised/user-questions" element={
-            <ProtectedRoute><UserQuestions /></ProtectedRoute>
-          } />
-          <Route path="/supervised/user-feedback" element={
-            <ProtectedRoute><Feedback /></ProtectedRoute>
-          } />
-          <Route path="/supervised/pinned-section" element={<PinnedSectionPage />} />
+          <Route
+            path="/supervised/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/add-qa-standalone"
+            element={
+              <ProtectedRoute>
+                <AddQA />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/add-qa"
+            element={
+              <ProtectedRoute>
+                <AddQA />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/all-qa"
+            element={
+              <ProtectedRoute>
+                <AllQA />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/add-book"
+            element={
+              <ProtectedRoute>
+                <AddBook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/all-books"
+            element={
+              <ProtectedRoute>
+                <AllBooks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/books/edit/:lang/:slug"
+            element={
+              <ProtectedRoute>
+                <EditBook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/user-questions"
+            element={
+              <ProtectedRoute>
+                <UserQuestions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/user-feedback"
+            element={
+              <ProtectedRoute>
+                <Feedback />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/pinned-section"
+            element={<PinnedSectionPage />}
+          />
           <Route path="/supervised/reports" element={<AdminReports />} />
           <Route path="/supervised/books/en" element={<AllBooks lang="en" />} />
           <Route path="/supervised/books/ar" element={<AllBooks lang="ar" />} />
@@ -110,7 +157,6 @@ function App() {
           <Route path="/ar/contribute" element={<ContributePageAr />} />
           <Route path="/search" element={<SearchResults />} />
         </Routes>
-
       </div>
     </Router>
   );

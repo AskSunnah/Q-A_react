@@ -19,6 +19,15 @@ const QuestionItem = ({
   const backPage = currentPage > 1 ? `?page=${currentPage}` : "";
 
   const questionTitle = item.heading || item.question || "";
+  const snippet = item.answer ? item.answer.slice(0, 150).trim() : "";
+
+  const formattedDate = item.date
+    ? new Date(item.date).toLocaleDateString(isRTL ? "ar" : "en", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : null;
 
   return (
     <Link
@@ -57,13 +66,35 @@ const QuestionItem = ({
         }
       `}
     >
-      <strong className="text-[0.9rem] sm:text-[1rem]">
-        {labelPrefix}
-        {index + 1}:
-      </strong>{" "}
-      <span className="text-[0.9rem] sm:text-[1rem] leading-6">
-        <HighlightText text={questionTitle} query={highlightQuery} />
-      </span>
+      <div className="flex items-start justify-between gap-3 mb-1.5">
+        <span className="text-[0.9rem] sm:text-[1rem]">
+          <strong>
+            {labelPrefix}
+            {index + 1}:
+          </strong>{" "}
+          <HighlightText text={questionTitle} query={highlightQuery} />
+        </span>
+
+        {(formattedDate || item.category) && (
+          <span
+            className="
+              shrink-0 whitespace-nowrap
+              text-[0.72rem] font-medium
+              text-[var(--bg-color-header)]
+              bg-[var(--bg-color-header)]/10
+              px-2 py-0.5 rounded-full
+            "
+          >
+            {item.category || formattedDate}
+          </span>
+        )}
+      </div>
+
+      {snippet && (
+        <p className="text-[0.82rem] sm:text-[0.88rem] leading-relaxed text-gray-500 line-clamp-2 m-0">
+          <HighlightText text={`${snippet}…`} query={highlightQuery} />
+        </p>
+      )}
     </Link>
   );
 };

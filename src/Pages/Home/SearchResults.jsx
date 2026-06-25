@@ -1,8 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { API_BASE } from "../../../config";
+import { AlertTriangle, Inbox } from "lucide-react";
+import Navbar from "./../../Components/common/Navbar";
+import Footer from "./../../Components/common/Footer";
+import QuestionItemSkeleton from "./../../Components/common/QuestionItemSkeleton";
+import SearchBar from "./../../Components/common/SearchBarQuestion";
 
 import axios from "axios";
+
+const enNavItems = [
+  { label: "Home", href: "/", internal: true },
+  { label: "Library", href: "/library", internal: true },
+  { label: "About Us", href: "/about", internal: true },
+  { label: "Feedback", href: "/feedback", internal: true },
+  { label: "Contribute", href: "/contribute", internal: true },
+];
+
+const arNavItems = [
+  { label: "الرئيسية", href: "/ar", internal: true },
+  { label: "المكتبة", href: "/library_ar", internal: true },
+  { label: "عن الموقع", href: "/about-us/ar", internal: true },
+  { label: "شاركنا رأيك", href: "/feedback-ar", internal: true },
+  { label: "ساهم", href: "/ar/contribute", internal: true },
+];
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -17,9 +38,13 @@ const SearchResults = () => {
 
   // Detect if search query is Arabic
   const isArabic = /[\u0600-\u06FF]/.test(query);
+  const direction = isArabic ? "rtl" : "ltr";
 
   useEffect(() => {
     if (!query) return;
+
+    const controller = new AbortController();
+
     const fetchResults = async () => {
       setLoading(true);
       setError("");
@@ -27,15 +52,15 @@ const SearchResults = () => {
         const lang = isArabic ? "ar" : "en";
         const res = await axios.get(
           `${API_BASE}/api/search?q=${encodeURIComponent(
-            query
-          )}&page=${page}&lang=${lang}`
+            query,
+          )}&page=${page}&lang=${lang}`,
+          { signal: controller.signal },
         );
-
-        console.log("Search API response:", res.data);
 
         setResults(res.data.results || []);
         setTotalPages(res.data.totalPages || 1);
       } catch (err) {
+        if (axios.isCancel(err)) return;
         console.error("Search fetch failed:", err);
         setError("Failed to fetch search results. Please try again.");
       } finally {
@@ -44,50 +69,98 @@ const SearchResults = () => {
     };
 
     fetchResults();
+
+    return () => controller.abort();
   }, [query, page]);
 
   const handlePageChange = (newPage) => {
-    navigate(`/search?q=${encodeURIComponent(query)}&page=${newPage}`);
+    navigate(
+      `${isArabic ? "/ar" : ""}/search?q=${encodeURIComponent(query)}&page=${newPage}`,
+    );
+  };
+
+  const handleNewSearch = (q) => {
+    navigate(
+      `${isArabic ? "/ar" : ""}/search?q=${encodeURIComponent(q)}&page=1`,
+    );
   };
 
   return (
-    <div
-      className={`bg-[#fdfbf7] min-h-screen py-12 px-4 flex justify-center
-        ${isArabic ? "direction-rtl text-right [font-family:'Tajawal','Cairo',sans-serif]" : "direction-ltr text-left"}`}
-      style={{ direction: isArabic ? "rtl" : "ltr" }}
-    >
-      <div className="bg-white rounded-[20px] shadow-[0_4px_15px_rgba(0,0,0,0.05)] max-w-[900px] w-full p-10 border border-[#f0e7d3]">
-        {/* Title */}
-        <h1 className="text-[1.8rem] font-semibold text-[#6a4c0f] mb-6 border-b-2 border-[#e6d497] pb-2">
+    <>
+      <Navbar
+        dir={direction}
+        navItems={isArabic ? arNavItems : enNavItems}
+        languageSwitcher={
+          isArabic
+            ? { label: "English", href: "/" }
+            : { label: "العربية", href: "/ar" }
+        }
+      />
+
+      <main
+        aria-label="Search Results"
+        dir={direction}
+        className={`
+          max-w-[900px] mx-auto my-8 px-6 py-6
+          bg-[var(--bg-main)] text-[var(--text-main)]
+          rounded-[10px] shadow-[2px_3px_12px_rgba(0,0,0,0.14)]
+          max-md:px-4 max-md:py-4 max-md:mx-4 max-md:bg-white max-md:rounded-none max-md:shadow-none
+          ${isArabic ? "text-right [font-family:'Tajawal','Cairo',sans-serif]" : "text-left"}
+        `}
+      >
+        <h1 className="text-[1.5rem] font-bold text-[var(--bg-color-header)] mb-2">
           {isArabic ? "نتائج البحث عن:" : "Search results for:"}
           &nbsp;<span dir="ltr">&ldquo;{query}&rdquo;</span>
         </h1>
 
+        {!loading && (
+          <p className="text-[0.9rem] text-gray-500 mb-6">
+            {isArabic
+              ? `${results.length} نتيجة`
+              : `${results.length} result${results.length === 1 ? "" : "s"}`}
+          </p>
+        )}
+
+        <div className="mb-8">
+          <SearchBar
+            direction={direction}
+            placeholder={isArabic ? "ابحث..." : "Search..."}
+            initialValue={query}
+            onSubmit={handleNewSearch}
+          />
+        </div>
+
         {/* Loading */}
         {loading && (
-          <p className="text-center text-[#555] text-base mt-12">
-            {isArabic ? "جارٍ تحميل النتائج..." : "Loading results..."}
-          </p>
+          <div>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <QuestionItemSkeleton key={i} direction={direction} />
+            ))}
+          </div>
         )}
 
         {/* Error */}
-        {error && (
-          <p className="text-center text-[#555] text-base mt-12">
-            {isArabic ? "حدث خطأ أثناء تحميل النتائج." : error}
-          </p>
+        {error && !loading && (
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+            <AlertTriangle size={32} className="text-red-500" />
+            <p className="text-red-600 font-semibold text-base">{error}</p>
+          </div>
         )}
 
         {/* Empty */}
-        {!loading && results.length === 0 && !error && (
-          <p className="text-center text-[#555] text-base mt-12">
-            {isArabic
-              ? `لم يتم العثور على نتائج لـ "${query}".`
-              : `No results found for "${query}".`}
-          </p>
+        {!loading && !error && results.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+            <Inbox size={32} className="text-[var(--bg-color-header)]" />
+            <p className="text-[var(--bg-color-header)] font-semibold text-base">
+              {isArabic
+                ? `لم يتم العثور على نتائج لـ "${query}".`
+                : `No results found for "${query}".`}
+            </p>
+          </div>
         )}
 
         {/* Results */}
-        {results.length > 0 && (
+        {!loading && results.length > 0 && (
           <>
             {results.map((item) => (
               <div
@@ -95,7 +168,7 @@ const SearchResults = () => {
                 className={`
                   bg-[#fffdf8] border border-[#e8e0cf] rounded-[12px] px-6 py-5 mb-6
                   transition-all duration-200 ease-in-out overflow-hidden
-                  hover:border-[#d4b45a] hover:shadow-[0_2px_10px_rgba(212,180,90,0.25)]
+                  hover:border-[var(--bg-color-header)] hover:shadow-[0_2px_10px_rgba(40,115,70,0.15)]
                   ${isArabic ? "text-right" : "text-left"}
                 `}
               >
@@ -115,11 +188,8 @@ const SearchResults = () => {
                     inline-block mt-3 text-white text-[0.9rem] border-none
                     px-[1.1rem] py-[0.45rem] rounded-[6px] cursor-pointer
                     transition-all duration-200 ease-in-out hover:brightness-110
-                    ${
-                      isArabic
-                        ? "float-left bg-gradient-to-l from-[#b8912f] to-[#d4b45a] px-[1.3rem] rounded-[8px] font-semibold"
-                        : "bg-gradient-to-r from-[#b8912f] to-[#d4b45a]"
-                    }
+                    bg-[var(--bg-color-header)]
+                    ${isArabic ? "float-left" : ""}
                   `}
                 >
                   {isArabic ? "اقرأ مزيدًا ←" : "Read More →"}
@@ -144,7 +214,7 @@ const SearchResults = () => {
                 {isArabic ? "← السابق" : "← Previous"}
               </button>
 
-              <p className="text-[#6a4c0f] font-medium">
+              <p className="text-[var(--bg-color-header)] font-medium">
                 {isArabic
                   ? `الصفحة ${page} من ${totalPages}`
                   : `Page ${page} of ${totalPages}`}
@@ -160,8 +230,10 @@ const SearchResults = () => {
             </div>
           </>
         )}
-      </div>
-    </div>
+      </main>
+
+      <Footer lang={isArabic ? "ar" : "en"} />
+    </>
   );
 };
 
