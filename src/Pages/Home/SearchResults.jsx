@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { API_BASE } from "../../../config";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { AlertTriangle, Inbox } from "lucide-react";
+
 import Navbar from "./../../Components/common/Navbar";
 import Footer from "./../../Components/common/Footer";
 import QuestionItemSkeleton from "./../../Components/common/QuestionItemSkeleton";
-import SearchBar from "./../../Components/common/SearchBarQuestion";
+import SearchBarQuestion from "./../../Components/common/SearchBarQuestion";
+import QuestionItem from "./../../Components/Home/QuestionItem";
+import Pagination from "./../../Components/Home/Pagination";
 
-import axios from "axios";
+import { searchFatwas } from "./../../api/searchqa";
 
 const enNavItems = [
   { label: "Home", href: "/", internal: true },
@@ -28,41 +30,60 @@ const arNavItems = [
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const query = searchParams.get("q") || "";
   const page = parseInt(searchParams.get("page")) || 1;
 
+  const pathIsArabic = location.pathname.startsWith("/ar");
+  const queryIsArabic = /[\u0600-\u06FF]/.test(query);
+  const isArabic = pathIsArabic || queryIsArabic;
+
+  const direction = isArabic ? "rtl" : "ltr";
+  const lang = isArabic ? "ar" : "en";
+
   const [results, setResults] = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Detect if search query is Arabic
-  const isArabic = /[\u0600-\u06FF]/.test(query);
-  const direction = isArabic ? "rtl" : "ltr";
+  const itemsPerPage = 5;
 
   useEffect(() => {
-    if (!query) return;
+    if (!query.trim()) {
+      setResults([]);
+      setTotalItems(0);
+      return;
+    }
 
     const controller = new AbortController();
 
     const fetchResults = async () => {
-      setLoading(true);
-      setError("");
       try {
-        const lang = isArabic ? "ar" : "en";
-        const res = await axios.get(
-          `${API_BASE}/api/search?q=${encodeURIComponent(
-            query,
-          )}&page=${page}&lang=${lang}`,
-          { signal: controller.signal },
-        );
+        setLoading(true);
+        setError("");
 
-        setResults(res.data.results || []);
-        setTotalPages(res.data.totalPages || 1);
+        const data = await searchFatwas({
+          query,
+          page,
+          limit: itemsPerPage,
+          lang,
+          signal: controller.signal,
+        });
+
+        setResults(data.results || []);
+        setTotalItems(data.totalItems || data.total || 0);
       } catch (err) {
-        if (axios.isCancel(err)) return;
-        console.error("Search fetch failed:", err);
-        setError("Failed to fetch search results. Please try again.");
+        if (err.name !== "AbortError") {
+          console.error("Search fetch failed:", err);
+          setResults([]);
+          setTotalItems(0);
+          setError(
+            isArabic
+              ? "حدث خطأ أثناء تحميل نتائج البحث."
+              : "Failed to fetch search results. Please try again.",
+          );
+        }
       } finally {
         setLoading(false);
       }
@@ -71,18 +92,27 @@ const SearchResults = () => {
     fetchResults();
 
     return () => controller.abort();
-  }, [query, page]);
+  }, [query, page, lang, isArabic]);
+
+  const getSearchBasePath = (searchQuery = query) => {
+    const newQueryIsArabic = /[\u0600-\u06FF]/.test(searchQuery);
+    return newQueryIsArabic || isArabic ? "/ar/search" : "/search";
+  };
 
   const handlePageChange = (newPage) => {
     navigate(
-      `${isArabic ? "/ar" : ""}/search?q=${encodeURIComponent(query)}&page=${newPage}`,
+      `${getSearchBasePath()}?q=${encodeURIComponent(query)}&page=${newPage}`,
     );
   };
 
-  const handleNewSearch = (q) => {
+  const handleNewSearch = (newQuery) => {
     navigate(
-      `${isArabic ? "/ar" : ""}/search?q=${encodeURIComponent(q)}&page=1`,
+      `${getSearchBasePath(newQuery)}?q=${encodeURIComponent(newQuery)}&page=1`,
     );
+  };
+
+  const clearSearch = () => {
+    navigate(isArabic ? "/ar" : "/", { replace: true });
   };
 
   return (
@@ -108,29 +138,54 @@ const SearchResults = () => {
           ${isArabic ? "text-right [font-family:'Tajawal','Cairo',sans-serif]" : "text-left"}
         `}
       >
-        <h1 className="text-[1.5rem] font-bold text-[var(--bg-color-header)] mb-2">
-          {isArabic ? "نتائج البحث عن:" : "Search results for:"}
-          &nbsp;<span dir="ltr">&ldquo;{query}&rdquo;</span>
-        </h1>
+        <div className={isArabic ? "text-right" : "text-left"}>
+          <h1 className="m-0 text-[1.15rem] sm:text-[1.4rem] font-bold text-[var(--bg-color-header)]">
+            {isArabic ? "نتائج البحث" : "Search Results"}
+          </h1>
 
-        {!loading && (
-          <p className="text-[0.9rem] text-gray-500 mb-6">
-            {isArabic
-              ? `${results.length} نتيجة`
-              : `${results.length} result${results.length === 1 ? "" : "s"}`}
-          </p>
-        )}
+          {query && (
+            <span className="text-[0.95rem] block mt-2">
+              {isArabic ? "نتائج البحث عن:" : "Search results for:"}{" "}
+              <strong>“{query}”</strong>
+            </span>
+          )}
 
-        <div className="mb-8">
-          <SearchBar
+          {!loading && query && (
+            <span className="text-[0.9rem] text-gray-500 block mt-2">
+              {isArabic
+                ? `${totalItems} نتيجة`
+                : `${totalItems} result${totalItems === 1 ? "" : "s"}`}
+            </span>
+          )}
+
+          {query && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="
+                mt-3 rounded-full bg-[#f3ead6]
+                px-4 py-2 text-[0.85rem] font-medium
+                text-[var(--bg-color-header)]
+                hover:bg-[#ead9b5]
+                transition
+              "
+            >
+              {isArabic ? "عرض كل الإجابات" : "Show all answers"}
+            </button>
+          )}
+        </div>
+
+        <div className="my-8">
+          <SearchBarQuestion
             direction={direction}
             placeholder={isArabic ? "ابحث..." : "Search..."}
             initialValue={query}
+            isSearchMode={Boolean(query)}
             onSubmit={handleNewSearch}
+            onClear={clearSearch}
           />
         </div>
 
-        {/* Loading */}
         {loading && (
           <div>
             {Array.from({ length: 5 }).map((_, i) => (
@@ -139,7 +194,6 @@ const SearchResults = () => {
           </div>
         )}
 
-        {/* Error */}
         {error && !loading && (
           <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
             <AlertTriangle size={32} className="text-red-500" />
@@ -147,8 +201,7 @@ const SearchResults = () => {
           </div>
         )}
 
-        {/* Empty */}
-        {!loading && !error && results.length === 0 && (
+        {!loading && !error && query && results.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
             <Inbox size={32} className="text-[var(--bg-color-header)]" />
             <p className="text-[var(--bg-color-header)] font-semibold text-base">
@@ -156,78 +209,56 @@ const SearchResults = () => {
                 ? `لم يتم العثور على نتائج لـ "${query}".`
                 : `No results found for "${query}".`}
             </p>
+
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="
+                mt-2 rounded-full bg-[#f3ead6]
+                px-4 py-2 text-[0.85rem] font-medium
+                text-[var(--bg-color-header)]
+                hover:bg-[#ead9b5]
+                transition
+              "
+            >
+              {isArabic ? "عرض كل الإجابات" : "Show all answers"}
+            </button>
           </div>
         )}
 
-        {/* Results */}
-        {!loading && results.length > 0 && (
+        {!loading && !error && !query && (
+          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+            <Inbox size={32} className="text-[var(--bg-color-header)]" />
+            <p className="text-[var(--bg-color-header)] font-semibold text-base">
+              {isArabic
+                ? "اكتب كلمة للبحث في الأسئلة."
+                : "Type a keyword to search questions."}
+            </p>
+          </div>
+        )}
+
+        {!loading && !error && results.length > 0 && (
           <>
-            {results.map((item) => (
-              <div
-                key={item._id}
-                className={`
-                  bg-[#fffdf8] border border-[#e8e0cf] rounded-[12px] px-6 py-5 mb-6
-                  transition-all duration-200 ease-in-out overflow-hidden
-                  hover:border-[var(--bg-color-header)] hover:shadow-[0_2px_10px_rgba(40,115,70,0.15)]
-                  ${isArabic ? "text-right" : "text-left"}
-                `}
-              >
-                <h2 className="text-[1.15rem] font-semibold text-[#3a2c0f] mb-2">
-                  {item.heading || item.question}
-                </h2>
-                <p className="text-[#444] leading-relaxed text-[0.95rem]">
-                  {item.answer?.slice(0, 200)}...
-                </p>
-                <button
-                  onClick={() =>
-                    navigate(
-                      `/questions/${item.slug}${isArabic ? "?lang=ar" : ""}`,
-                    )
-                  }
-                  className={`
-                    inline-block mt-3 text-white text-[0.9rem] border-none
-                    px-[1.1rem] py-[0.45rem] rounded-[6px] cursor-pointer
-                    transition-all duration-200 ease-in-out hover:brightness-110
-                    bg-[var(--bg-color-header)]
-                    ${isArabic ? "float-left" : ""}
-                  `}
-                >
-                  {isArabic ? "اقرأ مزيدًا ←" : "Read More →"}
-                </button>
-
-                {/* clearfix for Arabic float */}
-                {isArabic && <div className="clear-both" />}
-              </div>
-            ))}
-
-            {/* Pagination */}
-            <div
-              className={`flex items-center justify-between mt-10
-                ${isArabic ? "flex-row-reverse text-right" : ""}
-              `}
-            >
-              <button
-                disabled={page <= 1}
-                onClick={() => handlePageChange(page - 1)}
-                className="bg-[#f3e8c6] border-none rounded-[6px] text-[#4a3a0b] font-medium px-5 py-2 cursor-pointer transition-all duration-200 hover:bg-[#e6d497] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isArabic ? "← السابق" : "← Previous"}
-              </button>
-
-              <p className="text-[var(--bg-color-header)] font-medium">
-                {isArabic
-                  ? `الصفحة ${page} من ${totalPages}`
-                  : `Page ${page} of ${totalPages}`}
-              </p>
-
-              <button
-                disabled={page >= totalPages}
-                onClick={() => handlePageChange(page + 1)}
-                className="bg-[#f3e8c6] border-none rounded-[6px] text-[#4a3a0b] font-medium px-5 py-2 cursor-pointer transition-all duration-200 hover:bg-[#e6d497] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isArabic ? "التالي →" : "Next →"}
-              </button>
+            <div id="fatwaList">
+              {results.map((item, index) => (
+                <QuestionItem
+                  key={item._id || item.slug || index}
+                  index={(page - 1) * itemsPerPage + index}
+                  item={item}
+                  labelPrefix={isArabic ? "س" : "Q"}
+                  direction={direction}
+                  currentPage={page}
+                  highlightQuery={query}
+                />
+              ))}
             </div>
+
+            <Pagination
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              currentPage={page}
+              onPageChange={handlePageChange}
+            />
           </>
         )}
       </main>
