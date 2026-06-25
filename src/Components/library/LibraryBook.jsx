@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchBooks } from "../../api/books.js";
-import Navbar from "../../Components/Navbar";
+import Navbar from "../../Components/common/Navbar";
 import { API_BASE } from "../../../config";
 
 const CATEGORY_OPTIONS = {

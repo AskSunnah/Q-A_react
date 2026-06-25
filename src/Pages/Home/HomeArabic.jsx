@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 
-import Navbar from "../../Components/Navbar";
-import Footer from "../../Components/Footer";
+import Navbar from "../../Components/common/Navbar";
+import Footer from "../../Components/common/Footer";
 import Header from "../../Components/Home/Header";
 import IntroSection from "../../Components/Home/IntroSection";
 import RecentAnswers from "../../Components/Home/RecentAnswers";
@@ -17,7 +16,7 @@ function Home() {
     <>
       <Header
         title="اسأل السنة"
-       subtitle="منصة للمعرفة الإسلامية المبنية على القرآن والسنة"
+        subtitle="منصة للمعرفة الإسلامية المبنية على القرآن والسنة"
         buttonLabel="أرسل سؤالك"
         buttonLangLink="/"
         onOpenModal={() => setIsModalOpen(true)}

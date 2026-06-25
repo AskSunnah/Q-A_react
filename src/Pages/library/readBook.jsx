@@ -6,7 +6,7 @@ import { fetchBook } from "../../api/book.js";
 import Sidebar from "../../Components/library/Sidebar";
 import BookContent from "../../Components/library/BookContent";
 import Controls from "../../Components/library/Controls";
-import Footer from "../../Components/Footer.jsx";
+import Footer from "../../Components/common/Footer.jsx";
 import { ReportModal } from "../../Components/common/ReportableContent";
 import { FiShare2 } from "react-icons/fi";
 import { Flag } from "lucide-react";
@@ -38,15 +38,15 @@ const saveReadingProgress = ({ lang, slug, pageIndex, book }) => {
 
   localStorage.setItem(
     getReadingProgressKey(lang, slug),
-    JSON.stringify(progress)
+    JSON.stringify(progress),
   );
 
   const oldHistory = JSON.parse(
-    localStorage.getItem(getReadingHistoryKey()) || "[]"
+    localStorage.getItem(getReadingHistoryKey()) || "[]",
   );
 
   const filteredHistory = oldHistory.filter(
-    (item) => !(item.lang === lang && item.slug === slug)
+    (item) => !(item.lang === lang && item.slug === slug),
   );
 
   const newHistory = [progress, ...filteredHistory].slice(0, 30);
@@ -88,7 +88,7 @@ export default function ReadBook() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [reportOpen, setReportOpen] = useState(false);   // ← report modal state
+  const [reportOpen, setReportOpen] = useState(false); // ← report modal state
 
   const audioRef = useRef(null);
   const touchStartX = useRef(null);
@@ -129,7 +129,7 @@ export default function ReadBook() {
         return safePage;
       });
     },
-    [book, lang, slug, setSearchParams]
+    [book, lang, slug, setSearchParams],
   );
 
   // ── Load book ────────────────────────────────────────────────────────────────
@@ -194,7 +194,7 @@ export default function ReadBook() {
 
     const safePage = Math.min(
       Math.max(pageFromUrl - 1, 0),
-      book.pages.length - 1
+      book.pages.length - 1,
     );
 
     if (safePage !== currentPage) {
@@ -215,7 +215,7 @@ export default function ReadBook() {
       if (document.activeElement?.tagName === "INPUT") return;
       if (!book?.pages?.length) return;
 
-      const forwardKey  = isArabic ? "ArrowLeft"  : "ArrowRight";
+      const forwardKey = isArabic ? "ArrowLeft" : "ArrowRight";
       const backwardKey = isArabic ? "ArrowRight" : "ArrowLeft";
 
       if (e.key === forwardKey) {
@@ -240,7 +240,7 @@ export default function ReadBook() {
       const dy = e.changedTouches[0].clientY - touchStartY.current;
       if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
 
-      const swipedForward  = isArabic ? dx > 0 : dx < 0;
+      const swipedForward = isArabic ? dx > 0 : dx < 0;
       const swipedBackward = isArabic ? dx < 0 : dx > 0;
 
       if (swipedForward && currentPage < (book?.pages?.length || 0) - 1) {
@@ -283,8 +283,11 @@ export default function ReadBook() {
       ? `📖 اقرأ هذا الكتاب على موقع السنّة: ${title}`
       : `📖 Read this book on AskSunnah: ${title}`;
     if (navigator.share) {
-      try { await navigator.share({ title, text, url }); }
-      catch (err) { console.log("Sharing cancelled or failed:", err); }
+      try {
+        await navigator.share({ title, text, url });
+      } catch (err) {
+        console.log("Sharing cancelled or failed:", err);
+      }
     } else {
       await navigator.clipboard.writeText(url);
       alert(isArabic ? "📋 تم نسخ رابط الكتاب!" : "📋 Book link copied!");
@@ -298,7 +301,8 @@ export default function ReadBook() {
         <header
           className="text-white py-10 px-8 text-center shrink-0"
           style={{
-            background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/books.jpeg")',
+            background:
+              'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/books.jpeg")',
             backgroundSize: "auto",
             backgroundPosition: "center",
           }}
@@ -307,9 +311,22 @@ export default function ReadBook() {
         </header>
         <nav className="bg-[var(--bg-main)] px-6 py-4 z-10 shrink-0">
           <ul className="list-none m-0 p-0 flex flex-wrap justify-center gap-6">
-            <li><Link className="nav-link" to={lang === "ar" ? "/ar" : "/"}>{lang === "ar" ? "الرئيسية" : "Home"}</Link></li>
-            <li><Link className="nav-link" to={lang === "ar" ? "/library_ar" : "/library"}>{lang === "ar" ? "المكتبة" : "Library"}</Link></li>
-            <li><span className="nav-link opacity-60">{labels.back}</span></li>
+            <li>
+              <Link className="nav-link" to={lang === "ar" ? "/ar" : "/"}>
+                {lang === "ar" ? "الرئيسية" : "Home"}
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="nav-link"
+                to={lang === "ar" ? "/library_ar" : "/library"}
+              >
+                {lang === "ar" ? "المكتبة" : "Library"}
+              </Link>
+            </li>
+            <li>
+              <span className="nav-link opacity-60">{labels.back}</span>
+            </li>
           </ul>
         </nav>
         <div className="flex flex-row max-md:flex-col flex-1 p-4 gap-2">
@@ -317,13 +334,22 @@ export default function ReadBook() {
             <div className="h-6 w-[70%] bg-gray-300 rounded mb-5 animate-pulse" />
             <div className="space-y-3">
               {[100, 85, 90, 75, 95].map((w, i) => (
-                <div key={i} className="h-4 bg-gray-300 rounded animate-pulse" style={{ width: `${w}%` }} />
+                <div
+                  key={i}
+                  className="h-4 bg-gray-300 rounded animate-pulse"
+                  style={{ width: `${w}%` }}
+                />
               ))}
             </div>
           </div>
           <main className="flex-1 min-w-0">
-            <div className="w-full h-64 rounded-[2%] border border-double border-[var(--border-color)] overflow-hidden animate-pulse"
-              style={{ background: 'url("/test1.jpg")', backgroundSize: "cover" }} />
+            <div
+              className="w-full h-64 rounded-[2%] border border-double border-[var(--border-color)] overflow-hidden animate-pulse"
+              style={{
+                background: 'url("/test1.jpg")',
+                backgroundSize: "cover",
+              }}
+            />
           </main>
         </div>
         <Footer />
@@ -334,8 +360,16 @@ export default function ReadBook() {
   // ── Error ─────────────────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div dir={dir} className="min-h-screen flex items-center justify-center text-white text-center px-4"
-        style={{ background: 'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("/books.jpeg")', backgroundSize: "cover", backgroundPosition: "center" }}>
+      <div
+        dir={dir}
+        className="min-h-screen flex items-center justify-center text-white text-center px-4"
+        style={{
+          background:
+            'linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("/books.jpeg")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <p className="text-lg font-semibold">{error}</p>
       </div>
     );
@@ -347,12 +381,12 @@ export default function ReadBook() {
 
   return (
     <div dir={dir} className="flex flex-col h-screen overflow-hidden">
-
       {/* ── Header ── */}
       <header
         className="text-white py-6 px-8 text-center shrink-0"
         style={{
-          background: 'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/books.jpeg")',
+          background:
+            'linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("/books.jpeg")',
           backgroundSize: "auto",
           backgroundPosition: "center",
         }}
@@ -365,15 +399,29 @@ export default function ReadBook() {
       {/* ── Navbar ── */}
       <nav className="bg-[var(--bg-main)] px-6 py-3 z-10 shrink-0 border-b border-[var(--border-color)] font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]">
         <ul className="list-none m-0 p-0 flex flex-wrap justify-center gap-6">
-          <li><Link className="nav-link" to={lang === "ar" ? "/ar" : "/"}>{lang === "ar" ? "الرئيسية" : "Home"}</Link></li>
-          <li><Link className="nav-link" to={lang === "ar" ? "/library_ar" : "/library"}>{lang === "ar" ? "المكتبة" : "Library"}</Link></li>
-          <li><Link className="nav-link" to={`/books/${lang}/${slug}`}>{labels.back}</Link></li>
+          <li>
+            <Link className="nav-link" to={lang === "ar" ? "/ar" : "/"}>
+              {lang === "ar" ? "الرئيسية" : "Home"}
+            </Link>
+          </li>
+          <li>
+            <Link
+              className="nav-link"
+              to={lang === "ar" ? "/library_ar" : "/library"}
+            >
+              {lang === "ar" ? "المكتبة" : "Library"}
+            </Link>
+          </li>
+          <li>
+            <Link className="nav-link" to={`/books/${lang}/${slug}`}>
+              {labels.back}
+            </Link>
+          </li>
         </ul>
       </nav>
 
       {/* ── Body row ── */}
       <div className="flex flex-row flex-1 overflow-hidden">
-
         {/* ── Sidebar column ── */}
         <div
           className={`
@@ -390,7 +438,10 @@ export default function ReadBook() {
             <Sidebar
               open={sidebarOpen}
               chapters={book.chapters}
-              setCurrentPage={(p) => { goToPage(p); setSidebarOpen(false); }}
+              setCurrentPage={(p) => {
+                goToPage(p);
+                setSidebarOpen(false);
+              }}
               currentPage={currentPage}
               pages={book.pages}
               tocLabel={labels.toc}
@@ -410,7 +461,6 @@ export default function ReadBook() {
 
         {/* ── Main content column ── */}
         <main className="flex-1 min-w-0 overflow-y-auto pb-16">
-
           {/* Mobile sidebar toggle */}
           <button
             className="md:hidden flex items-center gap-2 text-[0.85rem] text-[var(--primary)] bg-transparent border-none cursor-pointer px-4 py-2 shrink-0"
@@ -418,12 +468,27 @@ export default function ReadBook() {
             aria-label="Toggle table of contents"
             aria-expanded={sidebarOpen}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <line x1="3" y1="6" x2="21" y2="6" />
               <line x1="3" y1="12" x2="15" y2="12" />
               <line x1="3" y1="18" x2="18" y2="18" />
             </svg>
-            {sidebarOpen ? (isArabic ? "إخفاء الفهرس" : "Hide Contents") : (isArabic ? "عرض الفهرس" : "Contents")}
+            {sidebarOpen
+              ? isArabic
+                ? "إخفاء الفهرس"
+                : "Hide Contents"
+              : isArabic
+                ? "عرض الفهرس"
+                : "Contents"}
           </button>
 
           {/* ── Action bar ── */}
@@ -444,11 +509,29 @@ export default function ReadBook() {
                     aria-label={isPlaying ? "إيقاف الصوت" : "تشغيل الصوت"}
                     className="bg-white border border-[#ccc] text-[#333] rounded-[8px] cursor-pointer px-2.5 py-1.5 flex items-center justify-center h-8 transition-all duration-200 hover:text-[#0077cc] hover:border-[#0077cc] hover:scale-105"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" width="18" height="18" style={{ transform: "scaleX(-1)" }}>
-                      {isPlaying
-                        ? <path strokeLinecap="round" strokeLinejoin="round" d="M10 9h2v6h-2zM14 9h2v6h-2z" />
-                        : <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z M16.5 8.25a3.75 3.75 0 010 7.5 m2.25-10.5a7.5 7.5 0 010 13.5" />
-                      }
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.8"
+                      stroke="currentColor"
+                      width="18"
+                      height="18"
+                      style={{ transform: "scaleX(-1)" }}
+                    >
+                      {isPlaying ? (
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M10 9h2v6h-2zM14 9h2v6h-2z"
+                        />
+                      ) : (
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M11.25 5.25 6.75 9H4.5v6h2.25l4.5 3.75V5.25z M16.5 8.25a3.75 3.75 0 010 7.5 m2.25-10.5a7.5 7.5 0 010 13.5"
+                        />
+                      )}
                     </svg>
                   </button>
                 )}
