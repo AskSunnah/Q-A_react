@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import React from "react";
+import HighlightText from "./HighlightText";
 
 const QuestionItem = ({
   item,
@@ -7,12 +8,17 @@ const QuestionItem = ({
   labelPrefix = "Q",
   direction = "ltr",
   currentPage = 1,
+  highlightQuery = "",
 }) => {
   const isRTL = direction === "rtl";
+
   const basePath = isRTL
     ? `/ar/questions/${item.slug}`
     : `/questions/${item.slug}`;
+
   const backPage = currentPage > 1 ? `?page=${currentPage}` : "";
+
+  const questionTitle = item.heading || item.question || "";
 
   return (
     <Link
@@ -56,7 +62,7 @@ const QuestionItem = ({
         {index + 1}:
       </strong>{" "}
       <span className="text-[0.9rem] sm:text-[1rem] leading-6">
-        {item.heading}
+        <HighlightText text={questionTitle} query={highlightQuery} />
       </span>
     </Link>
   );
