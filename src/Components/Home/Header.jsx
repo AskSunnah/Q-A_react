@@ -27,7 +27,7 @@ const Header = ({
    <header
   dir={dir}
   className="
-    text-white py-4 md:py-7 px-6 md:px-8
+    text-white py-8 md:py-7 px-6 md:px-8
     font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]
     bg-[linear-gradient(180deg,#e1cb57_0%,#d0b640_30%,#c3a421_65%,#a67f0f_110%)]
     border-b border-black/10 shadow-sm
