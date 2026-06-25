@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { API_BASE } from "../../../config";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 /**
  * SelectedSection — displays admin-curated selected question groups
@@ -69,7 +70,6 @@ export default function SelectedSection({ lang = "en", direction = "ltr" }) {
   );
 }
 
-
 function SelectedBlock({ section, direction, isRTL }) {
   const { title, questions = [] } = section;
 
@@ -98,7 +98,6 @@ function SelectedBlock({ section, direction, isRTL }) {
           shadow-sm
         "
       >
-
         {/* Header */}
         <div
           className={`
@@ -114,9 +113,8 @@ function SelectedBlock({ section, direction, isRTL }) {
               shadow-sm shrink-0
             "
           >
-            <Sparkles size={18} className="text-white" fill="white" />
+            <Calendar size={20} className="text-white" fill="white" />
           </div>
-
 
           <div className={isRTL ? "text-right" : "text-left"}>
             <h2
@@ -131,12 +129,9 @@ function SelectedBlock({ section, direction, isRTL }) {
               {title || (isRTL ? "أسئلة مختارة" : "Selected Questions")}
             </h2>
 
-            <p className="m-0 mt-1 text-sm text-gray-500">
-              {subtitle}
-            </p>
+            <p className="m-0 mt-1 text-sm text-gray-500">{subtitle}</p>
           </div>
         </div>
-
 
         {/* Questions */}
         {isSingle ? (
@@ -246,9 +241,7 @@ function SelectedBlock({ section, direction, isRTL }) {
                         transition-colors
                       "
                       style={
-                        isRTL
-                          ? { transform: "rotate(180deg)" }
-                          : undefined
+                        isRTL ? { transform: "rotate(180deg)" } : undefined
                       }
                     />
                   </span>
@@ -258,25 +251,22 @@ function SelectedBlock({ section, direction, isRTL }) {
           })()
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {questions.map((q, i) => {
+              const href =
+                q.lang === "ar"
+                  ? `/ar/questions/${q.slug}`
+                  : `/questions/${q.slug}`;
 
-          {questions.map((q, i) => {
+              const readMoreLabel = isRTL
+                ? "اقرأ الإجابة كاملة"
+                : "Read full answer";
 
-            const href =
-              q.lang === "ar"
-                ? `/ar/questions/${q.slug}`
-                : `/questions/${q.slug}`;
-
-            const readMoreLabel = isRTL
-              ? "اقرأ الإجابة كاملة"
-              : "Read full answer";
-
-
-            return (
-              <Link
-                key={i}
-                to={href}
-                dir={direction}
-                className={`
+              return (
+                <Link
+                  key={i}
+                  to={href}
+                  dir={direction}
+                  className={`
                   group
                   flex flex-col gap-2.5
                   rounded-2xl
@@ -291,10 +281,9 @@ function SelectedBlock({ section, direction, isRTL }) {
                   no-underline
                   ${isRTL ? "text-right" : "text-left"}
                 `}
-              >
-
-                <p
-                  className="
+                >
+                  <p
+                    className="
                     m-0
                     text-[0.95rem]
                     font-semibold
@@ -304,48 +293,44 @@ function SelectedBlock({ section, direction, isRTL }) {
                     transition-colors
                     line-clamp-2
                   "
-                >
-                  {q.heading}
-                </p>
+                  >
+                    {q.heading}
+                  </p>
 
-
-                {q.snippet && (
-                  <p
-                    className="
+                  {q.snippet && (
+                    <p
+                      className="
                       m-0
                       text-[0.82rem]
                       leading-relaxed
                       text-gray-500
                       line-clamp-2
                     "
-                  >
-                    {q.snippet}
-                  </p>
-                )}
+                    >
+                      {q.snippet}
+                    </p>
+                  )}
 
-
-                <div
-                  className={`
+                  <div
+                    className={`
                     flex items-center gap-1.5 mt-1
                    
                   `}
-                >
-
-                  <span
-                    className="
+                  >
+                    <span
+                      className="
                       text-[0.78rem]
                       font-semibold
                       text-[#c3a421]
                       group-hover:text-[var(--bg-color-header)]
                       transition-colors
                     "
-                  >
-                    {readMoreLabel}
-                  </span>
+                    >
+                      {readMoreLabel}
+                    </span>
 
-
-                  <span
-                    className="
+                    <span
+                      className="
                       w-6 h-6
                       rounded-lg
                       bg-[#fff8dc]
@@ -354,28 +339,23 @@ function SelectedBlock({ section, direction, isRTL }) {
                       group-hover:bg-[#c3a421]
                       transition-colors
                     "
-                  >
-                    <ArrowRight
-                      size={13}
-                      className="
+                    >
+                      <ArrowRight
+                        size={13}
+                        className="
                         text-[#c3a421]
                         group-hover:text-white
                         transition-colors
                       "
-                      style={
-                        isRTL
-                          ? { transform: "rotate(180deg)" }
-                          : undefined
-                      }
-                    />
-                  </span>
-
-                </div>
-
-              </Link>
-            );
-          })}
-
+                        style={
+                          isRTL ? { transform: "rotate(180deg)" } : undefined
+                        }
+                      />
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
