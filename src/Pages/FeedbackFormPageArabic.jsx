@@ -1,5 +1,5 @@
-import Navbar from "../Components/Navbar";
-import Footer from "../Components/Footer";
+import Navbar from "../Components/common/Navbar";
+import Footer from "../Components/common/Footer";
 import Header from "../Components/Home/Header";
 import FeedbackForm from "../Components/FeedbackForm";
 

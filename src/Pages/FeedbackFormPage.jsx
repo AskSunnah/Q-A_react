@@ -1,16 +1,17 @@
-import Navbar from "../Components/Navbar";
-import Footer from "../Components/Footer";
+import Navbar from "../Components/common/Navbar";
+import Footer from "../Components/common/Footer";
 import Header from "../Components/Home/Header";
 import FeedbackForm from "../Components/FeedbackForm";
 
 const ContributeP = () => {
   return (
     <>
-      <Header title="FeedBack"
-      
-       buttonLabel="Ask a Question"
+      <Header
+        title="FeedBack"
+        buttonLabel="Ask a Question"
         buttonLangLink="/ar"
-        onOpenModal={() => setIsModalOpen(true)}/>
+        onOpenModal={() => setIsModalOpen(true)}
+      />
       <Navbar
         dir="ltr"
         navItems={[

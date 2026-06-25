@@ -1,7 +1,7 @@
 import Header from "../../Components/Home/Header";
 import AboutUs from "../../Components/About/AboutUs";
-import Navbar from "../../Components/Navbar";
-import Footer from "../../Components/Footer";
+import Navbar from "../../Components/common/Navbar";
+import Footer from "../../Components/common/Footer";
 import aboutContent from "../../assets/Data/aboutContent";
 
 const AboutEnglish = () => {
@@ -10,7 +10,7 @@ const AboutEnglish = () => {
     <>
       <Header
         title="About Us"
-       subtitle="A platform for Islamic knowledge based on the Qur'an and Sunnah."
+        subtitle="A platform for Islamic knowledge based on the Qur'an and Sunnah."
         buttonLabel="Ask a Question"
         buttonLangLink="/ar"
         onOpenModal={() => setIsModalOpen(true)}

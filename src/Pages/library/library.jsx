@@ -1,7 +1,7 @@
 import { useRef } from "react";
-import Navbar from "../../Components/Navbar";
+import Navbar from "../../Components/common/Navbar";
 import LibraryMain from "../../Components/library/LibraryMain";
-import Footer from "../../Components/Footer";
+import Footer from "../../Components/common/Footer";
 import HoverHadithEn from "../../Components/library/HoverHadithEn";
 
 export default function Library() {
@@ -12,7 +12,8 @@ export default function Library() {
       <div
         className="flex flex-col min-h-screen m-0 font-[var(--font-family)]"
         style={{
-          background: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url("/books.jpeg")',
+          background:
+            'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url("/books.jpeg")',
           backgroundSize: "auto",
           backgroundPosition: "center",
         }}

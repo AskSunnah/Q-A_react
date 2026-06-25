@@ -1,7 +1,7 @@
 import Header from "../../Components/Home/Header";
 import AboutUs from "../../Components/About/AboutUs";
-import Navbar from "../../Components/Navbar";
-import Footer from "../../Components/Footer";
+import Navbar from "../../Components/common/Navbar";
+import Footer from "../../Components/common/Footer";
 import aboutContent from "../../assets/Data/aboutContent";
 
 const AboutArabic = () => {
@@ -11,7 +11,7 @@ const AboutArabic = () => {
       <Header
         title="عن الموقع"
         subtitle="منصة للمعرفة الإسلامية المبنية على القرآن والسنة"
-         buttonLabel="أرسل سؤالك"
+        buttonLabel="أرسل سؤالك"
         buttonLangLink="/"
         onOpenModal={() => setIsModalOpen(true)}
         dir="rtl"

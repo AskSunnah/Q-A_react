@@ -1,11 +1,12 @@
 // src/Components/Home/QuestionPage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import Footer from "../Footer";
-import Navbar from "../Navbar";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import Footer from "../common/Footer";
+import Navbar from "../common/Navbar";
 import { useSearchParams } from "react-router-dom";
 import { fetchFatwaBySlug } from "../../api/fatwa";
 import { ReportableContent } from "../common/ReportableContent";
+import SearchBar from "../common/SearchBarQuestion";
 import { Share2, Pin, ArrowRight } from "lucide-react";
 import { API_BASE } from "../../../config";
 
@@ -356,8 +357,10 @@ function QuestionPage({
   languageSwitcher,
 }) {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [relatedData, setRelatedData] = useState([]);
   // PinnedSidebar fetches its own data async; these track whether that
   // fetch has resolved yet and what it found, so the sidebar column can
@@ -399,6 +402,7 @@ function QuestionPage({
   useEffect(() => {
     const loadFatwa = async () => {
       setLoading(true);
+      setNotFound(false);
       // Reset state tied to the previous question before fetching the
       // new one — otherwise, navigating from question A (which had
       // related answers) to question B (which has none) briefly shows
@@ -406,13 +410,20 @@ function QuestionPage({
       // until the related-fetch effect below catches up.
       setData(null);
       setRelatedData([]);
-      console.log(`Fetching fatwa for slug: ${slug} in language: ${language}`);
-      const result = await fetchQuestionBySlug(slug);
-      if (result) {
-        setData(result);
-        document.title = result.heading;
+
+      try {
+        const result = await fetchQuestionBySlug(slug);
+        if (result) {
+          setData(result);
+          document.title = result.heading;
+        } else {
+          setNotFound(true);
+        }
+      } catch (err) {
+        setNotFound(true);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     loadFatwa();
   }, [slug]);
@@ -422,14 +433,12 @@ function QuestionPage({
       setRelatedData([]);
       return;
     }
-    console.log("Fetching related:", data.relatedQuestions);
     let cancelled = false;
     Promise.all(
       data.relatedQuestions.map((rq) => fetchFatwaBySlug(rq.slug, rq.lang)),
     )
       .then((results) => {
         if (cancelled) return;
-        console.log("Related results:", results);
         setRelatedData(results.filter(Boolean));
       })
       .catch((err) => console.error("Related fetch error:", err));
@@ -437,18 +446,6 @@ function QuestionPage({
       cancelled = true;
     };
   }, [data]);
-
-  if (loading) {
-    return (
-      <div className="text-center mt-[50px]">
-        <div className="mx-auto w-[70px] h-[70px] rounded-full animate-spin border-[7px] border-[var(--bg-color-header)] border-t-[7px] border-t-[var(--text-accent)]" />
-      </div>
-    );
-  }
-
-  if (!data) {
-    console.error(`No data found for slug: ${slug}`);
-  }
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -467,9 +464,10 @@ function QuestionPage({
         alert(language === "ar" ? "تم نسخ الرابط" : "Link copied");
       }
     } catch (err) {
-      console.log("Share cancelled");
+      // Share cancelled by user — nothing to do.
     }
   };
+
   const sectionTitleMap = {
     quran: labels.fromQuran,
     sunnah: labels.fromSunnah,
@@ -560,12 +558,7 @@ function QuestionPage({
     return elements.map((el, idx) => {
       if (typeof el === "string") {
         return (
-          <p
-            key={idx}
-            text={el}
-            as="p"
-            className="whitespace-pre-wrap leading-[1.7] mb-4"
-          >
+          <p key={idx} className="whitespace-pre-wrap leading-[1.7] mb-4">
             {renderTextWithRefs(el, idx)}
           </p>
         );
@@ -574,7 +567,7 @@ function QuestionPage({
       if (el.type === "section") {
         const sectionNumber = manualSectionCounter++;
         return (
-          <div key={idx} text={el.heading} as="div" className="mb-6">
+          <div key={idx} className="mb-6">
             <p className="text-[1.05em] font-medium mb-2">{`${sectionNumber}. ${el.heading}`}</p>
             <ul className="pl-6">
               {el.bullets.map((b, i) => (
@@ -602,6 +595,8 @@ function QuestionPage({
     });
   };
 
+  const isRTL = direction === "rtl";
+
   return (
     <>
       <Navbar
@@ -610,71 +605,113 @@ function QuestionPage({
         dir={direction}
       />
 
-      {/*
-        BASE FONT SIZE lives here on the outer container.
-        Everything inside uses em/inherit so one breakpoint scales the whole page.
-        Desktop: 17px  |  ≤768px: 16px  |  ≤480px: 15px
+      {/* Site-wide search — always visible regardless of load state, so
+          it doesn't pop in/out as the question content loads. Sticky so
+          it stays reachable while scrolling through long answers. */}
+      <div className="sticky top-0 z-20 bg-[var(--bg-main)] max-w-[1320px] mx-auto px-4 pt-4 pb-3 max-[768px]:px-3">
+        <SearchBar
+          direction={direction}
+          placeholder={isRTL ? "ابحث..." : "Search..."}
+          onSubmit={(q) =>
+            navigate(
+              `${isRTL ? "/ar" : ""}/search?q=${encodeURIComponent(q)}&page=1`,
+            )
+          }
+        />
+      </div>
 
-        Layout: main content + pinned sidebar live in a two-column flex row
-        on large screens (sidebar sits to the side of the question), and
-        stack (sidebar below content) on smaller screens. The container is
-        wider than the old single-column page (1180 -> 1320) specifically
-        so the question content doesn't lose width to the sidebar — it
-        keeps roughly its original ~887px reading width, with the sidebar
-        added on top of that rather than carved out of it.
-
-        flex-row vs flex-row-reverse: the sidebar is always the second
-        element in the DOM (it needs to load after/alongside the question
-        content), but visually it should sit on the *outer* side relative
-        to reading direction — right of the question in English, left of
-        the question in Arabic. flex-row-reverse on RTL flips the visual
-        order without touching the DOM order.
-      */}
-      <div
-        className={`
-    max-w-[1320px] mx-auto mt-8 px-4
-    flex flex-col gap-10 lg:items-start
-    ${direction === "rtl" ? "lg:flex-row-reverse" : "lg:flex-row"}
-    max-[768px]:mt-6 max-[768px]:px-3
-  `}
-      >
-        <ReportableContent
-          lang={language}
-          contentType="question"
-          slug={slug}
-          className="flex-1 min-w-0 lg:min-w-[600px]"
+      {loading ? (
+        <div className="text-center mt-[50px]">
+          <div className="mx-auto w-[70px] h-[70px] rounded-full animate-spin border-[7px] border-[var(--bg-color-header)] border-t-[7px] border-t-[var(--text-accent)]" />
+        </div>
+      ) : notFound || !data ? (
+        <div
+          dir={direction}
+          className="max-w-[600px] mx-auto text-center mt-[60px] px-4"
         >
-          <div
-            dir={direction}
+          <p className="text-[1.2rem] font-bold text-[var(--bg-color-header)] mb-2">
+            {isRTL
+              ? "لم يتم العثور على هذا السؤال."
+              : "This question couldn't be found."}
+          </p>
+          <p className="text-[0.95rem] text-gray-500 mb-6">
+            {isRTL
+              ? "قد يكون الرابط غير صحيح أو تم حذف المحتوى."
+              : "The link may be incorrect, or the content may have been removed."}
+          </p>
+          <Link
+            to={isRTL ? "/ar" : "/"}
+            className="inline-block text-[var(--bg-color-header)] no-underline font-bold hover:underline"
+          >
+            {labels.back}
+          </Link>
+        </div>
+      ) : (
+        /*
+          BASE FONT SIZE lives here on the outer container.
+          Everything inside uses em/inherit so one breakpoint scales the whole page.
+          Desktop: 17px  |  ≤768px: 16px  |  ≤480px: 15px
+
+          Layout: main content + pinned sidebar live in a two-column flex row
+          on large screens (sidebar sits to the side of the question), and
+          stack (sidebar below content) on smaller screens. The container is
+          wider than the old single-column page (1180 -> 1320) specifically
+          so the question content doesn't lose width to the sidebar — it
+          keeps roughly its original ~887px reading width, with the sidebar
+          added on top of that rather than carved out of it.
+
+          flex-row vs flex-row-reverse: the sidebar is always the second
+          element in the DOM (it needs to load after/alongside the question
+          content), but visually it should sit on the *outer* side relative
+          to reading direction — right of the question in English, left of
+          the question in Arabic. flex-row-reverse on RTL flips the visual
+          order without touching the DOM order.
+        */
+        <div
+          className={`
+    max-w-[1320px] mx-auto mt-2 px-4
+    flex flex-col gap-10 lg:items-start
+    ${isRTL ? "lg:flex-row-reverse" : "lg:flex-row"}
+    max-[768px]:mt-2 max-[768px]:px-3
+  `}
+        >
+          <ReportableContent
             lang={language}
-            className="
+            contentType="question"
+            slug={slug}
+            className="flex-1 min-w-0 lg:min-w-[600px]"
+          >
+            <div
+              dir={direction}
+              lang={language}
+              className="
         p-8 text-[17px]
         max-[768px]:p-6 max-[768px]:text-[16px]
         max-[480px]:p-4 max-[480px]:text-[15px]
       
           "
-          >
-            {/* H1 — display size, keeps its own breakpoints */}
-            <h1
-              className={`
+            >
+              {/* H1 — display size, keeps its own breakpoints */}
+              <h1
+                className={`
               text-[var(--bg-color-header)] text-[2rem] leading-[1.5] mb-5 font-bold
               max-[768px]:text-[1.6rem] max-[768px]:mb-4
               max-[480px]:text-[1.3rem] max-[480px]:leading-[1.4] max-[480px]:mb-3
-              ${direction === "rtl" ? "text-right" : "text-left"}
+              ${isRTL ? "text-right" : "text-left"}
             `}
-            >
-              {data.heading}
-            </h1>
+              >
+                {data.heading}
+              </h1>
 
-            <div
-              className={`flex mb-5 ${
-                direction === "rtl" ? "justify-start" : "justify-end"
-              }`}
-            >
-              <button
-                onClick={handleShare}
-                aria-label="Share"
-                className="
+              <div
+                className={`flex mb-5 ${
+                  isRTL ? "justify-start" : "justify-end"
+                }`}
+              >
+                <button
+                  onClick={handleShare}
+                  aria-label="Share"
+                  className="
       px-3 py-2
       rounded-lg
       border
@@ -686,166 +723,163 @@ function QuestionPage({
       hover:bg-[rgba(40,115,70,0.08)]
       transition-all
     "
-              >
-                <Share2 size={17} />
-              </button>
-            </div>
-            <p
-              text={data.question}
-              as="p"
-              className={`mb-5 leading-[1.8] ${direction === "rtl" ? "text-right" : "text-left"}`}
-            >
-              <strong>{labels.question}</strong> <span>{data.question}</span>
-            </p>
-            {/* Conclusion / Summary box */}
-            {data.conclusion && (
-              <div className="mb-6">
-                <h2 className="text-[1.05em] font-bold text-[#c3a421] mb-2">
-                  {labels.conclusion}
-                </h2>
-                <div
-                  className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
-                  style={{
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
-                  }}
                 >
-                  <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
-                    {renderTextWithRefs(data.conclusion, 0)}
-                  </p>
-                </div>
+                  <Share2 size={17} />
+                </button>
               </div>
-            )}
-
-            {/* Answer */}
-            <div className="mb-6">
               <p
-                className={`
-                mb-4 leading-[1.8]
-                ${direction === "rtl" ? "text-right" : "text-left"}
-              `}
+                className={`mb-5 leading-[1.8] ${isRTL ? "text-right" : "text-left"}`}
               >
-                <strong>{labels.answer}</strong>
+                <strong>{labels.question}</strong> <span>{data.question}</span>
               </p>
-              {data.answer && renderAnswer(data.answer)}
-            </div>
-
-            {/* Dynamic content sections (Quran, Sunnah, Salaf, Scholars) */}
-            <div id="dynamic-content">
-              {data.content?.map((section, idx) => {
-                const sectionTitle = sectionTitleMap[section.type] || "";
-
-                if (section.type === "normal") {
-                  return (
-                    <p
-                      key={idx}
-                      text={section.text}
-                      as="p"
-                      className="whitespace-pre-wrap leading-[1.7] mb-4"
-                    >
-                      {renderTextWithRefs(section.text, idx)}
+              {/* Conclusion / Summary box */}
+              {data.conclusion && (
+                <div className="mb-6">
+                  <h2 className="text-[1.05em] font-bold text-[#c3a421] mb-2">
+                    {labels.conclusion}
+                  </h2>
+                  <div
+                    className="p-5 rounded-2xl border-2 border-[rgba(195,164,33,0.5)] shadow-[0_4px_16px_rgba(0,0,0,0.18)]"
+                    style={{
+                      backdropFilter: "blur(20px)",
+                      WebkitBackdropFilter: "blur(20px)",
+                    }}
+                  >
+                    <p className="m-0 leading-[1.7] text-[#2b2b2b] whitespace-pre-wrap">
+                      {renderTextWithRefs(data.conclusion, 0)}
                     </p>
-                  );
-                }
-                const items = Array.isArray(section.items)
-                  ? section.items
-                  : [section];
-                return (
-                  <div key={idx}>
-                    {sectionTitle && (
-                      <h2
-                        className={`
+                  </div>
+                </div>
+              )}
+
+              {/* Answer */}
+              <div className="mb-6">
+                <p
+                  className={`
+                mb-4 leading-[1.8]
+                ${isRTL ? "text-right" : "text-left"}
+              `}
+                >
+                  <strong>{labels.answer}</strong>
+                </p>
+                {data.answer && renderAnswer(data.answer)}
+              </div>
+
+              {/* Dynamic content sections (Quran, Sunnah, Salaf, Scholars) */}
+              <div id="dynamic-content">
+                {data.content?.map((section, idx) => {
+                  const sectionTitle = sectionTitleMap[section.type] || "";
+
+                  if (section.type === "normal") {
+                    return (
+                      <p
+                        key={idx}
+                        className="whitespace-pre-wrap leading-[1.7] mb-4"
+                      >
+                        {renderTextWithRefs(section.text, idx)}
+                      </p>
+                    );
+                  }
+                  const items = Array.isArray(section.items)
+                    ? section.items
+                    : [section];
+                  return (
+                    <div key={idx}>
+                      {sectionTitle && (
+                        <h2
+                          className={`
                         text-[var(--bg-color-header)] mt-8 mb-4 text-[1.15em] font-bold
                         max-[480px]:mt-5 max-[480px]:mb-3
-                        ${direction === "rtl" ? "text-right" : "text-left"}
+                        ${isRTL ? "text-right" : "text-left"}
                       `}
-                      >
-                        {sectionTitle}
-                      </h2>
-                    )}
-                    <ul className="ps-5 list-disc">
-                      {items.map((item, i) => (
-                        <li key={i} className="mb-6">
-                          {item.reference && (
-                            <strong
-                              className={`block mb-2 text-[0.9em] ${direction === "rtl" ? "text-right" : "text-left"}`}
-                            >
-                              {item.reference}
-                            </strong>
-                          )}
-                          {item.narrator && (
-                            <em
-                              className={`block mb-2 text-[0.875em] ${direction === "rtl" ? "text-right" : "text-left"}`}
-                            >
-                              {item.narrator}
-                            </em>
-                          )}
-                          <blockquote
-                            className={`
+                        >
+                          {sectionTitle}
+                        </h2>
+                      )}
+                      <ul className="ps-5 list-disc">
+                        {items.map((item, i) => (
+                          <li key={i} className="mb-6">
+                            {item.reference && (
+                              <strong
+                                className={`block mb-2 text-[0.9em] ${isRTL ? "text-right" : "text-left"}`}
+                              >
+                                {item.reference}
+                              </strong>
+                            )}
+                            {item.narrator && (
+                              <em
+                                className={`block mb-2 text-[0.875em] ${isRTL ? "text-right" : "text-left"}`}
+                              >
+                                {item.narrator}
+                              </em>
+                            )}
+                            <blockquote
+                              className={`
                             bg-[var(--bg-light)] border-s-[5px] border-[var(--bg-color-header)]
                             my-5 px-5 py-4 italic mb-2
                             max-[480px]:px-4 max-[480px]:py-3 max-[480px]:my-4
-                            ${direction === "rtl" ? "text-right" : "text-left"}
+                            ${isRTL ? "text-right" : "text-left"}
                           `}
-                          >
-                            {renderTextWithRefs(item.text, idx)}
-                          </blockquote>
-                          {item.commentary && (
-                            <p className="whitespace-pre-wrap leading-[1.7] mb-4">
-                              {renderTextWithRefs(item.commentary, idx)}
-                            </p>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })}
+                            >
+                              {renderTextWithRefs(item.text, idx)}
+                            </blockquote>
+                            {item.commentary && (
+                              <p className="whitespace-pre-wrap leading-[1.7] mb-4">
+                                {renderTextWithRefs(item.commentary, idx)}
+                              </p>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-[#c3a421] my-8 opacity-60" />
+
+              <p>
+                <strong>{labels.andAllahKnowsBest}</strong>
+              </p>
+
+              <Link
+                to={backLink}
+                className="inline-block mt-8 text-[var(--bg-color-header)] no-underline font-bold hover:underline"
+              >
+                {labels.back}
+              </Link>
             </div>
+          </ReportableContent>
 
-            {/* Divider */}
-            <div className="h-px bg-[#c3a421] my-8 opacity-60" />
-
-            <p>
-              <strong>{labels.andAllahKnowsBest}</strong>
-            </p>
-
-            <Link
-              to={backLink}
-              className="inline-block mt-8 text-[var(--bg-color-header)] no-underline font-bold hover:underline"
-            >
-              {labels.back}
-            </Link>
-          </div>
-        </ReportableContent>
-
-        {/* Sidebar rail — Pinned questions first, Related Answers below it.
+          {/* Sidebar rail — Pinned questions first, Related Answers below it.
             Both use the same compact card styling so they read as one
             continuous "more to read" rail rather than two different UIs.
             We wait for PinnedSidebar's fetch to resolve (pinnedLoaded)
             before deciding whether to show the column at all, so a page
             with neither pinned nor related content doesn't leave an
             empty 300px gap (and, on mobile, empty space before the footer). */}
-        {(!pinnedLoaded || hasPinned || hasRelated) && (
-          <div className="w-full lg:w-[300px] shrink-0 mb-10 lg:mb-0 lg:pt-8 space-y-6">
-            <PinnedSidebar
-              language={language}
-              direction={direction}
-              onLoaded={(found) => {
-                setHasPinned(found);
-                setPinnedLoaded(true);
-              }}
-            />
-            {hasRelated && (
-              <RelatedAnswersSidebar
-                relatedData={relatedData}
-                relatedQuestions={data.relatedQuestions}
+          {(!pinnedLoaded || hasPinned || hasRelated) && (
+            <div className="w-full lg:w-[300px] shrink-0 mb-10 lg:mb-0 lg:pt-2 space-y-6">
+              <PinnedSidebar
+                language={language}
                 direction={direction}
+                onLoaded={(found) => {
+                  setHasPinned(found);
+                  setPinnedLoaded(true);
+                }}
               />
-            )}
-          </div>
-        )}
-      </div>
+              {hasRelated && (
+                <RelatedAnswersSidebar
+                  relatedData={relatedData}
+                  relatedQuestions={data.relatedQuestions}
+                  direction={direction}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <Footer lang={language} />
     </>

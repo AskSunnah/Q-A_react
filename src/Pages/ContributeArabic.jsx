@@ -3,16 +3,20 @@
 // ------------------------------
 
 import React from "react";
-import Navbar from "../Components/Navbar";
+import Navbar from "../Components/common/Navbar";
 import Contribute from "../Components/Contribute/Contribute";
 import Header from "../Components/Home/Header";
 
 const ContributePageAr = () => {
   return (
     <>
-      <Header title="ساهم معنا" dir="rtl" buttonLabel="أرسل سؤالك"
+      <Header
+        title="ساهم معنا"
+        dir="rtl"
+        buttonLabel="أرسل سؤالك"
         buttonLangLink="/"
-        onOpenModal={() => setIsModalOpen(true)} />
+        onOpenModal={() => setIsModalOpen(true)}
+      />
       <Navbar
         dir="rtl"
         navItems={[
