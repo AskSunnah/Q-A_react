@@ -604,14 +604,10 @@ function QuestionPage({
         languageSwitcher={languageSwitcher ?? defaultLanguageSwitcher}
         dir={direction}
       />
-
-      {/* Site-wide search — always visible regardless of load state, so
-          it doesn't pop in/out as the question content loads. Sticky so
-          it stays reachable while scrolling through long answers. */}
       <div className="sticky top-0 z-20 bg-[var(--bg-main)] max-w-[1320px] mx-auto px-4 pt-4 pb-3 max-[768px]:px-3">
         <SearchBar
           direction={direction}
-          placeholder={isRTL ? "ابحث..." : "Search..."}
+          placeholder={isRTL ? "ابحث في الأسئلة..." : "Search Questions..."}
           onSubmit={(q) =>
             navigate(
               `${isRTL ? "/ar" : ""}/search?q=${encodeURIComponent(q)}&page=1`,
