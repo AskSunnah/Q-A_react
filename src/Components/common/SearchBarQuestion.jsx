@@ -36,7 +36,7 @@ function saveRecent(lang, query) {
 
 const SearchBarQuestion = ({
   direction = "ltr",
-  placeholder = "Search...",
+  placeholder = "Search Questions...",
   initialValue = "",
   onSubmit,
   onClear,

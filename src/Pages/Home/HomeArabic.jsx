@@ -61,7 +61,7 @@ function Home() {
         <RecentAnswers
           fetchFatwas={fetchAllFatwasArabic}
           sectionTitle="الاجابات الجديدة"
-          searchPlaceholder="ابحث..."
+          searchPlaceholder="ابحث في الأسئلة..."
           questionLabel="س"
           direction="rtl"
         />

@@ -179,7 +179,9 @@ const SearchResults = () => {
         <div className="my-8">
           <SearchBarQuestion
             direction={direction}
-            placeholder={isArabic ? "ابحث..." : "Search..."}
+            placeholder={
+              isArabic ? "ابحث في الأسئلة..." : "Search Questions..."
+            }
             initialValue={query}
             isSearchMode={Boolean(query)}
             onSubmit={handleNewSearch}

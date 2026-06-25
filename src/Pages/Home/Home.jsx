@@ -61,7 +61,7 @@ function Home() {
         <RecentAnswers
           fetchFatwas={fetchAllFatwas}
           sectionTitle="Recent Answers"
-          searchPlaceholder="Search..."
+          searchPlaceholder="Search Questions..."
           questionLabel="Q"
           direction="ltr"
         />

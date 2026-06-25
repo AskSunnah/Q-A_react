@@ -4,11 +4,12 @@ import Pagination from "./Pagination";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { searchFatwas } from "../../api/searchqa";
 import SearchBarQuestion from "../common/SearchBarQuestion";
+import { Inbox } from "lucide-react";
 
 const RecentAnswers = ({
   fetchFatwas,
   sectionTitle = "Recent Answers",
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "Search Questions...",
   questionLabel = "Q",
   direction = "ltr",
 }) => {
@@ -247,10 +248,16 @@ const RecentAnswers = ({
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-            <span className="text-[2rem]">📭</span>
+            <Inbox size={32} className="text-[var(--bg-color-header)]" />
 
             <p className="text-[var(--bg-color-header)] font-semibold text-[1rem]">
-              {isRTL ? "لم يتم العثور على إجابات." : "No answers found."}
+              {isSearchMode
+                ? isRTL
+                  ? "لم يتم العثور على نتائج."
+                  : "No results found."
+                : isRTL
+                  ? "لا توجد إجابات بعد."
+                  : "No answers available yet."}
             </p>
 
             {isSearchMode && (
@@ -258,12 +265,12 @@ const RecentAnswers = ({
                 type="button"
                 onClick={clearSearch}
                 className="
-                  mt-2 rounded-full bg-[#f3ead6]
-                  px-4 py-2 text-[0.85rem] font-medium
-                  text-[var(--bg-color-header)]
-                  hover:bg-[#ead9b5]
-                  transition
-                "
+        mt-2 rounded-full bg-[#f3ead6]
+        px-4 py-2 text-[0.85rem] font-medium
+        text-[var(--bg-color-header)]
+        hover:bg-[#ead9b5]
+        transition
+      "
               >
                 {isRTL ? "عرض كل الإجابات" : "Show all answers"}
               </button>
