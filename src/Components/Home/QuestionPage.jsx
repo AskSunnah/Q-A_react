@@ -607,7 +607,9 @@ function QuestionPage({
       <div className="sticky top-0 z-20 bg-[var(--bg-main)] max-w-[1320px] mx-auto px-4 pt-4 pb-3 max-[768px]:px-3">
         <SearchBar
           direction={direction}
-          placeholder={isRTL ? "ابحث في الأسئلة..." : "Search Questions..."}
+          placeholder={
+            isRTL ? "تصفح المزيد من الأسئلة ..." : "Search More Questions..."
+          }
           onSubmit={(q) =>
             navigate(
               `${isRTL ? "/ar" : ""}/search?q=${encodeURIComponent(q)}&page=1`,
