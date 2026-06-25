@@ -156,6 +156,7 @@ function App() {
           <Route path="/contribute" element={<ContributePage />} />
           <Route path="/ar/contribute" element={<ContributePageAr />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/ar/search" element={<SearchResults />} />
         </Routes>
       </div>
     </Router>

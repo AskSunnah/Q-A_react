@@ -4,6 +4,7 @@ import { AlertTriangle, Inbox } from "lucide-react";
 
 import Navbar from "./../../Components/common/Navbar";
 import Footer from "./../../Components/common/Footer";
+import Header from "./../../Components/Home/Header";
 import QuestionItemSkeleton from "./../../Components/common/QuestionItemSkeleton";
 import SearchBarQuestion from "./../../Components/common/SearchBarQuestion";
 import QuestionItem from "./../../Components/Home/QuestionItem";

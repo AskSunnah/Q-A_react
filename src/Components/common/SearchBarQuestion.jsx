@@ -28,7 +28,7 @@ function saveRecent(lang, query) {
   try {
     localStorage.setItem(`${RECENT_KEY_PREFIX}${lang}`, JSON.stringify(next));
   } catch {
-    // localStorage unavailable
+    // ignore localStorage errors
   }
 
   return next;
@@ -80,9 +80,7 @@ const SearchBarQuestion = ({
       return;
     }
 
-    const updatedRecent = saveRecent(lang, query);
-    setRecentSearches(updatedRecent);
-
+    setRecentSearches(saveRecent(lang, query));
     onSubmit(query);
   };
 
@@ -119,76 +117,71 @@ const SearchBarQuestion = ({
     <div
       ref={boxRef}
       className="
-        relative rounded-xl border border-[#e6dcc5]
-        bg-[#fffdf8] px-4 py-3
+        relative w-full rounded-xl border border-[#e6dcc5]
+        bg-[#fffdf8] px-3 py-3 sm:px-4
         shadow-[0_4px_14px_rgba(0,0,0,0.05)]
         focus-within:border-[var(--bg-color-header)]
         transition-all
       "
     >
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <div className="flex items-center gap-3 flex-1">
-          <Search
-            size={17}
-            className="text-[var(--bg-color-header)] shrink-0"
-          />
+      <div className="flex items-center gap-2 sm:gap-3">
+        <Search size={17} className="text-[var(--bg-color-header)] shrink-0" />
 
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            onFocus={() => {
-              if (!searchText.trim() && recentSearches.length > 0) {
-                setShowRecent(true);
-              }
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder={placeholder}
-            dir={direction}
-            autoComplete="off"
-            className={`
-              w-full bg-transparent text-[0.9rem] sm:text-base
-              outline-none placeholder:text-[#9a8f7a]
-              ${isRTL ? "text-right" : "text-left"}
-            `}
-          />
-        </div>
+        <input
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onFocus={() => {
+            if (!searchText.trim() && recentSearches.length > 0) {
+              setShowRecent(true);
+            }
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          dir={direction}
+          autoComplete="off"
+          className={`
+            min-w-0 flex-1 bg-transparent
+            text-[0.9rem] sm:text-base
+            outline-none placeholder:text-[#9a8f7a]
+            ${isRTL ? "text-right" : "text-left"}
+          `}
+        />
 
-        <div className={`flex gap-2 ${isRTL ? "justify-end" : ""}`}>
+        {(searchText || isSearchMode) && (
           <button
             type="button"
-            onClick={() => submit()}
+            onClick={clearSearch}
+            aria-label={isRTL ? "مسح البحث" : "Clear search"}
             className="
-              rounded-full bg-[var(--bg-color-header)]
-              text-white text-[0.85rem]
-              px-4 py-1.5 font-medium
-              hover:brightness-110 transition shrink-0
+              shrink-0 rounded-full bg-[#f3ead6]
+              text-[var(--bg-color-header)]
+              w-8 h-8 flex items-center justify-center
+              hover:bg-[#ead9b5] transition
             "
           >
-            {isRTL ? "بحث" : "Search"}
+            <X size={15} />
           </button>
+        )}
 
-          {(searchText || isSearchMode) && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="
-                rounded-full bg-[#f3ead6]
-                text-[var(--bg-color-header)] text-[0.85rem]
-                px-4 py-1.5 font-medium
-                hover:bg-[#ead9b5] transition shrink-0
-              "
-            >
-              {isRTL ? "مسح" : "Clear"}
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => submit()}
+          className="
+            shrink-0 rounded-full bg-[var(--bg-color-header)]
+            text-white text-[0.78rem] sm:text-[0.85rem]
+            px-3 sm:px-4 py-2 font-medium
+            hover:brightness-110 transition
+          "
+        >
+          {isRTL ? "بحث" : "Search"}
+        </button>
       </div>
 
       {showRecent && recentSearches.length > 0 && (
         <div
           className={`
-            absolute left-4 right-4 top-[calc(100%-4px)] z-30
+            absolute left-3 right-3 top-[calc(100%+6px)] z-30
             overflow-hidden rounded-xl border border-[#eadfca] bg-white
             shadow-[0_10px_30px_rgba(0,0,0,0.12)]
             ${isRTL ? "text-right" : "text-left"}
@@ -203,12 +196,10 @@ const SearchBarQuestion = ({
               type="button"
               onClick={clearRecentSearches}
               className="
-                flex items-center gap-1 text-[0.75rem]
-                text-[#9a8f7a]
+                text-[0.75rem] text-[#9a8f7a]
                 hover:text-[var(--bg-color-header)] transition
               "
             >
-              <X size={12} />
               {isRTL ? "مسح" : "Clear"}
             </button>
           </div>
