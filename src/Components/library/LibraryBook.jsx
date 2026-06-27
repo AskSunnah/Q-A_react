@@ -208,9 +208,9 @@ function CustomSelect({
   const allOptions = groups ? groups.flatMap((g) => g.options) : options;
   const isActive = value && value !== "all" && value !== "order";
 
-const currentLabel = isActive
-  ? placeholder
-  : allOptions.find((o) => o.value === value)?.label ?? placeholder;
+  const currentLabel = isActive
+    ? placeholder
+    : (allOptions.find((o) => o.value === value)?.label ?? placeholder);
   const hasValue = value && allOptions.some((o) => o.value === value);
   const showIndicator = hasValue && value !== "all" && value !== "order";
 
@@ -232,13 +232,11 @@ const currentLabel = isActive
           handleSelect(option.value);
         }}
         className={`w-full flex items-center gap-2 px-3 py-[7px] text-[13px] text-[#3a2000] ${
-  dir === "rtl" ? "text-right" : "text-left"
-} cursor-pointer transition-colors duration-75 ${
-  isActive
-    ? "bg-[#fef3c7] font-semibold"
-    : "hover:bg-[#fef9ed]"
-}`}
-style={{ direction: dir }}
+          dir === "rtl" ? "text-right" : "text-left"
+        } cursor-pointer transition-colors duration-75 ${
+          isActive ? "bg-[#fef3c7] font-semibold" : "hover:bg-[#fef9ed]"
+        }`}
+        style={{ direction: dir }}
       >
         <span
           className="flex-1 break-words whitespace-normal"
@@ -265,7 +263,6 @@ style={{ direction: dir }}
   };
 
   return (
-    
     <div
       ref={wrapRef}
       className="relative w-full"
@@ -301,9 +298,10 @@ style={{ direction: dir }}
 
       {open && (
         <div
-         className={`absolute top-[calc(100%+5px)] ${
-  dir === "rtl" ? "right-0" : "left-0"
-} z-50 bg-white border border-[#e6dcc5] rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.12)] overflow-hidden`}style={{
+          className={`absolute top-[calc(100%+5px)] ${
+            dir === "rtl" ? "right-0" : "left-0"
+          } z-50 bg-white border border-[#e6dcc5] rounded-[10px] shadow-[0_4px_20px_rgba(0,0,0,0.12)] overflow-hidden`}
+          style={{
             minWidth: "100%",
             width: dropdownWidth,
             maxWidth: "min(90vw, 320px)",
@@ -383,17 +381,17 @@ style={{ direction: dir }}
 // ─── SearchSuggestions dropdown ───────────────────────────────────────────────
 function SearchSuggestions({ suggestions, onSelect, dir, visible }) {
   if (!visible || !suggestions.length) return null;
-const typeLabel = (type) => {
-  if (dir === "rtl") {
-    if (type === "author") return "مؤلف";
-    if (type === "category") return "تصنيف";
-    return "كتاب";
-  }
+  const typeLabel = (type) => {
+    if (dir === "rtl") {
+      if (type === "author") return "مؤلف";
+      if (type === "category") return "تصنيف";
+      return "كتاب";
+    }
 
-  if (type === "author") return "Author";
-  if (type === "category") return "Category";
-  return "Book";
-};
+    if (type === "author") return "Author";
+    if (type === "category") return "Category";
+    return "Book";
+  };
 
   return (
     <div
@@ -408,15 +406,16 @@ const typeLabel = (type) => {
             e.preventDefault();
             onSelect(s);
           }}
-       className={`w-full flex items-center gap-2.5 px-3.5 py-[9px] ${
-  dir === "rtl" ? "text-right" : "text-left"
-} hover:bg-[#fef9ed] transition-colors border-b border-[#f5f0e5] last:border-0`} >
+          className={`w-full flex items-center gap-2.5 px-3.5 py-[9px] ${
+            dir === "rtl" ? "text-right" : "text-left"
+          } hover:bg-[#fef9ed] transition-colors border-b border-[#f5f0e5] last:border-0`}
+        >
           <SuggestionIcon type={s.type} />
-       <span
-  className={`flex-1 text-[13px] text-[#3a2000] font-medium truncate ${
-    dir === "rtl" ? "text-right" : "text-left"
-  }`}
->
+          <span
+            className={`flex-1 text-[13px] text-[#3a2000] font-medium truncate ${
+              dir === "rtl" ? "text-right" : "text-left"
+            }`}
+          >
             {s.label}
           </span>
           <span className="text-[10.5px] text-[#c4b08a] font-medium shrink-0">
@@ -751,6 +750,16 @@ export default function BookLibrary({ lang = "en" }) {
   // ── Helpers ───────────────────────────────────────────────────────────────
   const getBookLink = (slug) => `/library/read/${lang}/${slug}`;
 
+  // Wrap setAuthor calls to also clear search:
+  const handleAuthorChange = (val) => {
+    setAuthor(val);
+    if (val !== "all") {
+      setSearch("");
+      setDebouncedSearch("");
+      setSuggestions([]);
+      setFuzzyAccepted(null);
+    }
+  };
   const handleDownload = async (bookId) => {
     try {
       const res = await fetch(`${API_BASE}/api/books/${bookId}/download`);
@@ -795,15 +804,21 @@ export default function BookLibrary({ lang = "en" }) {
     setSuggestions([]);
   };
 
-  // User clicks a suggestion pill
-  const handleSuggestionSelect = (suggestion) => {
-    const label = suggestion.label;
-    setSearch(label);
-    setDebouncedSearch(label);
-    setShowSuggestions(false);
-    setSuggestions([]);
-    setFuzzyAccepted(null);
-  };
+ const handleSuggestionSelect = (suggestion) => {
+  setShowSuggestions(false);
+  setSuggestions([]);
+  setFuzzyAccepted(null);
+
+  if (suggestion.type === "category") {
+    // Set the category dropdown, clear the search box
+    setCategory(suggestion.value); // value is already "aqeedah", "hadith" etc.
+    setSearch("");
+    setDebouncedSearch("");
+  } else {
+    setSearch(suggestion.label);
+    setDebouncedSearch(suggestion.label);
+  }
+};
 
   // User accepts the fuzzy suggestion → search with the corrected term
   const handleFuzzyAccept = (correction) => {
@@ -908,6 +923,7 @@ export default function BookLibrary({ lang = "en" }) {
                   setSearch(e.target.value);
                   setShowSuggestions(true);
                   setFuzzyAccepted(null);
+                  if (author !== "all") setAuthor("all");
                 }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -994,7 +1010,7 @@ export default function BookLibrary({ lang = "en" }) {
             <CustomSelect
               value={category}
               onChange={setCategory}
-            placeholder={getCategoryLabel("all")}
+              placeholder={getCategoryLabel("all")}
               options={CATEGORY_OPTIONS[lang] || CATEGORY_OPTIONS.en}
               dir={dir}
               minWidth="0"
@@ -1003,8 +1019,8 @@ export default function BookLibrary({ lang = "en" }) {
 
             <CustomSelect
               value={author}
-              onChange={setAuthor}
-               placeholder={t("allAuthors")}
+              onChange={handleAuthorChange}
+              placeholder={t("allAuthors")}
               options={[
                 { value: "all", label: t("allAuthors") },
                 ...authorOptions.map((name) => ({ value: name, label: name })),
@@ -1021,7 +1037,7 @@ export default function BookLibrary({ lang = "en" }) {
             <CustomSelect
               value={sort}
               onChange={setSort}
-               placeholder={getSortLabel("order")}
+              placeholder={getSortLabel("order")}
               groups={[
                 {
                   label: lang === "ar" ? "الترتيب" : "Order",
@@ -1044,21 +1060,19 @@ export default function BookLibrary({ lang = "en" }) {
           </div>
         </div>
 
-
-
         {/* ── Active filter chips ───────────────────────────────────────── */}
-{hasAnyActiveState && !loading && (
-  <div className="mb-5">
-    {/* Header */}
-    <div className="flex items-center mb-2">
-      <span className="text-[0.7rem] text-white font-semibold uppercase tracking-wide">
-        {t("activeFilters")}
-      </span>
+        {hasAnyActiveState && !loading && (
+          <div className="mb-5">
+            {/* Header */}
+            <div className="flex items-center mb-2">
+              <span className="text-[0.7rem] text-white font-semibold uppercase tracking-wide">
+                {t("activeFilters")}
+              </span>
 
-     <button
-  type="button"
-  onClick={resetFilters}
-  className={`
+              <button
+                type="button"
+                onClick={resetFilters}
+                className={`
     inline-flex items-center gap-1.5
     px-3 py-1.5
     rounded-full
@@ -1070,66 +1084,61 @@ export default function BookLibrary({ lang = "en" }) {
     hover:bg-[#e2f5e8]
     hover:border-[#1f6f3e]
     transition-all duration-200
-    ${
-      dir === "rtl" ? "mr-auto" : "ml-auto"
-    }
+    ${dir === "rtl" ? "mr-auto" : "ml-auto"}
   `}
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-3.5 h-3.5"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-    />
-  </svg>
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
 
-  {lang === "ar" ? "مسح الكل" : "Clear all"}
-</button>
-    </div>
+                {lang === "ar" ? "مسح الكل" : "Clear all"}
+              </button>
+            </div>
 
-    {/* Chips */}
-    <div className="flex flex-wrap gap-2">
-      {debouncedSearch && (
-        <FilterChip
-          label={`"${fuzzyAccepted || debouncedSearch}"`}
-          onRemove={() => {
-            setSearch("");
-            setDebouncedSearch("");
-            setFuzzyAccepted(null);
-          }}
-        />
-      )}
+            {/* Chips */}
+            <div className="flex flex-wrap gap-2">
+              {debouncedSearch && (
+                <FilterChip
+                  label={`"${fuzzyAccepted || debouncedSearch}"`}
+                  onRemove={() => {
+                    setSearch("");
+                    setDebouncedSearch("");
+                    setFuzzyAccepted(null);
+                  }}
+                />
+              )}
 
-      {category !== "all" && (
-        <FilterChip
-          label={getCategoryLabel(category)}
-          onRemove={() => setCategory("all")}
-        />
-      )}
+              {category !== "all" && (
+                <FilterChip
+                  label={getCategoryLabel(category)}
+                  onRemove={() => setCategory("all")}
+                />
+              )}
 
-      {author !== "all" && (
-        <FilterChip
-          label={author}
-          onRemove={() => setAuthor("all")}
-        />
-      )}
+              {author !== "all" && (
+                <FilterChip label={author} onRemove={() => setAuthor("all")} />
+              )}
 
-      {sort !== "order" && (
-        <FilterChip
-          label={getSortLabel(sort)}
-          onRemove={() => setSort("order")}
-        />
-      )}
-    </div>
-  </div>
-)}
+              {sort !== "order" && (
+                <FilterChip
+                  label={getSortLabel(sort)}
+                  onRemove={() => setSort("order")}
+                />
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── Content ──────────────────────────────────────────────────── */}
         {loading ? (
