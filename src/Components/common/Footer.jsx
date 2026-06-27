@@ -12,7 +12,8 @@ const Footer = ({ lang = "en" }) => {
       : "A platform for Islamic knowledge based on the Qur'an and Sunnah.",
     copyright: isArabic
       ? `© ${currentYear} اسأل السنة. جميع الحقوق محفوظة.`
-      : `Copyright © 17153988 CANADA ASSOCIATION | AskSunnah ${currentYear}. All rights reserved.`,
+      : //Copyright © 17153988 CANADA ASSOCIATION
+        `AskSunnah ${currentYear}. All rights reserved.`,
     terms: isArabic ? "الشروط والأحكام" : "Terms & Conditions",
     termsLink: isArabic ? "/ar/terms" : "/terms",
     dir: isArabic ? "rtl" : "ltr",
