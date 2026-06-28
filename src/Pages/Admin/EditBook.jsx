@@ -91,7 +91,7 @@ export default function EditBook() {
         birthYear: null,
         birthYearUnknown: false,
         deathYear: null,
-        deathYearUnknown: false,
+        deathStatus: "unknown",
       });
       return;
     }
@@ -110,7 +110,7 @@ export default function EditBook() {
         birthYear: null,
         birthYearUnknown: false,
         deathYear: null,
-        deathYearUnknown: false,
+        deathStatus: "unknown",
       }));
       return;
     }
@@ -123,13 +123,45 @@ export default function EditBook() {
       birthYear: author.birthYear ?? null,
       birthYearUnknown: !!author.birthYearUnknown,
       deathYear: author.deathYear ?? null,
-      deathYearUnknown: !!author.deathYearUnknown,
+      deathStatus: author.deathStatus || "unknown",
     }));
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (
+      !["known", "unknown", "living"].includes(book.deathStatus || "unknown")
+    ) {
+      setModal({
+        show: true,
+        title: "Invalid Death Status",
+        message: "Please select a valid death status.",
+      });
+      return;
+    }
 
+    if (book.deathStatus === "known" && !book.deathYear) {
+      setModal({
+        show: true,
+        title: "Missing Death Year",
+        message: "Death year is required when death status is known.",
+      });
+      return;
+    }
+
+    if (
+      book.deathStatus === "known" &&
+      book.birthYear &&
+      book.deathYear &&
+      Number(book.deathYear) < Number(book.birthYear)
+    ) {
+      setModal({
+        show: true,
+        title: "Invalid Years",
+        message: "Death year cannot be before birth year.",
+      });
+      return;
+    }
     try {
       await saveBookAdmin(lang, slug, book);
 
@@ -246,7 +278,6 @@ export default function EditBook() {
                 )
               }
               disabled={!!book.authorId || !!book.birthYearUnknown}
-              placeholder="e.g. 1263"
             />
             <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
               <input
@@ -265,37 +296,76 @@ export default function EditBook() {
             </label>
           </div>
 
-          <label className={labelCls}>Death Year:</label>
-          <div className="flex items-center gap-3 mb-4">
-            <input
-              type="number"
-              className={`flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${disabledFieldCls}`}
-              value={book.deathYear ?? ""}
-              onChange={(e) =>
-                handleFieldChange(
-                  "deathYear",
-                  e.target.value ? Number(e.target.value) : null,
-                )
-              }
-              disabled={!!book.authorId || !!book.deathYearUnknown}
-              placeholder="e.g. 1328"
-            />
-            <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+          <label className={labelCls}>Death Status:</label>
+          <div className="flex flex-wrap gap-4 mb-4">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input
-                type="checkbox"
-                checked={!!book.deathYearUnknown}
+                type="radio"
+                name="deathStatus"
+                checked={book.deathStatus === "known"}
                 disabled={!!book.authorId}
-                onChange={(e) =>
+                onChange={() =>
                   setBook((b) => ({
                     ...b,
-                    deathYearUnknown: e.target.checked,
-                    deathYear: e.target.checked ? null : b.deathYear,
+                    deathStatus: "known",
                   }))
                 }
               />
-              Unknown / Still alive
+              Death year known
+            </label>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="deathStatus"
+                checked={book.deathStatus === "unknown"}
+                disabled={!!book.authorId}
+                onChange={() =>
+                  setBook((b) => ({
+                    ...b,
+                    deathStatus: "unknown",
+                    deathYear: null,
+                  }))
+                }
+              />
+              Death year unknown
+            </label>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="deathStatus"
+                checked={book.deathStatus === "living"}
+                disabled={!!book.authorId}
+                onChange={() =>
+                  setBook((b) => ({
+                    ...b,
+                    deathStatus: "living",
+                    deathYear: null,
+                  }))
+                }
+              />
+              Still alive
             </label>
           </div>
+
+          {book.deathStatus === "known" && (
+            <>
+              <label className={labelCls}>Death Year:</label>
+              <input
+                type="number"
+                className={`block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${disabledFieldCls}`}
+                value={book.deathYear ?? ""}
+                onChange={(e) =>
+                  handleFieldChange(
+                    "deathYear",
+                    e.target.value ? Number(e.target.value) : null,
+                  )
+                }
+                disabled={!!book.authorId}
+              />
+            </>
+          )}
 
           <label className={labelCls}>Description:</label>
           <textarea

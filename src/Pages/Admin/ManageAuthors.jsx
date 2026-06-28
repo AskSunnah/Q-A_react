@@ -14,7 +14,7 @@ const BLANK_AUTHOR = {
   birthYear: null,
   birthYearUnknown: false,
   deathYear: null,
-  deathYearUnknown: false,
+  deathStatus: "unknown",
 };
 function YearFields({ value, onChange, labelCls }) {
   return (
@@ -50,38 +50,73 @@ function YearFields({ value, onChange, labelCls }) {
           Unknown
         </label>
       </div>
-
-      <label className={labelCls}>Death Year:</label>
-      <div className="flex items-center gap-3 mb-4">
-        <input
-          type="number"
-          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
-          value={value.deathYear ?? ""}
-          onChange={(e) =>
-            onChange({
-              ...value,
-              deathYear: e.target.value ? Number(e.target.value) : null,
-            })
-          }
-          disabled={!!value.deathYearUnknown}
-          placeholder="e.g. 1328"
-        />
-
-        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+      <label className={labelCls}>Death Status:</label>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input
-            type="checkbox"
-            checked={!!value.deathYearUnknown}
-            onChange={(e) =>
+            type="radio"
+            name="deathStatus"
+            checked={value.deathStatus === "known"}
+            onChange={() =>
               onChange({
                 ...value,
-                deathYearUnknown: e.target.checked,
-                deathYear: e.target.checked ? null : value.deathYear,
+                deathStatus: "known",
               })
             }
           />
-          Unknown / Still alive
+          Death year known
+        </label>
+
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input
+            type="radio"
+            name="deathStatus"
+            checked={value.deathStatus === "unknown"}
+            onChange={() =>
+              onChange({
+                ...value,
+                deathStatus: "unknown",
+                deathYear: null,
+              })
+            }
+          />
+          Death year unknown
+        </label>
+
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input
+            type="radio"
+            name="deathStatus"
+            checked={value.deathStatus === "living"}
+            onChange={() =>
+              onChange({
+                ...value,
+                deathStatus: "living",
+                deathYear: null,
+              })
+            }
+          />
+          Still alive
         </label>
       </div>
+
+      {value.deathStatus === "known" && (
+        <>
+          <label className={labelCls}>Death Year:</label>
+          <input
+            type="number"
+            className="block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+            value={value.deathYear ?? ""}
+            onChange={(e) =>
+              onChange({
+                ...value,
+                deathYear: e.target.value ? Number(e.target.value) : null,
+              })
+            }
+            placeholder="e.g. 1328"
+          />
+        </>
+      )}
     </>
   );
 }
@@ -179,7 +214,7 @@ export default function ManageAuthors() {
       birthYear: author.birthYear ?? null,
       birthYearUnknown: !!author.birthYearUnknown,
       deathYear: author.deathYear ?? null,
-      deathYearUnknown: !!author.deathYearUnknown,
+      deathStatus: author.deathStatus || "unknown",
     });
     setFormOpen(true);
   };
@@ -209,8 +244,8 @@ export default function ManageAuthors() {
         language,
         birthYear: form.birthYearUnknown ? null : form.birthYear || null,
         birthYearUnknown: !!form.birthYearUnknown,
-        deathYear: form.deathYearUnknown ? null : form.deathYear || null,
-        deathYearUnknown: !!form.deathYearUnknown,
+        deathYear: form.deathStatus === "known" ? form.deathYear || null : null,
+        deathStatus: form.deathStatus || "unknown",
       };
 
       if (editingAuthor) {
@@ -317,7 +352,6 @@ export default function ManageAuthors() {
       });
       return;
     }
-
     setSaving(true);
 
     try {
@@ -445,9 +479,11 @@ export default function ManageAuthors() {
                         ? "Unknown"
                         : author.birthYear || "-"}{" "}
                       | Death:{" "}
-                      {author.deathYearUnknown
-                        ? "Unknown / Still alive"
-                        : author.deathYear || "-"}
+                      {author.deathStatus === "living"
+                        ? "Still alive"
+                        : author.deathStatus === "unknown"
+                          ? "Unknown"
+                          : author.deathYear || "-"}
                     </p>
                   </div>
 

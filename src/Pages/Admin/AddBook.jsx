@@ -30,7 +30,7 @@ export default function AddBook() {
     birthYear: null,
     birthYearUnknown: false,
     deathYear: null,
-    deathYearUnknown: false,
+    deathStatus: "unknown",
   });
 
   const [chapters, setChapters] = useState([]);
@@ -80,7 +80,7 @@ export default function AddBook() {
         birthYear: null,
         birthYearUnknown: false,
         deathYear: null,
-        deathYearUnknown: false,
+        deathStatus: "unknown",
       }));
       return;
     }
@@ -93,7 +93,7 @@ export default function AddBook() {
       birthYear: author.birthYear ?? null,
       birthYearUnknown: !!author.birthYearUnknown,
       deathYear: author.deathYear ?? null,
-      deathYearUnknown: !!author.deathYearUnknown,
+      deathStatus: author.deathStatus || "unknown",
     }));
   };
 
@@ -199,7 +199,7 @@ export default function AddBook() {
         birthYear: null,
         birthYearUnknown: false,
         deathYear: null,
-        deathYearUnknown: false,
+        deathStatus: "unknown",
       });
       return;
     }
@@ -209,7 +209,39 @@ export default function AddBook() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      !["known", "unknown", "living"].includes(form.deathStatus || "unknown")
+    ) {
+      setModal({
+        show: true,
+        title: "Invalid Death Status",
+        message: "Please select a valid death status.",
+      });
+      return;
+    }
 
+    if (form.deathStatus === "known" && !form.deathYear) {
+      setModal({
+        show: true,
+        title: "Missing Death Year",
+        message: "Death year is required when death status is known.",
+      });
+      return;
+    }
+
+    if (
+      form.deathStatus === "known" &&
+      form.birthYear &&
+      form.deathYear &&
+      Number(form.deathYear) < Number(form.birthYear)
+    ) {
+      setModal({
+        show: true,
+        title: "Invalid Years",
+        message: "Death year cannot be before birth year.",
+      });
+      return;
+    }
     let pageCounter = 1;
 
     const bookData = {
@@ -252,7 +284,7 @@ export default function AddBook() {
         birthYear: null,
         birthYearUnknown: false,
         deathYear: null,
-        deathYearUnknown: false,
+        deathStatus: "unknown",
       });
 
       setChapters([]);
@@ -374,37 +406,77 @@ export default function AddBook() {
             </label>
           </div>
 
-          <label className={labelCls}>Death Year:</label>
-          <div className="flex items-center gap-3 mb-4">
-            <input
-              type="number"
-              className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
-              value={form.deathYear ?? ""}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  deathYear: e.target.value ? Number(e.target.value) : null,
-                }))
-              }
-              disabled={!!form.authorId || form.deathYearUnknown}
-              placeholder="e.g. 1328"
-            />
-            <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+          <label className={labelCls}>Death Status:</label>
+          <div className="flex flex-wrap gap-4 mb-4">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input
-                type="checkbox"
-                checked={!!form.deathYearUnknown}
+                type="radio"
+                name="deathStatus"
+                checked={form.deathStatus === "known"}
                 disabled={!!form.authorId}
-                onChange={(e) =>
+                onChange={() =>
                   setForm((f) => ({
                     ...f,
-                    deathYearUnknown: e.target.checked,
-                    deathYear: e.target.checked ? null : f.deathYear,
+                    deathStatus: "known",
                   }))
                 }
               />
-              Unknown / Still alive
+              Death year known
+            </label>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="deathStatus"
+                checked={form.deathStatus === "unknown"}
+                disabled={!!form.authorId}
+                onChange={() =>
+                  setForm((f) => ({
+                    ...f,
+                    deathStatus: "unknown",
+                    deathYear: null,
+                  }))
+                }
+              />
+              Death year unknown
+            </label>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="deathStatus"
+                checked={form.deathStatus === "living"}
+                disabled={!!form.authorId}
+                onChange={() =>
+                  setForm((f) => ({
+                    ...f,
+                    deathStatus: "living",
+                    deathYear: null,
+                  }))
+                }
+              />
+              Still alive
             </label>
           </div>
+
+          {form.deathStatus === "known" && (
+            <>
+              <label className={labelCls}>Death Year:</label>
+              <input
+                type="number"
+                className="block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+                value={form.deathYear ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    deathYear: e.target.value ? Number(e.target.value) : null,
+                  }))
+                }
+                disabled={!!form.authorId}
+                placeholder="e.g. 1328"
+              />
+            </>
+          )}
 
           <label className={labelCls}>Description (if any):</label>
           <textarea

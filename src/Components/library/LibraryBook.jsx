@@ -30,7 +30,8 @@ const SORT_OPTIONS = {
     { value: "title_asc", label: "Title (A–Z)" },
     { value: "title_desc", label: "Title (Z–A)" },
     { value: "author_asc", label: "Author (A–Z)" },
-    { value: "author_desc", label: "Author (Z–A)" },
+    { value: "author_timeline_asc", label: "Old authors first" },
+    { value: "author_timeline_desc", label: "Recent authors first" },
   ],
   ar: [
     { value: "order", label: "الترتيب الافتراضي" },
@@ -40,6 +41,8 @@ const SORT_OPTIONS = {
     { value: "title_desc", label: "العنوان (ي–أ)" },
     { value: "author_asc", label: "المؤلف (أ–ي)" },
     { value: "author_desc", label: "المؤلف (ي–أ)" },
+    { value: "author_timeline_asc", label: "المؤلفون الأقدم أولاً" },
+    { value: "author_timeline_desc", label: "المؤلفون الأحدث أولاً" },
   ],
 };
 
@@ -804,21 +807,21 @@ export default function BookLibrary({ lang = "en" }) {
     setSuggestions([]);
   };
 
- const handleSuggestionSelect = (suggestion) => {
-  setShowSuggestions(false);
-  setSuggestions([]);
-  setFuzzyAccepted(null);
+  const handleSuggestionSelect = (suggestion) => {
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setFuzzyAccepted(null);
 
-  if (suggestion.type === "category") {
-    // Set the category dropdown, clear the search box
-    setCategory(suggestion.value); // value is already "aqeedah", "hadith" etc.
-    setSearch("");
-    setDebouncedSearch("");
-  } else {
-    setSearch(suggestion.label);
-    setDebouncedSearch(suggestion.label);
-  }
-};
+    if (suggestion.type === "category") {
+      // Set the category dropdown, clear the search box
+      setCategory(suggestion.value); // value is already "aqeedah", "hadith" etc.
+      setSearch("");
+      setDebouncedSearch("");
+    } else {
+      setSearch(suggestion.label);
+      setDebouncedSearch(suggestion.label);
+    }
+  };
 
   // User accepts the fuzzy suggestion → search with the corrected term
   const handleFuzzyAccept = (correction) => {

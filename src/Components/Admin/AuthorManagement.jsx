@@ -1,4 +1,4 @@
-// Components/Admin/AuthorManagement.jsx
+// src/Components/Admin/AuthorManagement.jsx
 import React, { useState } from "react";
 import {
   updateAuthor,
@@ -7,81 +7,50 @@ import {
   createAuthor,
 } from "../../api/adminBook";
 
-const BLANK_YEAR_FIELDS = {
+const BLANK_AUTHOR_LIFE = {
   birthYear: null,
   birthYearUnknown: false,
   deathYear: null,
-  deathYearUnknown: false,
+  deathStatus: "unknown",
 };
-function YearFields({ obj, onChange, labelCls }) {
-  return (
-    <>
-      <label className={labelCls}>Birth Year:</label>
-      <div className="flex items-center gap-3 mb-4">
-        <input
-          type="number"
-          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
-          value={obj.birthYear ?? ""}
-          onChange={(e) =>
-            onChange({
-              ...obj,
-              birthYear: e.target.value ? Number(e.target.value) : null,
-            })
-          }
-          disabled={!!obj.birthYearUnknown}
-          placeholder="e.g. 1263"
-        />
 
-        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={!!obj.birthYearUnknown}
-            onChange={(e) =>
-              onChange({
-                ...obj,
-                birthYearUnknown: e.target.checked,
-                birthYear: e.target.checked ? null : obj.birthYear,
-              })
-            }
-          />
-          Unknown
-        </label>
-      </div>
-
-      <label className={labelCls}>Death Year:</label>
-      <div className="flex items-center gap-3 mb-4">
-        <input
-          type="number"
-          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
-          value={obj.deathYear ?? ""}
-          onChange={(e) =>
-            onChange({
-              ...obj,
-              deathYear: e.target.value ? Number(e.target.value) : null,
-            })
-          }
-          disabled={!!obj.deathYearUnknown}
-          placeholder="e.g. 1328"
-        />
-
-        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={!!obj.deathYearUnknown}
-            onChange={(e) =>
-              onChange({
-                ...obj,
-                deathYearUnknown: e.target.checked,
-                deathYear: e.target.checked ? null : obj.deathYear,
-              })
-            }
-          />
-          Unknown / Still alive
-        </label>
-      </div>
-    </>
-  );
+function getAuthorDeathStatus(author) {
+  return author?.deathStatus || "unknown";
 }
+
+function validateAuthorPayload(form) {
+  const name = form.name?.trim();
+
+  if (!name) return "Author name is required.";
+  if (name.length < 2) return "Author name must be at least 2 characters.";
+
+  if (!["known", "unknown", "living"].includes(form.deathStatus)) {
+    return "Please select a valid death status.";
+  }
+
+  if (form.birthYear !== null && form.birthYear !== "") {
+    const birth = Number(form.birthYear);
+
+    if (!Number.isInteger(birth) || birth < 1) {
+      return "Birth year must be a valid positive number.";
+    }
+  }
+
+  if (form.deathStatus === "known") {
+    const death = Number(form.deathYear);
+
+    if (!Number.isInteger(death) || death < 1) {
+      return "Death year is required when death status is known.";
+    }
+
+    if (form.birthYear && death < Number(form.birthYear)) {
+      return "Death year cannot be before birth year.";
+    }
+  }
+
+  return "";
+}
+
 export default function AuthorManagement({
   authors,
   setAuthors,
@@ -95,91 +64,128 @@ export default function AuthorManagement({
   labelCls,
   selectFieldCls,
 }) {
-  const [editingAuthor, setEditingAuthor] = useState(null); // full author object | null
-  const [linkedBooks, setLinkedBooks] = useState(null); // null | array
-  const [reassignMap, setReassignMap] = useState({}); // { slug: newAuthorId }
+  const [editingAuthor, setEditingAuthor] = useState(null);
+  const [linkedBooks, setLinkedBooks] = useState(null);
+  const [reassignMap, setReassignMap] = useState({});
   const [busy, setBusy] = useState(false);
 
-  // When a book row in the reassign list is set to "-- Create new --",
-  // this holds the slug of that book so we can show the inline form.
   const [creatingForSlug, setCreatingForSlug] = useState(null);
   const [newAuthorForm, setNewAuthorForm] = useState({
     name: "",
     bio: "",
-    ...BLANK_YEAR_FIELDS,
+    ...BLANK_AUTHOR_LIFE,
   });
   const [savingNew, setSavingNew] = useState(false);
 
-  // ── Dropdown ────────────────────────────────────────────────────────────────
-
   const handleAuthorSelect = (e) => {
     const id = e.target.value;
+
     if (!id) {
       onSelect(null);
       return;
     }
-    const author = authors.find((a) => a._id === id);
-    if (author) onSelect(author);
-  };
 
-  // ── Edit author ─────────────────────────────────────────────────────────────
+    const author = authors.find((a) => a._id === id);
+
+    if (author) {
+      onSelect({
+        ...author,
+        deathStatus: getAuthorDeathStatus(author),
+      });
+    }
+  };
 
   const openEditAuthor = () => {
-    const a = authors.find((x) => x._id === selectedAuthorId);
-    if (a) setEditingAuthor({ ...a });
+    const author = authors.find((x) => x._id === selectedAuthorId);
+
+    if (!author) return;
+
+    setEditingAuthor({
+      ...author,
+      birthYear: author.birthYear ?? null,
+      birthYearUnknown: !!author.birthYearUnknown,
+      deathYear: author.deathYear ?? null,
+      deathStatus: getAuthorDeathStatus(author),
+    });
   };
 
-  const closeEditAuthor = () => setEditingAuthor(null);
+  const closeEditAuthor = () => {
+    setEditingAuthor(null);
+    setLinkedBooks(null);
+    setReassignMap({});
+    setCreatingForSlug(null);
+    setNewAuthorForm({
+      name: "",
+      bio: "",
+      ...BLANK_AUTHOR_LIFE,
+    });
+  };
+
+  const buildPayload = (author) => ({
+    name: author.name.trim(),
+    bio: author.bio || "",
+    language,
+    birthYear: author.birthYearUnknown ? null : (author.birthYear ?? null),
+    birthYearUnknown: !!author.birthYearUnknown,
+    deathYear:
+      author.deathStatus === "known" ? (author.deathYear ?? null) : null,
+    deathStatus: author.deathStatus || "unknown",
+  });
 
   const handleSaveAuthor = async () => {
-    if (!editingAuthor?.name?.trim()) {
-      onError("Author name is required.");
+    const error = validateAuthorPayload(editingAuthor);
+
+    if (error) {
+      onError(error);
       return;
     }
 
     setBusy(true);
+
     try {
-      const updated = await updateAuthor(editingAuthor._id, {
-        name: editingAuthor.name,
-        bio: editingAuthor.bio,
-        birthYear: editingAuthor.birthYearUnknown
-          ? null
-          : editingAuthor.birthYear || null,
-        birthYearUnknown: !!editingAuthor.birthYearUnknown,
-        deathYear: editingAuthor.deathYearUnknown
-          ? null
-          : editingAuthor.deathYear || null,
-        deathYearUnknown: !!editingAuthor.deathYearUnknown,
-      });
+      const updated = await updateAuthor(
+        editingAuthor._id,
+        buildPayload(editingAuthor),
+      );
 
       setAuthors((prev) =>
         prev.map((a) => (a._id === updated._id ? updated : a)),
       );
 
       if (selectedAuthorId === updated._id) {
-        onSelect(updated);
+        onSelect({
+          ...updated,
+          deathStatus: getAuthorDeathStatus(updated),
+        });
       }
 
       setEditingAuthor(null);
+      onSuccess?.("Author updated successfully.");
     } catch (err) {
-      onError(err.message);
+      onError(err.message || "Failed to update author.");
     } finally {
       setBusy(false);
     }
   };
 
-  // ── Delete author flow ───────────────────────────────────────────────────────
-
   const handleDeleteAuthorClick = async () => {
+    if (!editingAuthor?._id) return;
+
     setBusy(true);
+
     try {
       const books = await fetchAuthorBooks(editingAuthor._id);
-      setLinkedBooks(books);
+
+      setLinkedBooks(Array.isArray(books) ? books : []);
       setReassignMap({});
       setCreatingForSlug(null);
-      setNewAuthorForm({ name: "", bio: "", ...BLANK_YEAR_FIELDS });
+      setNewAuthorForm({
+        name: "",
+        bio: "",
+        ...BLANK_AUTHOR_LIFE,
+      });
     } catch (err) {
-      onError(err.message);
+      onError(err.message || "Failed to load linked books.");
     } finally {
       setBusy(false);
     }
@@ -189,7 +195,11 @@ export default function AuthorManagement({
     setLinkedBooks(null);
     setReassignMap({});
     setCreatingForSlug(null);
-    setNewAuthorForm({ name: "", bio: "", ...BLANK_YEAR_FIELDS });
+    setNewAuthorForm({
+      name: "",
+      bio: "",
+      ...BLANK_AUTHOR_LIFE,
+    });
   };
 
   const finishDelete = (message) => {
@@ -202,72 +212,86 @@ export default function AuthorManagement({
     setLinkedBooks(null);
     setReassignMap({});
     setCreatingForSlug(null);
-    setNewAuthorForm({ name: "", bio: "", ...BLANK_YEAR_FIELDS });
+    setNewAuthorForm({
+      name: "",
+      bio: "",
+      ...BLANK_AUTHOR_LIFE,
+    });
     setEditingAuthor(null);
-    onSuccess?.(message);
+    onSuccess?.(message || "Author deleted successfully.");
   };
 
   const handleConfirmDelete = async () => {
     setBusy(true);
+
     try {
-      const reassignments = linkedBooks.map((b) => ({
-        slug: b.slug,
-        newAuthorId: reassignMap[b.slug],
-      }));
+      const reassignments =
+        linkedBooks?.map((book) => ({
+          slug: book.slug,
+          newAuthorId: reassignMap[book.slug],
+        })) || [];
 
       const result = await deleteAuthor(editingAuthor._id, reassignments);
+
       finishDelete(result.message);
     } catch (err) {
-      onError(err.message);
+      onError(err.message || "Failed to delete author.");
     } finally {
       setBusy(false);
     }
   };
 
-  // ── Inline "create new author" inside reassign flow ─────────────────────────
-
   const handleReassignDropdownChange = (slug, value) => {
     if (value === "__create_new__") {
       setCreatingForSlug(slug);
-      setNewAuthorForm({ name: "", bio: "", ...BLANK_YEAR_FIELDS });
-      // Don't set reassignMap yet — wait until the new author is actually saved
-    } else {
-      setCreatingForSlug(null);
-      setReassignMap((prev) => ({ ...prev, [slug]: value }));
+      setNewAuthorForm({
+        name: "",
+        bio: "",
+        ...BLANK_AUTHOR_LIFE,
+      });
+      return;
     }
+
+    setCreatingForSlug(null);
+
+    setReassignMap((prev) => ({
+      ...prev,
+      [slug]: value,
+    }));
   };
 
   const handleSaveNewAuthor = async () => {
-    if (!newAuthorForm.name.trim()) {
-      onError("Author name is required.");
+    const error = validateAuthorPayload(newAuthorForm);
+
+    if (error) {
+      onError(error);
       return;
     }
 
     setSavingNew(true);
+
     try {
-      const created = await createAuthor({
-        name: newAuthorForm.name.trim(),
-        bio: newAuthorForm.bio,
-        language,
-        birthYear: newAuthorForm.birthYearUnknown
-          ? null
-          : newAuthorForm.birthYear || null,
-        birthYearUnknown: !!newAuthorForm.birthYearUnknown,
-        deathYear: newAuthorForm.deathYearUnknown
-          ? null
-          : newAuthorForm.deathYear || null,
-        deathYearUnknown: !!newAuthorForm.deathYearUnknown,
+      const created = await createAuthor(buildPayload(newAuthorForm));
+
+      setAuthors((prev) =>
+        [...prev, created].sort((a, b) => a.name.localeCompare(b.name)),
+      );
+
+      setReassignMap((prev) => ({
+        ...prev,
+        [creatingForSlug]: created._id,
+      }));
+
+      setCreatingForSlug(null);
+      setNewAuthorForm({
+        name: "",
+        bio: "",
+        ...BLANK_AUTHOR_LIFE,
       });
 
-      // Add to the local authors list so it appears in other dropdowns too
-      setAuthors((prev) => [...prev, created]);
-
-      // Mark this book as reassigned to the new author
-      setReassignMap((prev) => ({ ...prev, [creatingForSlug]: created._id }));
-      setCreatingForSlug(null);
-      setNewAuthorForm({ name: "", bio: "", ...BLANK_YEAR_FIELDS });
+      onSuccess?.("New author created. It has been selected for reassignment.");
     } catch (err) {
-      onError(err.message);
+      onError(err.message || "Failed to create author.");
     } finally {
       setSavingNew(false);
     }
@@ -276,9 +300,114 @@ export default function AuthorManagement({
   const allReassigned =
     linkedBooks?.length > 0 && linkedBooks.every((b) => !!reassignMap[b.slug]);
 
+  const renderLifeFields = (value, setValue, radioName) => (
+    <>
+      <label className={labelCls}>Birth Year:</label>
+      <div className="flex items-center gap-3 mb-4">
+        <input
+          type="number"
+          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+          value={value.birthYear ?? ""}
+          disabled={!!value.birthYearUnknown}
+          onChange={(e) =>
+            setValue((prev) => ({
+              ...prev,
+              birthYear: e.target.value ? Number(e.target.value) : null,
+            }))
+          }
+          placeholder="e.g. 1263"
+        />
+
+        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!value.birthYearUnknown}
+            onChange={(e) =>
+              setValue((prev) => ({
+                ...prev,
+                birthYearUnknown: e.target.checked,
+                birthYear: e.target.checked ? null : prev.birthYear,
+              }))
+            }
+          />
+          Unknown
+        </label>
+      </div>
+
+      <label className={labelCls}>Death Status:</label>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input
+            type="radio"
+            name={radioName}
+            checked={value.deathStatus === "known"}
+            onChange={() =>
+              setValue((prev) => ({
+                ...prev,
+                deathStatus: "known",
+              }))
+            }
+          />
+          Death year known
+        </label>
+
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input
+            type="radio"
+            name={radioName}
+            checked={value.deathStatus === "unknown"}
+            onChange={() =>
+              setValue((prev) => ({
+                ...prev,
+                deathStatus: "unknown",
+                deathYear: null,
+              }))
+            }
+          />
+          Death year unknown
+        </label>
+
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input
+            type="radio"
+            name={radioName}
+            checked={value.deathStatus === "living"}
+            onChange={() =>
+              setValue((prev) => ({
+                ...prev,
+                deathStatus: "living",
+                deathYear: null,
+              }))
+            }
+          />
+          Still alive
+        </label>
+      </div>
+
+      {value.deathStatus === "known" && (
+        <>
+          <label className={labelCls}>Death Year:</label>
+          <input
+            type="number"
+            className={fieldCls}
+            value={value.deathYear ?? ""}
+            onChange={(e) =>
+              setValue((prev) => ({
+                ...prev,
+                deathYear: e.target.value ? Number(e.target.value) : null,
+              }))
+            }
+            placeholder="e.g. 1328"
+          />
+        </>
+      )}
+    </>
+  );
+
   return (
     <>
       <label className={labelCls}>Saved Author:</label>
+
       <div className="flex items-center gap-2">
         <select
           {...contentDirectionProps}
@@ -287,6 +416,7 @@ export default function AuthorManagement({
           onChange={handleAuthorSelect}
         >
           <option value="">-- Select saved author or add new below --</option>
+
           {authors.map((author) => (
             <option key={author._id} value={author._id}>
               {author.name}
@@ -306,34 +436,41 @@ export default function AuthorManagement({
         )}
       </div>
 
-      {/* ── Edit Author modal ── */}
       {editingAuthor && !linkedBooks && (
-        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[500px] overflow-y-auto max-h-[90vh]">
+        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[550px] overflow-y-auto max-h-[90vh]">
           <strong className="block text-[1.1rem] mb-3">Edit Author</strong>
 
           <label className={labelCls}>Name:</label>
           <input
+            {...contentDirectionProps}
             className={fieldCls}
-            value={editingAuthor.name}
+            value={editingAuthor.name || ""}
             onChange={(e) =>
-              setEditingAuthor({ ...editingAuthor, name: e.target.value })
+              setEditingAuthor((prev) => ({
+                ...prev,
+                name: e.target.value,
+              }))
             }
           />
 
           <label className={labelCls}>Bio:</label>
           <textarea
+            {...contentDirectionProps}
             className={fieldCls}
             value={editingAuthor.bio || ""}
             onChange={(e) =>
-              setEditingAuthor({ ...editingAuthor, bio: e.target.value })
+              setEditingAuthor((prev) => ({
+                ...prev,
+                bio: e.target.value,
+              }))
             }
           />
 
-          <YearFields
-            obj={editingAuthor}
-            onChange={(updated) => setEditingAuthor(updated)}
-            labelCls={labelCls}
-          />
+          {renderLifeFields(
+            editingAuthor,
+            setEditingAuthor,
+            "editingAuthorDeathStatus",
+          )}
 
           <div className="flex gap-3 mt-4">
             <button
@@ -342,8 +479,9 @@ export default function AuthorManagement({
               className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer disabled:opacity-50"
               onClick={handleSaveAuthor}
             >
-              Save
+              {busy ? "Saving..." : "Save"}
             </button>
+
             <button
               type="button"
               disabled={busy}
@@ -352,6 +490,7 @@ export default function AuthorManagement({
             >
               Cancel
             </button>
+
             <button
               type="button"
               disabled={busy}
@@ -364,8 +503,7 @@ export default function AuthorManagement({
         </div>
       )}
 
-      {/* ── Delete / Reassign modal ── */}
-      {linkedBooks && (
+      {editingAuthor && linkedBooks && (
         <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10001] w-[90%] max-w-[580px] overflow-y-auto max-h-[90vh]">
           <strong className="block text-[1.1rem] mb-2">
             {linkedBooks.length === 0
@@ -376,8 +514,9 @@ export default function AuthorManagement({
           {linkedBooks.length === 0 ? (
             <>
               <p className="mb-4">
-                This author isn't linked to any books. Deleting is safe.
+                This author is not linked to any books. Deleting is safe.
               </p>
+
               <div className="flex gap-3">
                 <button
                   type="button"
@@ -385,8 +524,9 @@ export default function AuthorManagement({
                   className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer disabled:opacity-50"
                   onClick={handleConfirmDelete}
                 >
-                  Yes, Delete
+                  {busy ? "Deleting..." : "Yes, Delete"}
                 </button>
+
                 <button
                   type="button"
                   disabled={busy}
@@ -406,54 +546,60 @@ export default function AuthorManagement({
               </p>
 
               <div className="mb-4">
-                {linkedBooks.map((b) => (
+                {linkedBooks.map((book) => (
                   <div
-                    key={b.slug}
+                    key={book.slug}
                     className="mb-4 pb-4 border-b border-[#eee] last:border-b-0"
                   >
                     <div className="flex items-center justify-between gap-3 mb-2">
-                      <span className="font-medium flex-1">{b.title}</span>
+                      <span className="font-medium flex-1">{book.title}</span>
+
                       <select
                         className="px-2 py-1 border border-[#ccc] rounded-md text-sm min-w-[180px]"
                         value={
-                          creatingForSlug === b.slug
+                          creatingForSlug === book.slug
                             ? "__create_new__"
-                            : reassignMap[b.slug] || ""
+                            : reassignMap[book.slug] || ""
                         }
                         onChange={(e) =>
-                          handleReassignDropdownChange(b.slug, e.target.value)
+                          handleReassignDropdownChange(
+                            book.slug,
+                            e.target.value,
+                          )
                         }
                       >
                         <option value="">-- Choose new author --</option>
+
                         {authors
                           .filter((a) => a._id !== editingAuthor._id)
-                          .map((a) => (
-                            <option key={a._id} value={a._id}>
-                              {a.name}
+                          .map((author) => (
+                            <option key={author._id} value={author._id}>
+                              {author.name}
                             </option>
                           ))}
+
                         <option value="__create_new__">
                           ➕ Create new author…
                         </option>
                       </select>
                     </div>
 
-                    {/* Inline create-new-author form for this book */}
-                    {creatingForSlug === b.slug && (
+                    {creatingForSlug === book.slug && (
                       <div className="mt-2 p-4 bg-[#f8f9fa] border border-[#ddd] rounded-lg">
                         <strong className="block text-sm mb-3 text-[#1e293b]">
-                          New Author for "{b.title}"
+                          New Author for "{book.title}"
                         </strong>
 
                         <label className="font-bold text-sm block mb-1 text-[var(--bg-color-header)]">
                           Name:
                         </label>
                         <input
+                          {...contentDirectionProps}
                           className="block w-full mb-3 px-3 py-2 text-sm border border-[#ccc] rounded-lg"
                           value={newAuthorForm.name}
                           onChange={(e) =>
-                            setNewAuthorForm((f) => ({
-                              ...f,
+                            setNewAuthorForm((prev) => ({
+                              ...prev,
                               name: e.target.value,
                             }))
                           }
@@ -465,91 +611,24 @@ export default function AuthorManagement({
                           Bio:
                         </label>
                         <textarea
+                          {...contentDirectionProps}
                           className="block w-full mb-3 px-3 py-2 text-sm border border-[#ccc] rounded-lg"
                           rows={2}
                           value={newAuthorForm.bio}
                           onChange={(e) =>
-                            setNewAuthorForm((f) => ({
-                              ...f,
+                            setNewAuthorForm((prev) => ({
+                              ...prev,
                               bio: e.target.value,
                             }))
                           }
-                          placeholder="Short biography (optional)"
+                          placeholder="Short biography"
                         />
 
-                        <label className="font-bold text-sm block mb-1 text-[var(--bg-color-header)]">
-                          Birth Year:
-                        </label>
-                        <div className="flex items-center gap-3 mb-3">
-                          <input
-                            type="number"
-                            className="flex-1 px-3 py-2 text-sm border border-[#ccc] rounded-lg"
-                            value={newAuthorForm.birthYear ?? ""}
-                            onChange={(e) =>
-                              setNewAuthorForm((f) => ({
-                                ...f,
-                                birthYear: e.target.value
-                                  ? Number(e.target.value)
-                                  : null,
-                              }))
-                            }
-                            disabled={!!newAuthorForm.birthYearUnknown}
-                            placeholder="e.g. 1263"
-                          />
-                          <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={!!newAuthorForm.birthYearUnknown}
-                              onChange={(e) =>
-                                setNewAuthorForm((f) => ({
-                                  ...f,
-                                  birthYearUnknown: e.target.checked,
-                                  birthYear: e.target.checked
-                                    ? null
-                                    : f.birthYear,
-                                }))
-                              }
-                            />
-                            Unknown
-                          </label>
-                        </div>
-
-                        <label className="font-bold text-sm block mb-1 text-[var(--bg-color-header)]">
-                          Death Year:
-                        </label>
-                        <div className="flex items-center gap-3 mb-4">
-                          <input
-                            type="number"
-                            className="flex-1 px-3 py-2 text-sm border border-[#ccc] rounded-lg"
-                            value={newAuthorForm.deathYear ?? ""}
-                            onChange={(e) =>
-                              setNewAuthorForm((f) => ({
-                                ...f,
-                                deathYear: e.target.value
-                                  ? Number(e.target.value)
-                                  : null,
-                              }))
-                            }
-                            disabled={!!newAuthorForm.deathYearUnknown}
-                            placeholder="e.g. 1328"
-                          />
-                          <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={!!newAuthorForm.deathYearUnknown}
-                              onChange={(e) =>
-                                setNewAuthorForm((f) => ({
-                                  ...f,
-                                  deathYearUnknown: e.target.checked,
-                                  deathYear: e.target.checked
-                                    ? null
-                                    : f.deathYear,
-                                }))
-                              }
-                            />
-                            Unknown / Still alive
-                          </label>
-                        </div>
+                        {renderLifeFields(
+                          newAuthorForm,
+                          setNewAuthorForm,
+                          "newAuthorDeathStatus",
+                        )}
 
                         <div className="flex gap-2">
                           <button
@@ -560,6 +639,7 @@ export default function AuthorManagement({
                           >
                             {savingNew ? "Saving…" : "Save Author"}
                           </button>
+
                           <button
                             type="button"
                             disabled={savingNew}
@@ -569,7 +649,7 @@ export default function AuthorManagement({
                               setNewAuthorForm({
                                 name: "",
                                 bio: "",
-                                ...BLANK_YEAR_FIELDS,
+                                ...BLANK_AUTHOR_LIFE,
                               });
                             }}
                           >
@@ -579,16 +659,17 @@ export default function AuthorManagement({
                       </div>
                     )}
 
-                    {/* Confirmation chip once reassigned */}
-                    {reassignMap[b.slug] && creatingForSlug !== b.slug && (
-                      <p className="text-xs text-[#287346] mt-1">
-                        ✓ Will be reassigned to{" "}
-                        <strong>
-                          {authors.find((a) => a._id === reassignMap[b.slug])
-                            ?.name ?? "selected author"}
-                        </strong>
-                      </p>
-                    )}
+                    {reassignMap[book.slug] &&
+                      creatingForSlug !== book.slug && (
+                        <p className="text-xs text-[#287346] mt-1">
+                          ✓ Will be reassigned to{" "}
+                          <strong>
+                            {authors.find(
+                              (a) => a._id === reassignMap[book.slug],
+                            )?.name ?? "selected author"}
+                          </strong>
+                        </p>
+                      )}
                   </div>
                 ))}
               </div>
@@ -600,8 +681,9 @@ export default function AuthorManagement({
                   className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer disabled:opacity-50"
                   onClick={handleConfirmDelete}
                 >
-                  Reassign & Delete
+                  {busy ? "Deleting..." : "Reassign & Delete"}
                 </button>
+
                 <button
                   type="button"
                   disabled={busy}

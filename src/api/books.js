@@ -11,8 +11,9 @@ import { API_BASE } from "../../config";
  * @param {string} search       free-text search (title/author/description)
  * @param {string} category     "all" or a category value
  * @param {string} [author]     "all"/undefined or an exact author name
- * @param {string} [sort]       one of: order, title_asc, title_desc,
- *                              author_asc, author_desc, newest, oldest
+ * * @param {string} [sort]       one of: order, title_asc, title_desc,
+ *                              author_asc, author_desc, death_year_asc,
+ *                              death_year_desc, newest, oldest
  */
 export async function fetchBooks(
   lang,

@@ -32,9 +32,9 @@ const LANG_MAP = {
     },
     languageNames: { en: "English", ar: "Arabic" },
     birthYear: "Birth Year",
-    deathYear: "Death Year",
+    deathYear: "Death Status",
     unknown: "Unknown",
-    unknownOrAlive: "Unknown / Still alive",
+    living: "Still alive",
   },
   ar: {
     dir: "rtl",
@@ -62,9 +62,9 @@ const LANG_MAP = {
     },
     languageNames: { en: "الإنجليزية", ar: "العربية" },
     birthYear: "سنة الميلاد",
-    deathYear: "سنة الوفاة",
+    deathYear: "حالة الوفاة",
     unknown: "غير معروف",
-    unknownOrAlive: "غير معروف / على قيد الحياة",
+    living: "على قيد الحياة",
   },
 };
 
@@ -98,9 +98,12 @@ export default function BookDetails() {
     ? labels.unknown
     : book?.birthYear || "—";
 
-  const displayDeathYear = book?.deathYearUnknown
-    ? labels.unknownOrAlive
-    : book?.deathYear || "—";
+  const displayDeathYear =
+    book?.deathStatus === "living"
+      ? labels.living
+      : book?.deathStatus === "unknown"
+        ? labels.unknown
+        : book?.deathYear || "—";
 
   const sections = [
     { id: "details", title: labels.details },
