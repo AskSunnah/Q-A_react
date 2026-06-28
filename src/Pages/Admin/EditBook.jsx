@@ -1,14 +1,14 @@
+// src/pages/EditBook.jsx
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   fetchBookAdmin,
   saveBookAdmin,
   fetchAuthors,
-  updateAuthor,
 } from "../../api/adminBook";
 import BookEditor from "../../Components/Admin/BookEditor";
 import AdminLayout from "../../Components/Admin/AdminLayout";
-import BookPreview from "../../Components/Admin/BookPreview";
+import AuthorManager from "../../Components/Admin/AuthorManagement";
 
 const CATEGORIES = [
   { value: "", label: "-- Select Category --" },
@@ -28,17 +28,12 @@ export default function EditBook() {
   const [book, setBook] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [modal, setModal] = useState({ show: false, title: "", message: "" });
-  const [editingAuthor, setEditingAuthor] = useState(null); // { _id, name, bio } | null
 
   useEffect(() => {
     fetchBookAdmin(lang, slug)
       .then(setBook)
       .catch((err) =>
-        setModal({
-          show: true,
-          title: "Error",
-          message: err.message,
-        }),
+        setModal({ show: true, title: "Error", message: err.message }),
       );
   }, [lang, slug]);
 
@@ -65,16 +60,8 @@ export default function EditBook() {
   const isArabic = book.language === "ar";
 
   const contentDirectionProps = isArabic
-    ? {
-        dir: "rtl",
-        lang: "ar",
-        style: { unicodeBidi: "plaintext" },
-      }
-    : {
-        dir: "ltr",
-        lang: "en",
-        style: { unicodeBidi: "plaintext" },
-      };
+    ? { dir: "rtl", lang: "ar", style: { unicodeBidi: "plaintext" } }
+    : { dir: "ltr", lang: "en", style: { unicodeBidi: "plaintext" } };
 
   const fieldCls =
     "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
@@ -100,87 +87,43 @@ export default function EditBook() {
         authorId: "",
         author: "",
         authorBio: "",
+        birthYear: null,
+        birthYearUnknown: false,
+        deathYear: null,
+        deathYearUnknown: false,
       });
       return;
     }
 
-    setBook({
-      ...book,
-      [field]: value,
-    });
+    setBook({ ...book, [field]: value });
   };
 
-  const handleAuthorSelect = (e) => {
-    const selectedAuthorId = e.target.value;
-
-    if (!selectedAuthorId) {
-      setBook({
-        ...book,
+  // Called by AuthorManager when the user picks/clears a saved author
+  const handleAuthorChange = (author) => {
+    if (!author) {
+      setBook((b) => ({
+        ...b,
         authorId: "",
         author: "",
         authorBio: "",
-      });
+        birthYear: null,
+        birthYearUnknown: false,
+        deathYear: null,
+        deathYearUnknown: false,
+      }));
       return;
     }
 
-    const selectedAuthor = authors.find((a) => a._id === selectedAuthorId);
-
-    if (!selectedAuthor) return;
-
-    setBook({
-      ...book,
-      authorId: selectedAuthor._id,
-      author: selectedAuthor.name,
-      authorBio: selectedAuthor.bio || "",
-    });
-  };
-
-  // --- Author Edit Handlers ---
-  const openEditAuthor = () => {
-    const a = authors.find((x) => x._id === book.authorId);
-    if (a) setEditingAuthor({ ...a });
-  };
-
-  const closeEditAuthor = () => {
-    setEditingAuthor(null);
-  };
-
-  const handleSaveAuthor = async () => {
-    if (!editingAuthor?.name?.trim()) {
-      setModal({
-        show: true,
-        title: "Error",
-        message: "Author name is required.",
-      });
-      return;
-    }
-
-    try {
-      const updated = await updateAuthor(editingAuthor._id, {
-        name: editingAuthor.name,
-        bio: editingAuthor.bio,
-      });
-
-      setAuthors((prev) =>
-        prev.map((a) => (a._id === updated._id ? updated : a)),
-      );
-
-      // Sync the currently-open book too, since it holds a local
-      // copy of author/authorBio (denormalized onto the book on save).
-      setBook((b) =>
-        b.authorId === updated._id
-          ? { ...b, author: updated.name, authorBio: updated.bio }
-          : b,
-      );
-
-      setEditingAuthor(null);
-    } catch (err) {
-      setModal({
-        show: true,
-        title: "Error",
-        message: err.message,
-      });
-    }
+    setBook((b) => ({
+      ...b,
+      authorId: author._id,
+      author: author.name,
+      authorBio: author.bio || "",
+      birthYear: author.birthYear ?? null,
+      birthYearUnknown: !!author.birthYearUnknown,
+      deathYear: author.deathYear ?? null,
+      deathYearUnknown: !!author.deathYearUnknown,
+    }));
   };
 
   const handleSave = async (e) => {
@@ -203,9 +146,7 @@ export default function EditBook() {
     }
   };
 
-  const closeModal = () => {
-    setModal({ ...modal, show: false });
-  };
+  const closeModal = () => setModal({ ...modal, show: false });
 
   return (
     <AdminLayout>
@@ -253,35 +194,23 @@ export default function EditBook() {
             ))}
           </select>
 
-          <label className={labelCls}>Saved Author:</label>
-          <div className="flex items-center gap-2">
-            <select
-              {...contentDirectionProps}
-              className={`${selectFieldCls} flex-1`}
-              value={book.authorId || ""}
-              onChange={handleAuthorSelect}
-            >
-              <option value="">
-                -- Select saved author or type new below --
-              </option>
-              {authors.map((author) => (
-                <option key={author._id} value={author._id}>
-                  {author.name}
-                </option>
-              ))}
-            </select>
-
-            {book.authorId && (
-              <button
-                type="button"
-                title="Edit author details"
-                onClick={openEditAuthor}
-                className="p-2 rounded-lg border border-[#ccc] hover:bg-gray-50 shrink-0"
-              >
-                ✏️
-              </button>
-            )}
-          </div>
+          <AuthorManager
+            authors={authors}
+            setAuthors={setAuthors}
+            selectedAuthorId={book.authorId}
+            language={book.language}
+            onSelect={handleAuthorChange}
+            onError={(message) =>
+              setModal({ show: true, title: "Error", message })
+            }
+            onSuccess={(message) =>
+              setModal({ show: true, title: "Success", message })
+            }
+            contentDirectionProps={contentDirectionProps}
+            fieldCls={fieldCls}
+            labelCls={labelCls}
+            selectFieldCls={selectFieldCls}
+          />
 
           <label className={labelCls}>Author:</label>
           <input
@@ -301,6 +230,71 @@ export default function EditBook() {
             disabled={!!book.authorId}
             placeholder="Write author biography/background"
           />
+
+          {/* DOB / DOD — read-only display when a saved author is linked */}
+          <label className={labelCls}>Birth Year:</label>
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="number"
+              className={`flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${disabledFieldCls}`}
+              value={book.birthYear ?? ""}
+              onChange={(e) =>
+                handleFieldChange(
+                  "birthYear",
+                  e.target.value ? Number(e.target.value) : null,
+                )
+              }
+              disabled={!!book.authorId || !!book.birthYearUnknown}
+              placeholder="e.g. 1263"
+            />
+            <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!book.birthYearUnknown}
+                disabled={!!book.authorId}
+                onChange={(e) =>
+                  setBook((b) => ({
+                    ...b,
+                    birthYearUnknown: e.target.checked,
+                    birthYear: e.target.checked ? null : b.birthYear,
+                  }))
+                }
+              />
+              Unknown
+            </label>
+          </div>
+
+          <label className={labelCls}>Death Year:</label>
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="number"
+              className={`flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${disabledFieldCls}`}
+              value={book.deathYear ?? ""}
+              onChange={(e) =>
+                handleFieldChange(
+                  "deathYear",
+                  e.target.value ? Number(e.target.value) : null,
+                )
+              }
+              disabled={!!book.authorId || !!book.deathYearUnknown}
+              placeholder="e.g. 1328"
+            />
+            <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!book.deathYearUnknown}
+                disabled={!!book.authorId}
+                onChange={(e) =>
+                  setBook((b) => ({
+                    ...b,
+                    deathYearUnknown: e.target.checked,
+                    deathYear: e.target.checked ? null : b.deathYear,
+                  }))
+                }
+              />
+              Unknown / Still alive
+            </label>
+          </div>
 
           <label className={labelCls}>Description:</label>
           <textarea
@@ -342,68 +336,14 @@ export default function EditBook() {
             contentDirectionProps={contentDirectionProps}
           />
 
-          {/* <button
-            type="submit"
-            className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-6 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
-          >
-            Save Book
-          </button> */}
-
-          {/* Preview — reflects the current unsaved state */}
-          <div className="mt-6 flex justify-center">
-            <BookPreview book={book} lang={book.language} />
-          </div>
-
           <button
             type="submit"
-            className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-4 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
+            className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-6 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
           >
             Save Book
           </button>
         </form>
       </div>
-
-      {/* Edit Author Modal */}
-      {editingAuthor && (
-        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[500px]">
-          <strong className="block text-[1.1rem] mb-3">Edit Author</strong>
-
-          <label className={labelCls}>Name:</label>
-          <input
-            className={fieldCls}
-            value={editingAuthor.name}
-            onChange={(e) =>
-              setEditingAuthor({ ...editingAuthor, name: e.target.value })
-            }
-          />
-
-          <label className={labelCls}>Bio:</label>
-          <textarea
-            className={fieldCls}
-            value={editingAuthor.bio || ""}
-            onChange={(e) =>
-              setEditingAuthor({ ...editingAuthor, bio: e.target.value })
-            }
-          />
-
-          <div className="flex gap-3 mt-4">
-            <button
-              type="button"
-              className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
-              onClick={handleSaveAuthor}
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
-              onClick={closeEditAuthor}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       {modal.show && (
         <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-4 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[9999] w-[90%] max-w-[600px] text-center text-base">
