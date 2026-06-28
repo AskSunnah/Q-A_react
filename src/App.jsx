@@ -9,6 +9,7 @@ import BookDetails from "./Components/library/BookDetails";
 //home imports
 import HomeArabic from "./Pages/Home/HomeArabic";
 import Home from "./Pages/Home/Home";
+import SearchResults from "./Pages/Home/SearchResults";
 import QuestionPageArabic from "./Pages/Home/QuestionPageArabic";
 import QuestionPageEnglish from "./Pages/Home/QuestionPageEnglish";
 import AboutArabic from "./Pages/About/AboutArabic";
@@ -25,6 +26,8 @@ import UserQuestions from "./Pages/Admin/UserQuestions";
 import EditBook from "./Pages/Admin/EditBook";
 import Feedback from "./Pages/Admin/Feedback";
 import AdminReports from "./Pages/Admin/Reports";
+import ManageAuthors from "./Pages/Admin/ManageAuthors";
+import PinnedSectionPage from "./Pages/Admin/PinnedSectionPage";
 //payment imports
 import ManageSubscription from "./Pages/ManageSubscription";
 import Success from "./Pages/Success";
@@ -37,8 +40,6 @@ import FeedbackFormPage from "./Pages/FeedbackFormPage";
 import FeedbackFormArabicPage from "./Pages/FeedbackFormPageArabic";
 import TermsArabic from "./Pages/Terms/TermsArabic";
 import TermsEnglish from "./Pages/Terms/TermsEnglish";
-import SearchResults from "./Pages/Home/SearchResults";
-import PinnedSectionPage from "./Pages/Admin/PinnedSectionPage";
 
 import "./App.css";
 function App() {
@@ -136,6 +137,14 @@ function App() {
           <Route
             path="/supervised/pinned-section"
             element={<PinnedSectionPage />}
+          />
+          <Route
+            path="/supervised/books/authors"
+            element={
+              <ProtectedRoute>
+                <ManageAuthors />
+              </ProtectedRoute>
+            }
           />
           <Route path="/supervised/reports" element={<AdminReports />} />
           <Route path="/supervised/books/en" element={<AllBooks lang="en" />} />
