@@ -9,6 +9,7 @@ import {
 import BookEditor from "../../Components/Admin/BookEditor";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 import AuthorManager from "../../Components/Admin/AuthorManagement";
+import BookPreview from "../../Components/Admin/BookPreview";
 
 const CATEGORIES = [
   { value: "", label: "-- Select Category --" },
@@ -335,7 +336,10 @@ export default function EditBook() {
             isArabic={isArabic}
             contentDirectionProps={contentDirectionProps}
           />
-
+          {/* Preview — reflects the current unsaved state */}
+          <div className="mt-6 flex justify-center">
+            <BookPreview book={book} lang={book.language} />
+          </div>
           <button
             type="submit"
             className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-6 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
