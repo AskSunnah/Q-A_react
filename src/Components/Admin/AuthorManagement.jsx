@@ -13,7 +13,75 @@ const BLANK_YEAR_FIELDS = {
   deathYear: null,
   deathYearUnknown: false,
 };
+function YearFields({ obj, onChange, labelCls }) {
+  return (
+    <>
+      <label className={labelCls}>Birth Year:</label>
+      <div className="flex items-center gap-3 mb-4">
+        <input
+          type="number"
+          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+          value={obj.birthYear ?? ""}
+          onChange={(e) =>
+            onChange({
+              ...obj,
+              birthYear: e.target.value ? Number(e.target.value) : null,
+            })
+          }
+          disabled={!!obj.birthYearUnknown}
+          placeholder="e.g. 1263"
+        />
 
+        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!obj.birthYearUnknown}
+            onChange={(e) =>
+              onChange({
+                ...obj,
+                birthYearUnknown: e.target.checked,
+                birthYear: e.target.checked ? null : obj.birthYear,
+              })
+            }
+          />
+          Unknown
+        </label>
+      </div>
+
+      <label className={labelCls}>Death Year:</label>
+      <div className="flex items-center gap-3 mb-4">
+        <input
+          type="number"
+          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+          value={obj.deathYear ?? ""}
+          onChange={(e) =>
+            onChange({
+              ...obj,
+              deathYear: e.target.value ? Number(e.target.value) : null,
+            })
+          }
+          disabled={!!obj.deathYearUnknown}
+          placeholder="e.g. 1328"
+        />
+
+        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+          <input
+            type="checkbox"
+            checked={!!obj.deathYearUnknown}
+            onChange={(e) =>
+              onChange({
+                ...obj,
+                deathYearUnknown: e.target.checked,
+                deathYear: e.target.checked ? null : obj.deathYear,
+              })
+            }
+          />
+          Unknown / Still alive
+        </label>
+      </div>
+    </>
+  );
+}
 export default function AuthorManagement({
   authors,
   setAuthors,
@@ -208,76 +276,6 @@ export default function AuthorManagement({
   const allReassigned =
     linkedBooks?.length > 0 && linkedBooks.every((b) => !!reassignMap[b.slug]);
 
-  // ── Shared year field sub-component (used in both edit and create-new forms) ─
-
-  const YearFields = ({ obj, onChange }) => (
-    <>
-      <label className={labelCls}>Birth Year:</label>
-      <div className="flex items-center gap-3 mb-4">
-        <input
-          type="number"
-          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
-          value={obj.birthYear ?? ""}
-          onChange={(e) =>
-            onChange({
-              ...obj,
-              birthYear: e.target.value ? Number(e.target.value) : null,
-            })
-          }
-          disabled={!!obj.birthYearUnknown}
-          placeholder="e.g. 1263"
-        />
-        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={!!obj.birthYearUnknown}
-            onChange={(e) =>
-              onChange({
-                ...obj,
-                birthYearUnknown: e.target.checked,
-                birthYear: e.target.checked ? null : obj.birthYear,
-              })
-            }
-          />
-          Unknown
-        </label>
-      </div>
-
-      <label className={labelCls}>Death Year:</label>
-      <div className="flex items-center gap-3 mb-4">
-        <input
-          type="number"
-          className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
-          value={obj.deathYear ?? ""}
-          onChange={(e) =>
-            onChange({
-              ...obj,
-              deathYear: e.target.value ? Number(e.target.value) : null,
-            })
-          }
-          disabled={!!obj.deathYearUnknown}
-          placeholder="e.g. 1328"
-        />
-        <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
-          <input
-            type="checkbox"
-            checked={!!obj.deathYearUnknown}
-            onChange={(e) =>
-              onChange({
-                ...obj,
-                deathYearUnknown: e.target.checked,
-                deathYear: e.target.checked ? null : obj.deathYear,
-              })
-            }
-          />
-          Unknown / Still alive
-        </label>
-      </div>
-    </>
-  );
-
-  // ── Render ───────────────────────────────────────────────────────────────────
-
   return (
     <>
       <label className={labelCls}>Saved Author:</label>
@@ -334,6 +332,7 @@ export default function AuthorManagement({
           <YearFields
             obj={editingAuthor}
             onChange={(updated) => setEditingAuthor(updated)}
+            labelCls={labelCls}
           />
 
           <div className="flex gap-3 mt-4">
