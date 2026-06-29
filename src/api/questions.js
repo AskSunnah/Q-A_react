@@ -49,3 +49,14 @@ export const deleteQuestion = async (id, language = 'en') => {
     });
     return response.json();
 };
+
+export const declineQuestion = async (id, language = 'en', message = '') => {
+  const response = await fetch(`${API_BASE}/api/user-questions/admin/${id}/decline`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ language, message }), // ← was `reason`, backend expects `message`
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Failed to decline question');
+  return data;
+};
