@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { submitQuestion } from "../../api/questions";
 
+const MAX_QUESTION_LENGTH = 800;
+
 const AskQuestionModal = ({
   isOpen = false,
   onClose = () => {},
@@ -19,16 +21,22 @@ const AskQuestionModal = ({
     error: "Something went wrong. Please try again.",
     connectionError: "Failed to submit. Please check your connection.",
     close: "Close",
+    questionHint:
+      "Please keep your question concise (max 800 characters). If you have more than one question, submit them separately.",
      thankYou: "Thank You!",
   },
 }) => {
   const [submitted, setSubmitted] = useState(false);
+  const [questionLength, setQuestionLength] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef();
 
   useEffect(() => {
     if (isOpen) {
+      {
       setSubmitted(false);
+      setQuestionLength(0);
+    }
       setSubmitting(false);
     }
   }, [isOpen]);
@@ -46,6 +54,7 @@ const AskQuestionModal = ({
     try {
       await submitQuestion({ name, email, question, language });
       setSubmitted(true);
+      setQuestionLength(0);
       formRef.current.reset();
     } catch (err) {
       alert(labels.connectionError);
@@ -57,6 +66,8 @@ const AskQuestionModal = ({
   if (!isOpen) return null;
 
   const isRTL = direction === "rtl";
+  const isNearLimit = questionLength >= MAX_QUESTION_LENGTH * 0.9;
+  const isAtLimit = questionLength >= MAX_QUESTION_LENGTH;
 
   return (
     <div
@@ -115,15 +126,42 @@ const AskQuestionModal = ({
                 ${isRTL ? "text-right" : "text-left"}`}
             />
 
+              {/* HINT */}
+              <p
+                className={`text-[12px] mb-2 text-[#888] ${
+                  isRTL ? "text-right" : "text-left"
+                }`}
+              >
+                {labels.questionHint}
+              </p>
+
             <textarea
               name="question"
               rows="5"
               placeholder={placeholders.question}
               required
+                maxLength={MAX_QUESTION_LENGTH}
+                value={undefined}
+                onChange={(e) => setQuestionLength(e.target.value.length)}
               disabled={submitting}
-              className={`w-full px-3 py-3 mb-4 border border-[#ccc] rounded-[6px] text-[var(--text-primary)] text-[14px] disabled:opacity-60
+              className={`w-full px-3 py-3 border border-[#ccc] rounded-[6px] text-[var(--text-primary)] text-[14px] disabled:opacity-60
                 ${isRTL ? "text-right" : "text-left"}`}
             />
+
+              {/* LIVE COUNTER */}
+              <div
+                className={`text-[12px] mb-4 mt-1 ${
+                  isRTL ? "text-left" : "text-right"
+                } ${
+                  isAtLimit
+                    ? "text-red-500 font-semibold"
+                    : isNearLimit
+                      ? "text-orange-500"
+                      : "text-[#999]"
+                }`}
+              >
+                {questionLength}/{MAX_QUESTION_LENGTH}
+              </div>
 
             <button
               type="submit"
