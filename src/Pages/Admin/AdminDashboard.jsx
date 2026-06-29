@@ -249,16 +249,12 @@ export default function AdminDashboard() {
           />
           <QuickActionButton
             icon={FileText}
-            label="Manage Questions Guide"
-            onClick={() =>
-              window.open("YOUR_GOOGLE_DOC_VIEW_LINK_HERE", "_blank")
-            }
-          />
-          <QuickActionButton
-            icon={FileText}
             label="Manage Books Guide"
             onClick={() =>
-              window.open("YOUR_GOOGLE_DOC_VIEW_LINK_HERE", "_blank")
+              window.open(
+                "https://docs.google.com/document/d/16N7RV7LDZXRa7WqhG0XAC7CmqB655rtJ1ZS8bALOFdc/edit?usp=drive_link",
+                "_blank",
+              )
             }
           />
         </div>
