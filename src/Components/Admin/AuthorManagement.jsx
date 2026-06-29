@@ -63,6 +63,7 @@ export default function AuthorManagement({
   fieldCls,
   labelCls,
   selectFieldCls,
+  allowCreate = true,
 }) {
   const [editingAuthor, setEditingAuthor] = useState(null);
   const [linkedBooks, setLinkedBooks] = useState(null);
@@ -415,7 +416,9 @@ export default function AuthorManagement({
           value={selectedAuthorId || ""}
           onChange={handleAuthorSelect}
         >
-          <option value="">-- Select saved author or add new below --</option>
+          <option value="" disabled>
+            -- Select saved author --
+          </option>
 
           {authors.map((author) => (
             <option key={author._id} value={author._id}>
@@ -578,9 +581,11 @@ export default function AuthorManagement({
                             </option>
                           ))}
 
-                        <option value="__create_new__">
-                          ➕ Create new author…
-                        </option>
+                        {allowCreate && (
+                          <option value="__create_new__">
+                            ➕ Create new author…
+                          </option>
+                        )}
                       </select>
                     </div>
 

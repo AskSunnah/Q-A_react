@@ -30,8 +30,14 @@ const SORT_OPTIONS = {
     { value: "title_asc", label: "Title (A–Z)" },
     { value: "title_desc", label: "Title (Z–A)" },
     { value: "author_asc", label: "Author (A–Z)" },
-    { value: "author_timeline_asc", label: "Old authors first" },
-    { value: "author_timeline_desc", label: "Recent authors first" },
+    {
+      value: "author_timeline_asc",
+      label: "Death Year — Oldest authors first",
+    },
+    {
+      value: "author_timeline_desc",
+      label: "Death Year — Recent authors first",
+    },
   ],
   ar: [
     { value: "order", label: "الترتيب الافتراضي" },
@@ -41,8 +47,8 @@ const SORT_OPTIONS = {
     { value: "title_desc", label: "العنوان (ي–أ)" },
     { value: "author_asc", label: "المؤلف (أ–ي)" },
     { value: "author_desc", label: "المؤلف (ي–أ)" },
-    { value: "author_timeline_asc", label: "المؤلفون الأقدم أولاً" },
-    { value: "author_timeline_desc", label: "المؤلفون الأحدث أولاً" },
+    { value: "author_timeline_asc", label: "سنة الوفاة — الأقدم أولاً" },
+    { value: "author_timeline_desc", label: "سنة الوفاة — الأحدث أولاً" },
   ],
 };
 
@@ -602,7 +608,7 @@ export default function BookLibrary({ lang = "en" }) {
   // Filters
   const [category, setCategory] = useState("all");
   const [author, setAuthor] = useState("all");
-  const [sort, setSort] = useState("order");
+  const [sort, setSort] = useState("author_timeline_asc");
   const [authorOptions, setAuthorOptions] = useState([]);
 
   // Books
@@ -792,13 +798,13 @@ export default function BookLibrary({ lang = "en" }) {
   };
 
   const hasActiveFilters =
-    category !== "all" || author !== "all" || sort !== "order";
+    category !== "all" || author !== "all" || sort !== "author_timeline_asc";
   const hasAnyActiveState = hasActiveFilters || !!debouncedSearch;
 
   const resetFilters = () => {
     setCategory("all");
     setAuthor("all");
-    setSort("order");
+    setSort("author_timeline_asc");
     setSearch("");
     setDebouncedSearch("");
     setFuzzyCorrection(null);

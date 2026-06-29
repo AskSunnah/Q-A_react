@@ -136,7 +136,11 @@ function App() {
           />
           <Route
             path="/supervised/pinned-section"
-            element={<PinnedSectionPage />}
+            element={
+              <ProtectedRoute>
+                <PinnedSectionPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/supervised/books/authors"
@@ -146,9 +150,30 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/supervised/reports" element={<AdminReports />} />
-          <Route path="/supervised/books/en" element={<AllBooks lang="en" />} />
-          <Route path="/supervised/books/ar" element={<AllBooks lang="ar" />} />
+          <Route
+            path="/supervised/reports"
+            element={
+              <ProtectedRoute>
+                <AdminReports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/books/en"
+            element={
+              <ProtectedRoute>
+                <AllBooks lang="en" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/books/ar"
+            element={
+              <ProtectedRoute>
+                <AllBooks lang="ar" />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/managesubscription" element={<ManageSubscription />} />
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />

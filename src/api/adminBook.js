@@ -171,15 +171,16 @@ export async function reassignBookAuthor(lang, slug, newAuthorId) {
   const res = await fetch(`${API_BASE}/api/books/${lang}/${slug}/author`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ authorId: newAuthorId || null }),
+    body: JSON.stringify({
+      authorId: newAuthorId || null,
+      lang, // ← this is what the controller now reads
+    }),
   });
 
   const data = await res.json();
-
   if (!res.ok || !data.success) {
     throw new Error(data.message || "Failed to reassign book");
   }
-
   return data.book;
 }
 

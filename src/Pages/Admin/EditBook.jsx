@@ -5,6 +5,7 @@ import {
   fetchBookAdmin,
   saveBookAdmin,
   fetchAuthors,
+  reassignBookAuthor,
 } from "../../api/adminBook";
 import BookEditor from "../../Components/Admin/BookEditor";
 import AdminLayout from "../../Components/Admin/AdminLayout";
@@ -16,6 +17,7 @@ const CATEGORIES = [
   { value: "Aqeedah", label: "Aqeedah Books" },
   { value: "Fiqh", label: "Fiqh" },
   { value: "Hadith", label: "Hadith" },
+  { value: "Seerah", label: "Seerah" },
 ];
 
 const LANGS = [
@@ -32,7 +34,12 @@ export default function EditBook() {
 
   useEffect(() => {
     fetchBookAdmin(lang, slug)
-      .then(setBook)
+      .then((b) => {
+        setBook({
+          ...b,
+          authorId: b.authorId ? String(b.authorId) : "",
+        });
+      })
       .catch((err) =>
         setModal({ show: true, title: "Error", message: err.message }),
       );
@@ -40,7 +47,6 @@ export default function EditBook() {
 
   useEffect(() => {
     if (!book?.language) return;
-
     fetchAuthors(book.language)
       .then(setAuthors)
       .catch(() => setAuthors([]));
@@ -66,17 +72,10 @@ export default function EditBook() {
 
   const fieldCls =
     "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
-
   const labelCls = "font-bold mt-4 block text-[var(--bg-color-header)]";
-
-  const contentFieldCls = `${fieldCls} ${
-    isArabic ? "text-right leading-8" : "text-left"
-  }`;
-
+  const contentFieldCls = `${fieldCls} ${isArabic ? "text-right leading-8" : "text-left"}`;
   const slugFieldCls = `${fieldCls} text-left`;
-
   const selectFieldCls = `${fieldCls} ${isArabic ? "text-right" : "text-left"}`;
-
   const disabledFieldCls =
     "disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed";
 
@@ -95,11 +94,9 @@ export default function EditBook() {
       });
       return;
     }
-
     setBook({ ...book, [field]: value });
   };
 
-  // Called by AuthorManager when the user picks/clears a saved author
   const handleAuthorChange = (author) => {
     if (!author) {
       setBook((b) => ({
@@ -115,9 +112,11 @@ export default function EditBook() {
       return;
     }
 
+    const authorId = String(author._id || author.id || "");
+
     setBook((b) => ({
       ...b,
-      authorId: author._id,
+      authorId,
       author: author.name,
       authorBio: author.bio || "",
       birthYear: author.birthYear ?? null,
@@ -129,6 +128,7 @@ export default function EditBook() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+
     if (
       !["known", "unknown", "living"].includes(book.deathStatus || "unknown")
     ) {
@@ -139,7 +139,6 @@ export default function EditBook() {
       });
       return;
     }
-
     if (book.deathStatus === "known" && !book.deathYear) {
       setModal({
         show: true,
@@ -148,7 +147,6 @@ export default function EditBook() {
       });
       return;
     }
-
     if (
       book.deathStatus === "known" &&
       book.birthYear &&
@@ -162,9 +160,10 @@ export default function EditBook() {
       });
       return;
     }
+
     try {
       await saveBookAdmin(lang, slug, book);
-
+      await reassignBookAuthor(lang, slug, book.authorId || null);
       setModal({
         show: true,
         title: "Success",
@@ -227,6 +226,7 @@ export default function EditBook() {
             ))}
           </select>
 
+          {/* Author section — reassign + edit only, no create */}
           <AuthorManager
             authors={authors}
             setAuthors={setAuthors}
@@ -243,15 +243,16 @@ export default function EditBook() {
             fieldCls={fieldCls}
             labelCls={labelCls}
             selectFieldCls={selectFieldCls}
+            allowCreate={false}
           />
 
-          <label className={labelCls}>Author:</label>
+          {/* Read-only author name display */}
+          <label className={labelCls}>Author Name:</label>
           <input
             {...contentDirectionProps}
             className={`${contentFieldCls} ${disabledFieldCls}`}
             value={book.author || ""}
-            onChange={(e) => handleFieldChange("author", e.target.value)}
-            disabled={!!book.authorId}
+            disabled
           />
 
           <label className={labelCls}>About the Author:</label>
@@ -259,38 +260,24 @@ export default function EditBook() {
             {...contentDirectionProps}
             className={`${contentFieldCls} ${disabledFieldCls}`}
             value={book.authorBio || ""}
-            onChange={(e) => handleFieldChange("authorBio", e.target.value)}
-            disabled={!!book.authorId}
-            placeholder="Write author biography/background"
+            disabled
+            placeholder="Populated from saved author"
           />
 
-          {/* DOB / DOD — read-only display when a saved author is linked */}
           <label className={labelCls}>Birth Year:</label>
           <div className="flex items-center gap-3 mb-4">
             <input
               type="number"
               className={`flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${disabledFieldCls}`}
               value={book.birthYear ?? ""}
-              onChange={(e) =>
-                handleFieldChange(
-                  "birthYear",
-                  e.target.value ? Number(e.target.value) : null,
-                )
-              }
-              disabled={!!book.authorId || !!book.birthYearUnknown}
+              disabled
             />
-            <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+            <label className="flex items-center gap-2 whitespace-nowrap text-sm">
               <input
                 type="checkbox"
                 checked={!!book.birthYearUnknown}
-                disabled={!!book.authorId}
-                onChange={(e) =>
-                  setBook((b) => ({
-                    ...b,
-                    birthYearUnknown: e.target.checked,
-                    birthYear: e.target.checked ? null : b.birthYear,
-                  }))
-                }
+                disabled
+                readOnly
               />
               Unknown
             </label>
@@ -298,55 +285,22 @@ export default function EditBook() {
 
           <label className={labelCls}>Death Status:</label>
           <div className="flex flex-wrap gap-4 mb-4">
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="deathStatus"
-                checked={book.deathStatus === "known"}
-                disabled={!!book.authorId}
-                onChange={() =>
-                  setBook((b) => ({
-                    ...b,
-                    deathStatus: "known",
-                  }))
-                }
-              />
-              Death year known
-            </label>
-
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="deathStatus"
-                checked={book.deathStatus === "unknown"}
-                disabled={!!book.authorId}
-                onChange={() =>
-                  setBook((b) => ({
-                    ...b,
-                    deathStatus: "unknown",
-                    deathYear: null,
-                  }))
-                }
-              />
-              Death year unknown
-            </label>
-
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input
-                type="radio"
-                name="deathStatus"
-                checked={book.deathStatus === "living"}
-                disabled={!!book.authorId}
-                onChange={() =>
-                  setBook((b) => ({
-                    ...b,
-                    deathStatus: "living",
-                    deathYear: null,
-                  }))
-                }
-              />
-              Still alive
-            </label>
+            {[
+              { value: "known", label: "Death year known" },
+              { value: "unknown", label: "Death year unknown" },
+              { value: "living", label: "Still alive" },
+            ].map(({ value, label }) => (
+              <label key={value} className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="deathStatus"
+                  checked={book.deathStatus === value}
+                  disabled
+                  readOnly
+                />
+                {label}
+              </label>
+            ))}
           </div>
 
           {book.deathStatus === "known" && (
@@ -356,13 +310,7 @@ export default function EditBook() {
                 type="number"
                 className={`block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border ${disabledFieldCls}`}
                 value={book.deathYear ?? ""}
-                onChange={(e) =>
-                  handleFieldChange(
-                    "deathYear",
-                    e.target.value ? Number(e.target.value) : null,
-                  )
-                }
-                disabled={!!book.authorId}
+                disabled
               />
             </>
           )}
@@ -406,10 +354,11 @@ export default function EditBook() {
             isArabic={isArabic}
             contentDirectionProps={contentDirectionProps}
           />
-          {/* Preview — reflects the current unsaved state */}
+
           <div className="mt-6 flex justify-center">
             <BookPreview book={book} lang={book.language} />
           </div>
+
           <button
             type="submit"
             className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-6 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
