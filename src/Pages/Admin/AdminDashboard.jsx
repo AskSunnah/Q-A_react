@@ -252,7 +252,7 @@ export default function AdminDashboard() {
             label="Manage Books Guide"
             onClick={() =>
               window.open(
-                "https://docs.google.com/document/d/16N7RV7LDZXRa7WqhG0XAC7CmqB655rtJ1ZS8bALOFdc/edit?usp=drive_link",
+                "https://drive.google.com/file/d/1Uz80PdUlsSoEIWHoAbbSB0U1JIG9LfrK/view?usp=drive_link",
                 "_blank",
               )
             }
