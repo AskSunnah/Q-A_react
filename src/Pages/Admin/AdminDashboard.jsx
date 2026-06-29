@@ -24,7 +24,15 @@ const StatCardSkeleton = () => (
   </div>
 );
 
-const StatCard = ({ title, value, breakdown, icon: Icon, color, onClick, urgent }) => {
+const StatCard = ({
+  title,
+  value,
+  breakdown,
+  icon: Icon,
+  color,
+  onClick,
+  urgent,
+}) => {
   const handleKeyDown = (e) => {
     if (!onClick) return;
     if (e.key === "Enter" || e.key === " ") {
@@ -41,7 +49,9 @@ const StatCard = ({ title, value, breakdown, icon: Icon, color, onClick, urgent 
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       className={`bg-white rounded-2xl p-6 shadow-[0_4px_16px_rgba(0,0,0,0.05)] border border-[#f0f0f0] flex items-center gap-[18px] relative transition-all duration-300 hover:-translate-y-[5px] hover:shadow-[0_12px_30px_rgba(0,0,0,0.1)] ${
-        onClick ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2" : ""
+        onClick
+          ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2"
+          : ""
       } ${urgent ? "border-l-4 border-l-[#ea580c]" : ""}`}
       style={onClick ? { "--tw-ring-color": color } : undefined}
     >
@@ -198,7 +208,8 @@ export default function AdminDashboard() {
               {totalUrgent > 0 ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-[#ea580c] shrink-0" />
-                  {totalUrgent} item{totalUrgent !== 1 ? "s" : ""} need attention
+                  {totalUrgent} item{totalUrgent !== 1 ? "s" : ""} need
+                  attention
                 </>
               ) : (
                 <>
@@ -237,9 +248,18 @@ export default function AdminDashboard() {
             onClick={() => navigate("/supervised/add-book")}
           />
           <QuickActionButton
-            icon={BookOpen}
-            label="Review Pending Questions"
-            onClick={() => navigate("/supervised/user-questions")}
+            icon={FileText}
+            label="Manage Questions Guide"
+            onClick={() =>
+              window.open("YOUR_GOOGLE_DOC_VIEW_LINK_HERE", "_blank")
+            }
+          />
+          <QuickActionButton
+            icon={FileText}
+            label="Manage Books Guide"
+            onClick={() =>
+              window.open("YOUR_GOOGLE_DOC_VIEW_LINK_HERE", "_blank")
+            }
           />
         </div>
 
