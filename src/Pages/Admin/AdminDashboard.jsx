@@ -249,10 +249,10 @@ export default function AdminDashboard() {
           />
           <QuickActionButton
             icon={FileText}
-            label="Manage Books Guide (Coming Soon)"
+            label="Manage Books Guide"
             onClick={() =>
               window.open(
-                "",
+                "https://drive.google.com/file/d/1Uz80PdUlsSoEIWHoAbbSB0U1JIG9LfrK/view?usp=drive_link",
                 "_blank",
               )
             }
