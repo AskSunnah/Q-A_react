@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Home,
-  FilePlus,
   Files,
   BookPlus,
   Library,
@@ -14,9 +13,10 @@ import {
   Flag,
   Pin,
   PenLine,
+  Users,
 } from "lucide-react";
 
-const MENU = [
+const MENU_TOP = [
   { label: "Dashboard", icon: Home, route: "/supervised/dashboard" },
   {
     label: "User Questions",
@@ -28,23 +28,74 @@ const MENU = [
     label: "Add Extra Q&A",
     icon: PenLine,
     route: "/supervised/add-qa-standalone",
-    // Standalone: no user question link
+    exact: true,
   },
+  {
+    label: "Pinned section",
+    icon: Pin,
+    route: "/supervised/pinned-section",
+  },
+];
+
+const BOOK_MENU = [
   { label: "Add Book", icon: BookPlus, route: "/supervised/add-book" },
-  { label: "English Books", icon: Library, route: "/supervised/books/en" },
-  { label: "Arabic Books", icon: Library, route: "/supervised/books/ar" },
+  {
+    label: "English Books",
+    icon: Library,
+    route: "/supervised/books/en",
+    alsoActive: ["/supervised/books/edit/en"],
+  },
+  {
+    label: "Arabic Books",
+    icon: Library,
+    route: "/supervised/books/ar",
+    alsoActive: ["/supervised/books/edit/ar"],
+  },
+  {
+    label: "Manage Authors",
+    icon: Users,
+    route: "/supervised/books/authors",
+  },
+];
+
+const MENU_BOTTOM = [
   {
     label: "User Feedback",
     icon: MessageCircleHeart,
     route: "/supervised/user-feedback",
   },
-   { label: "Reports", icon: Flag, route: "/supervised/reports" },
-   {
-  label: "Pinned section",
-  icon: Pin, 
-  route: "/supervised/pinned-section",
-}
+  { label: "Reports", icon: Flag, route: "/supervised/reports" },
 ];
+
+function SidebarLink({ item, pathname, onClick }) {
+  const { label, icon: Icon, route, exact, alsoActive = [] } = item;
+
+  const isActive = exact
+    ? pathname === route
+    : pathname.startsWith(route) ||
+      alsoActive.some((activePath) => pathname.startsWith(activePath));
+
+  return (
+    <NavLink
+      to={route}
+      onClick={onClick}
+      className={`
+        flex items-center gap-[10px]
+        px-5 py-3 mx-[6px] rounded-lg
+        no-underline font-medium text-[0.92rem]
+        transition-all duration-200
+        ${
+          isActive
+            ? "bg-[#c3a421] text-white font-semibold"
+            : "bg-transparent text-[#323232] hover:bg-[#f0ece0]"
+        }
+      `}
+    >
+      <Icon size={18} />
+      <span>{label}</span>
+    </NavLink>
+  );
+}
 
 export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
   const { pathname } = useLocation();
@@ -61,17 +112,17 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
     navigate("/supervised", { replace: true });
   };
 
+  const closeMobileMenu = () => setMobileOpen(false);
+
   return (
     <>
-      {/* MOBILE OVERLAY */}
       {mobileOpen && (
         <div
-          onClick={() => setMobileOpen(false)}
+          onClick={closeMobileMenu}
           className="fixed inset-0 bg-black/40 z-[98]"
         />
       )}
 
-      {/* SIDEBAR */}
       <div
         className={`
           w-[260px] bg-[#faf9f5] text-[#323232]
@@ -84,7 +135,6 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
         `}
         style={{ paddingTop: "2px" }}
       >
-        {/* Top: Logo + Close */}
         <div className="px-5 h-[60px] flex items-center justify-between border-b border-[#dfd7d7] shrink-0">
           <h1 className="text-[1.1rem] font-bold m-0 leading-none flex items-center text-[#323232]">
             Ask Sunnah
@@ -103,7 +153,7 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
 
             {isMobile && (
               <button
-                onClick={() => setMobileOpen(false)}
+                onClick={closeMobileMenu}
                 className="bg-transparent border-none cursor-pointer flex items-center justify-end h-full p-0"
               >
                 <X size={24} />
@@ -112,40 +162,43 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
           </div>
         </div>
 
-        {/* Menu */}
         <nav className="flex-1 overflow-y-auto mt-[10px] pb-[80px]">
-          {MENU.map(({ label, icon: Icon, route }) => {
-            // Active check: for standalone route, only match exactly
-            const isActive =
-              route === "/supervised/add-qa-standalone"
-                ? pathname === route
-                : pathname.startsWith(route);
+          {MENU_TOP.map((item) => (
+            <SidebarLink
+              key={item.label}
+              item={item}
+              pathname={pathname}
+              onClick={closeMobileMenu}
+            />
+          ))}
 
-            return (
-              <NavLink
-                key={label}
-                to={route}
-                onClick={() => setMobileOpen(false)}
-                className={`
-                  flex items-center gap-[10px]
-                  px-5 py-3 mx-[6px] rounded-lg
-                  no-underline font-medium text-[0.92rem]
-                  transition-all duration-200
-                  ${
-                    isActive
-                      ? "bg-[#c3a421] text-white font-semibold"
-                      : "bg-transparent text-[#323232] hover:bg-[#f0ece0]"
-                  }
-                `}
-              >
-                <Icon size={18} />
-                <span>{label}</span>
-              </NavLink>
-            );
-          })}
+          <div className="mt-4 mb-2 px-5 text-[0.72rem] uppercase tracking-[0.08em] font-bold text-[#8a7a3a]">
+            Book Management
+          </div>
+
+          {BOOK_MENU.map((item) => (
+            <SidebarLink
+              key={item.label}
+              item={item}
+              pathname={pathname}
+              onClick={closeMobileMenu}
+            />
+          ))}
+
+          <div className="mt-4 mb-2 px-5 text-[0.72rem] uppercase tracking-[0.08em] font-bold text-[#8a7a3a]">
+            Other
+          </div>
+
+          {MENU_BOTTOM.map((item) => (
+            <SidebarLink
+              key={item.label}
+              item={item}
+              pathname={pathname}
+              onClick={closeMobileMenu}
+            />
+          ))}
         </nav>
 
-        {/* Sticky Logout */}
         <div
           onClick={handleLogout}
           className="

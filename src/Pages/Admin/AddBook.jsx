@@ -1,7 +1,8 @@
 // src/pages/AddBook.jsx
 import React, { useState, useEffect } from "react";
-import { submitBook, fetchAuthors, updateAuthor } from "../../api/adminBook";
+import { submitBook, fetchAuthors } from "../../api/adminBook";
 import AdminLayout from "../../Components/Admin/AdminLayout";
+import AuthorManager from "../../Components/Admin/AuthorManagement";
 import BookPreview from "../../Components/Admin/BookPreview";
 
 const CATEGORIES = [
@@ -26,27 +27,22 @@ export default function AddBook() {
     aboutBook: "",
     category: "",
     language: "en",
+    birthYear: null,
+    birthYearUnknown: false,
+    deathYear: null,
+    deathStatus: "unknown",
   });
 
   const [chapters, setChapters] = useState([]);
   const [modal, setModal] = useState({ show: false, title: "", message: "" });
   const [deletePageIndex, setDeletePageIndex] = useState(null);
   const [authors, setAuthors] = useState([]);
-  const [editingAuthor, setEditingAuthor] = useState(null); // { _id, name, bio } | null
 
   const isArabic = form.language === "ar";
 
   const contentDirectionProps = isArabic
-    ? {
-        dir: "rtl",
-        lang: "ar",
-        style: { unicodeBidi: "plaintext" },
-      }
-    : {
-        dir: "ltr",
-        lang: "en",
-        style: { unicodeBidi: "plaintext" },
-      };
+    ? { dir: "rtl", lang: "ar", style: { unicodeBidi: "plaintext" } }
+    : { dir: "ltr", lang: "en", style: { unicodeBidi: "plaintext" } };
 
   const fieldCls =
     "block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border";
@@ -72,6 +68,34 @@ export default function AddBook() {
       .then(setAuthors)
       .catch(() => setAuthors([]));
   }, [form.language]);
+
+  // Called by AuthorManager when the user picks/clears a saved author
+  const handleAuthorChange = (author) => {
+    if (!author) {
+      setForm((f) => ({
+        ...f,
+        authorId: "",
+        author: "",
+        authorBio: "",
+        birthYear: null,
+        birthYearUnknown: false,
+        deathYear: null,
+        deathStatus: "unknown",
+      }));
+      return;
+    }
+
+    setForm((f) => ({
+      ...f,
+      authorId: author._id,
+      author: author.name,
+      authorBio: author.bio || "",
+      birthYear: author.birthYear ?? null,
+      birthYearUnknown: !!author.birthYearUnknown,
+      deathYear: author.deathYear ?? null,
+      deathStatus: author.deathStatus || "unknown",
+    }));
+  };
 
   // 🔢 Get global page number for a chapter/page index
   const getGlobalPageNumber = (chapterIdx, pageIdx) => {
@@ -102,12 +126,7 @@ export default function AddBook() {
 
   const addPage = (chapterIdx) => {
     const chs = [...chapters];
-
-    chs[chapterIdx].pages.push({
-      references: [],
-      blocks: [],
-    });
-
+    chs[chapterIdx].pages.push({ references: [], blocks: [] });
     setChapters(chs);
   };
 
@@ -119,7 +138,6 @@ export default function AddBook() {
           : { ...ch, pages: ch.pages.filter((_, j) => j !== pageIdx) },
       ),
     );
-
     setDeletePageIndex(null);
   };
 
@@ -145,7 +163,6 @@ export default function AddBook() {
   // --- Block Helpers ---
   const addBlock = (chapterIdx, pageIdx) => {
     const chs = [...chapters];
-
     chs[chapterIdx].pages[pageIdx].blocks.push({
       type: "heading",
       text: "",
@@ -153,7 +170,6 @@ export default function AddBook() {
       narrator: "",
       commentary: "",
     });
-
     setChapters(chs);
   };
 
@@ -180,92 +196,52 @@ export default function AddBook() {
         authorId: "",
         author: "",
         authorBio: "",
+        birthYear: null,
+        birthYearUnknown: false,
+        deathYear: null,
+        deathStatus: "unknown",
       });
       return;
     }
 
-    setForm({
-      ...form,
-      [name]: value,
-    });
-  };
-
-  const handleAuthorSelect = (e) => {
-    const selectedAuthorId = e.target.value;
-
-    if (!selectedAuthorId) {
-      setForm({
-        ...form,
-        authorId: "",
-        author: "",
-        authorBio: "",
-      });
-      return;
-    }
-
-    const selectedAuthor = authors.find((a) => a._id === selectedAuthorId);
-
-    if (!selectedAuthor) return;
-
-    setForm({
-      ...form,
-      authorId: selectedAuthor._id,
-      author: selectedAuthor.name,
-      authorBio: selectedAuthor.bio || "",
-    });
-  };
-
-  // --- Author Edit Handlers ---
-  const openEditAuthor = () => {
-    const a = authors.find((x) => x._id === form.authorId);
-    if (a) setEditingAuthor({ ...a });
-  };
-
-  const closeEditAuthor = () => {
-    setEditingAuthor(null);
-  };
-
-  const handleSaveAuthor = async () => {
-    if (!editingAuthor?.name?.trim()) {
-      setModal({
-        show: true,
-        title: "Error",
-        message: "Author name is required.",
-      });
-      return;
-    }
-
-    try {
-      const updated = await updateAuthor(editingAuthor._id, {
-        name: editingAuthor.name,
-        bio: editingAuthor.bio,
-      });
-
-      setAuthors((prev) =>
-        prev.map((a) => (a._id === updated._id ? updated : a)),
-      );
-
-      // Sync the currently-open form too, since it holds a local
-      // copy of author/authorBio (denormalized onto the book on submit).
-      setForm((f) =>
-        f.authorId === updated._id
-          ? { ...f, author: updated.name, authorBio: updated.bio }
-          : f,
-      );
-
-      setEditingAuthor(null);
-    } catch (err) {
-      setModal({
-        show: true,
-        title: "Error",
-        message: err.message,
-      });
-    }
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      !["known", "unknown", "living"].includes(form.deathStatus || "unknown")
+    ) {
+      setModal({
+        show: true,
+        title: "Invalid Death Status",
+        message: "Please select a valid death status.",
+      });
+      return;
+    }
 
+    if (form.deathStatus === "known" && !form.deathYear) {
+      setModal({
+        show: true,
+        title: "Missing Death Year",
+        message: "Death year is required when death status is known.",
+      });
+      return;
+    }
+
+    if (
+      form.deathStatus === "known" &&
+      form.birthYear &&
+      form.deathYear &&
+      Number(form.deathYear) < Number(form.birthYear)
+    ) {
+      setModal({
+        show: true,
+        title: "Invalid Years",
+        message: "Death year cannot be before birth year.",
+      });
+      return;
+    }
     let pageCounter = 1;
 
     const bookData = {
@@ -305,21 +281,19 @@ export default function AddBook() {
         aboutBook: "",
         category: "",
         language: "en",
+        birthYear: null,
+        birthYearUnknown: false,
+        deathYear: null,
+        deathStatus: "unknown",
       });
 
       setChapters([]);
     } catch (err) {
-      setModal({
-        show: true,
-        title: "Error",
-        message: err.message,
-      });
+      setModal({ show: true, title: "Error", message: err.message });
     }
   };
 
-  const closeModal = () => {
-    setModal({ ...modal, show: false });
-  };
+  const closeModal = () => setModal({ ...modal, show: false });
 
   return (
     <AdminLayout>
@@ -359,37 +333,25 @@ export default function AddBook() {
             ))}
           </select>
 
-          <label className={labelCls}>Saved Author:</label>
-          <div className="flex items-center gap-2">
-            <select
-              {...contentDirectionProps}
-              className={`${selectFieldCls} flex-1`}
-              name="authorId"
-              value={form.authorId}
-              onChange={handleAuthorSelect}
-            >
-              <option value="">
-                -- Select saved author or add new below --
-              </option>
-              {authors.map((author) => (
-                <option key={author._id} value={author._id}>
-                  {author.name}
-                </option>
-              ))}
-            </select>
+          <AuthorManager
+            authors={authors}
+            setAuthors={setAuthors}
+            selectedAuthorId={form.authorId}
+            language={form.language}
+            onSelect={handleAuthorChange}
+            onError={(message) =>
+              setModal({ show: true, title: "Error", message })
+            }
+            onSuccess={(message) =>
+              setModal({ show: true, title: "Success", message })
+            }
+            contentDirectionProps={contentDirectionProps}
+            fieldCls={fieldCls}
+            labelCls={labelCls}
+            selectFieldCls={selectFieldCls}
+          />
 
-            {form.authorId && (
-              <button
-                type="button"
-                title="Edit author details"
-                onClick={openEditAuthor}
-                className="p-2 rounded-lg border border-[#ccc] hover:bg-gray-50 shrink-0"
-              >
-                ✏️
-              </button>
-            )}
-          </div>
-
+          {/* Freeform author fields — only editable when no saved author is selected */}
           <label className={labelCls}>Author:</label>
           <input
             {...contentDirectionProps}
@@ -410,6 +372,111 @@ export default function AddBook() {
             disabled={!!form.authorId}
             placeholder="Write a short biography or background of the author"
           />
+
+          {/* DOB / DOD — only editable when no saved author is selected */}
+          <label className={labelCls}>Birth Year:</label>
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="number"
+              className="flex-1 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+              value={form.birthYear ?? ""}
+              onChange={(e) =>
+                setForm((f) => ({
+                  ...f,
+                  birthYear: e.target.value ? Number(e.target.value) : null,
+                }))
+              }
+              disabled={!!form.authorId || form.birthYearUnknown}
+              placeholder="e.g. 1263"
+            />
+            <label className="flex items-center gap-2 whitespace-nowrap text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!!form.birthYearUnknown}
+                disabled={!!form.authorId}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    birthYearUnknown: e.target.checked,
+                    birthYear: e.target.checked ? null : f.birthYear,
+                  }))
+                }
+              />
+              Unknown
+            </label>
+          </div>
+
+          <label className={labelCls}>Death Status:</label>
+          <div className="flex flex-wrap gap-4 mb-4">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="deathStatus"
+                checked={form.deathStatus === "known"}
+                disabled={!!form.authorId}
+                onChange={() =>
+                  setForm((f) => ({
+                    ...f,
+                    deathStatus: "known",
+                  }))
+                }
+              />
+              Death year known
+            </label>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="deathStatus"
+                checked={form.deathStatus === "unknown"}
+                disabled={!!form.authorId}
+                onChange={() =>
+                  setForm((f) => ({
+                    ...f,
+                    deathStatus: "unknown",
+                    deathYear: null,
+                  }))
+                }
+              />
+              Death year unknown
+            </label>
+
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="radio"
+                name="deathStatus"
+                checked={form.deathStatus === "living"}
+                disabled={!!form.authorId}
+                onChange={() =>
+                  setForm((f) => ({
+                    ...f,
+                    deathStatus: "living",
+                    deathYear: null,
+                  }))
+                }
+              />
+              Still alive
+            </label>
+          </div>
+
+          {form.deathStatus === "known" && (
+            <>
+              <label className={labelCls}>Death Year:</label>
+              <input
+                type="number"
+                className="block w-full mb-4 px-3 py-[0.6rem] text-base border border-[#ccc] rounded-lg box-border"
+                value={form.deathYear ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    deathYear: e.target.value ? Number(e.target.value) : null,
+                  }))
+                }
+                disabled={!!form.authorId}
+                placeholder="e.g. 1328"
+              />
+            </>
+          )}
 
           <label className={labelCls}>Description (if any):</label>
           <textarea
@@ -523,7 +590,6 @@ export default function AddBook() {
                           }
                           placeholder="Reference"
                         />
-
                         <button
                           type="button"
                           className="bg-[#e53e3e] text-white border-none py-[0.3rem] px-[0.8rem] text-[0.85rem] rounded-[6px] cursor-pointer w-auto h-auto whitespace-nowrap"
@@ -683,17 +749,15 @@ export default function AddBook() {
 
           <br />
           <br />
-
-          {/* <button
-            type="submit"
-            className="bg-[var(--bg-color-header)] text-white border-none py-[0.7rem] px-[1.4rem] rounded-lg text-base font-bold cursor-pointer mt-6 w-full block transition-colors duration-300 hover:bg-[#1f5c38]"
-          >
-            Submit Book
-          </button> */}
-
           {/* Preview — live, no save needed */}
           <div className="mt-6 flex justify-center">
-            <BookPreview book={{ ...form, chapters }} lang={form.language} />
+            <BookPreview
+              book={{
+                ...form,
+                chapters,
+              }}
+              lang={form.language}
+            />
           </div>
 
           <button
@@ -704,48 +768,6 @@ export default function AddBook() {
           </button>
         </form>
       </div>
-
-      {/* Edit Author Modal */}
-      {editingAuthor && (
-        <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[500px]">
-          <strong className="block text-[1.1rem] mb-3">Edit Author</strong>
-
-          <label className={labelCls}>Name:</label>
-          <input
-            className={fieldCls}
-            value={editingAuthor.name}
-            onChange={(e) =>
-              setEditingAuthor({ ...editingAuthor, name: e.target.value })
-            }
-          />
-
-          <label className={labelCls}>Bio:</label>
-          <textarea
-            className={fieldCls}
-            value={editingAuthor.bio || ""}
-            onChange={(e) =>
-              setEditingAuthor({ ...editingAuthor, bio: e.target.value })
-            }
-          />
-
-          <div className="flex gap-3 mt-4">
-            <button
-              type="button"
-              className="bg-[#287346] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
-              onClick={handleSaveAuthor}
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="bg-[#e53e3e] text-white border-none py-2 px-5 font-bold rounded-[6px] cursor-pointer"
-              onClick={closeEditAuthor}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Success/Error Modal */}
       {modal.show && (
@@ -768,11 +790,10 @@ export default function AddBook() {
       {deletePageIndex && (
         <div className="block fixed top-5 left-1/2 -translate-x-1/2 bg-white text-[#1e293b] border border-[#ccc] py-6 px-8 rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-[10000] w-[90%] max-w-[400px] text-center text-base">
           <strong className="block text-[1.1rem] mb-3">
-            Delete Page #{deletePageIndex.page + 1}
+            Delete Page #
+            {getGlobalPageNumber(deletePageIndex.chapter, deletePageIndex.page)}
           </strong>
-          <span>
-            Are you sure you want to delete Page #{deletePageIndex.page + 1}?
-          </span>
+          <span>Are you sure you want to delete this page?</span>
           <br />
           <br />
           <button

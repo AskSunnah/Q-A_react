@@ -12,7 +12,7 @@ import { API_BASE } from "../../config";
  * @param {string} category     "all" or a category value
  * @param {string} [author]     "all"/undefined or an exact author name
  * @param {string} [sort]       one of: order, title_asc, title_desc,
- *                              author_asc, author_desc, newest, oldest
+ *                              author_asc, author_desc, author_timeline_asc,author_timeline_desc, newest, oldest
  */
 export async function fetchBooks(
   lang,
