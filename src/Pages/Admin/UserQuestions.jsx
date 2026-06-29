@@ -17,7 +17,11 @@ import {
   X,
   Eye,
 } from "lucide-react";
-import { getAllQuestions, deleteQuestion, declineQuestion } from "../../api/questions";
+import {
+  getAllQuestions,
+  deleteQuestion,
+  declineQuestion,
+} from "../../api/questions";
 
 const PAGE_SIZE = 10;
 
@@ -53,14 +57,11 @@ const isFullyAnswered = (q) => {
 // };
 
 const isPending = (q) => {
-    if (q.wasDeclined) return false;
+  if (q.wasDeclined) return false;
 
-    const { en, ar } = getStatuses(q);
+  const { en, ar } = getStatuses(q);
 
-    return (
-        en === "unanswered" ||
-        ar === "unanswered"
-    );
+  return en === "unanswered" || ar === "unanswered";
 };
 
 // // Has any declined language
@@ -81,19 +82,27 @@ const normalizeQuestions = (data) => {
 
 function StatusBadge({ status, lang }) {
   const answered = status === "answered";
- const declined = status === "declined";
+  const declined = status === "declined";
 
   const styles = answered
     ? "bg-green-50 border-green-300 text-green-700"
     : declined
-    ? "bg-amber-50 border-amber-300 text-amber-700"
-    : "bg-red-50 border-red-300 text-red-600";
+      ? "bg-amber-50 border-amber-300 text-amber-700"
+      : "bg-red-50 border-red-300 text-red-600";
 
   const label = answered ? "Done" : declined ? "Declined" : "Pending";
 
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-[3px] rounded-full border ${styles}`}>
-      {answered ? <CheckCircle size={11} /> : declined ? <Ban size={11} /> : <Clock size={11} />}
+    <span
+      className={`inline-flex items-center gap-1 text-xs font-bold px-2 py-[3px] rounded-full border ${styles}`}
+    >
+      {answered ? (
+        <CheckCircle size={11} />
+      ) : declined ? (
+        <Ban size={11} />
+      ) : (
+        <Clock size={11} />
+      )}
       {lang === "en" ? "English" : "Arabic"} {label}
     </span>
   );
@@ -164,11 +173,9 @@ function QuestionCardSkeleton() {
 
 // ─── Email Preview ────────────────────────────────────────────────────────────
 
-const DEFAULT_MSG_EN =
-  `Thank you for submitting your question to AskSunnah. After careful consideration, our scholars are unfortunately unable to provide an answer to this question at this time.\n\nWe encourage you to seek guidance from a qualified local scholar or Islamic centre who may be better placed to address your specific circumstances.\n\nWe ask Allah to make things easy for you and guide you to what is correct.`;
+const DEFAULT_MSG_EN = `Thank you for submitting your question to AskSunnah. After careful consideration, our scholars are unfortunately unable to provide an answer to this question at this time.\n\nWe encourage you to seek guidance from a qualified local scholar or Islamic centre who may be better placed to address your specific circumstances.\n\nWe ask Allah to make things easy for you and guide you to what is correct.`;
 
-const DEFAULT_MSG_AR =
-  `شكرًا لتواصلكم مع اسأل السنة. بعد مراجعة سؤالكم بعناية، نأسف لإبلاغكم بأن علماءنا غير قادرين على الإجابة عنه في الوقت الحاضر.\n\nنشجعكم على التواصل مع عالم محلي متخصص أو مركز إسلامي قريب منكم، إذ قد يكونون أقدر على الإجابة عن حالتكم الخاصة.\n\nنسأل الله تعالى أن ييسر أموركم ويهديكم إلى ما فيه الخير.`;
+const DEFAULT_MSG_AR = `شكرًا لتواصلكم مع اسأل السنة. بعد مراجعة سؤالكم بعناية، نأسف لإبلاغكم بأن علماءنا غير قادرين على الإجابة عنه في الوقت الحاضر.\n\nنشجعكم على التواصل مع عالم محلي متخصص أو مركز إسلامي قريب منكم، إذ قد يكونون أقدر على الإجابة عن حالتكم الخاصة.\n\nنسأل الله تعالى أن ييسر أموركم ويهديكم إلى ما فيه الخير.`;
 
 function EmailPreview({ lang, name, question, message }) {
   const isAr = lang === "ar";
@@ -176,69 +183,197 @@ function EmailPreview({ lang, name, question, message }) {
     .split(/\n+/)
     .map((p) => p.trim())
     .filter(Boolean);
-  const preview = question.length > 200 ? question.slice(0, 200) + "…" : question;
+  const preview =
+    question.length > 200 ? question.slice(0, 200) + "…" : question;
 
   return (
-    <div style={{ background: "#f5f3ec", padding: "16px 12px", borderRadius: 10 }} dir={isAr ? "rtl" : "ltr"}>
-      <div style={{
-        background: "#fff", border: "1px solid #e8e2d0", borderRadius: 10,
-        overflow: "hidden", maxWidth: 440, margin: "0 auto",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      }}>
-        <div style={{ background: "#fffdf8", borderBottom: "1px solid #efe9d9", padding: "14px 18px", display: "flex", alignItems: "center", gap: 10 }}>
+    <div
+      style={{ background: "#f5f3ec", padding: "16px 12px", borderRadius: 10 }}
+      dir={isAr ? "rtl" : "ltr"}
+    >
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #e8e2d0",
+          borderRadius: 10,
+          overflow: "hidden",
+          maxWidth: 440,
+          margin: "0 auto",
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        }}
+      >
+        <div
+          style={{
+            background: "#fffdf8",
+            borderBottom: "1px solid #efe9d9",
+            padding: "14px 18px",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}
+        >
           {isAr ? (
             <>
               <div style={{ flex: 1, textAlign: "right" }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#b08d17" }}>اسأل السنة</div>
-                <div style={{ fontSize: 10, color: "#999", lineHeight: 1.5 }}>علم شرعي أصيل · مستند إلى القرآن والسنة</div>
+                <div
+                  style={{ fontSize: 15, fontWeight: 700, color: "#b08d17" }}
+                >
+                  اسأل السنة
+                </div>
+                <div style={{ fontSize: 10, color: "#999", lineHeight: 1.5 }}>
+                  علم شرعي أصيل · مستند إلى القرآن والسنة
+                </div>
               </div>
-              <div style={{ width: 36, height: 36, borderRadius: 6, background: "#f5edd6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#b08d17", flexShrink: 0 }}>AS</div>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 6,
+                  background: "#f5edd6",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "#b08d17",
+                  flexShrink: 0,
+                }}
+              >
+                AS
+              </div>
             </>
           ) : (
             <>
-              <div style={{ width: 36, height: 36, borderRadius: 6, background: "#f5edd6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#b08d17", flexShrink: 0 }}>AS</div>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 6,
+                  background: "#f5edd6",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "#b08d17",
+                  flexShrink: 0,
+                }}
+              >
+                AS
+              </div>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#b08d17" }}>AskSunnah</div>
-                <div style={{ fontSize: 10, color: "#999", lineHeight: 1.5 }}>Authentic Islamic Knowledge · Based on the Qur'an &amp; Sunnah</div>
+                <div
+                  style={{ fontSize: 15, fontWeight: 700, color: "#b08d17" }}
+                >
+                  AskSunnah
+                </div>
+                <div style={{ fontSize: 10, color: "#999", lineHeight: 1.5 }}>
+                  Authentic Islamic Knowledge · Based on the Qur'an &amp; Sunnah
+                </div>
               </div>
             </>
           )}
         </div>
 
         <div style={{ padding: "20px 22px" }}>
-          <p style={{ fontSize: 13, color: "#454545", marginBottom: 10, lineHeight: 1.85 }}>
-            {isAr ? "السلام عليكم ورحمة الله وبركاته،" : "Assalamu alaykum wa rahmatullahi wa barakatuh,"}
+          <p
+            style={{
+              fontSize: 13,
+              color: "#454545",
+              marginBottom: 10,
+              lineHeight: 1.85,
+            }}
+          >
+            {isAr
+              ? "السلام عليكم ورحمة الله وبركاته،"
+              : "Assalamu alaykum wa rahmatullahi wa barakatuh,"}
           </p>
-          <p style={{ fontSize: 13, color: "#454545", marginBottom: 14, lineHeight: 1.85 }}>
+          <p
+            style={{
+              fontSize: 13,
+              color: "#454545",
+              marginBottom: 14,
+              lineHeight: 1.85,
+            }}
+          >
             {isAr ? "الأخ الكريم " : "Dear "}
             <strong style={{ color: "#222" }}>{name || "valued user"}</strong>
             {isAr ? "،" : ","}
           </p>
           {paragraphs.map((para, i) => (
-            <p key={i} style={{ fontSize: 13, color: "#454545", marginBottom: 12, lineHeight: 1.85 }}>{para}</p>
+            <p
+              key={i}
+              style={{
+                fontSize: 13,
+                color: "#454545",
+                marginBottom: 12,
+                lineHeight: 1.85,
+              }}
+            >
+              {para}
+            </p>
           ))}
           <div style={{ margin: "18px 0 14px" }}>
-            <div style={{ fontSize: 10, color: "#9c8130", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: "#9c8130",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                marginBottom: 6,
+              }}
+            >
               {isAr ? "السؤال المرسل" : "Your submitted question"}
             </div>
-            <div style={{ background: "#fcfaf5", border: "1px solid #ece2bf", borderRadius: 7, padding: "11px 13px", fontSize: 12, color: "#555", fontStyle: "italic", lineHeight: 1.75 }}>
+            <div
+              style={{
+                background: "#fcfaf5",
+                border: "1px solid #ece2bf",
+                borderRadius: 7,
+                padding: "11px 13px",
+                fontSize: 12,
+                color: "#555",
+                fontStyle: "italic",
+                lineHeight: 1.75,
+              }}
+            >
               {preview}
             </div>
           </div>
-          <p style={{ fontSize: 13, color: "#454545", marginTop: 16, lineHeight: 1.85 }}>
+          <p
+            style={{
+              fontSize: 13,
+              color: "#454545",
+              marginTop: 16,
+              lineHeight: 1.85,
+            }}
+          >
             {isAr ? "جزاكم الله خيراً،" : "Jazakum Allahu Khayran,"}
             <br />
             <strong>{isAr ? "فريق اسأل السنة" : "Team AskSunnah"}</strong>
           </p>
         </div>
 
-        <div style={{ background: "#faf8f2", borderTop: "1px solid #efe8d8", padding: "12px 18px", textAlign: "center" }}>
+        <div
+          style={{
+            background: "#faf8f2",
+            borderTop: "1px solid #efe8d8",
+            padding: "12px 18px",
+            textAlign: "center",
+          }}
+        >
           <p style={{ fontSize: 10, color: "#aaa", lineHeight: 1.7 }}>
-            {isAr ? "منصة لنشر العلم الشرعي المستند إلى القرآن والسنة." : "A platform for Islamic knowledge based on the Qur'an and Sunnah."}
+            {isAr
+              ? "منصة لنشر العلم الشرعي المستند إلى القرآن والسنة."
+              : "A platform for Islamic knowledge based on the Qur'an and Sunnah."}
             <br />
-            {isAr ? "تحت إشراف الدكتور الشيخ فلاح كركولي" : "Supervised by Dr. Sheikh Falah Kurkully"}
-            <br />
-            © AskSunnah {new Date().getFullYear()}. {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
+            {isAr
+              ? "تحت إشراف الدكتور الشيخ فلاح كركولي"
+              : "Supervised by Dr. Sheikh Falah Kurkully"}
+            <br />© AskSunnah {new Date().getFullYear()}.{" "}
+            {isAr ? "جميع الحقوق محفوظة." : "All rights reserved."}
           </p>
         </div>
       </div>
@@ -248,7 +383,9 @@ function EmailPreview({ lang, name, question, message }) {
 
 function EmailPreviewModal({ lang, name, question, message, onClose }) {
   useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
@@ -268,7 +405,9 @@ function EmailPreviewModal({ lang, name, question, message, onClose }) {
         <div className="flex items-start justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <div>
             <p className="text-sm font-semibold text-gray-800">Email preview</p>
-            <p className="text-xs text-gray-400 mt-0.5">Exactly what will be sent to the user</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Exactly what will be sent to the user
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -278,7 +417,12 @@ function EmailPreviewModal({ lang, name, question, message, onClose }) {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
-          <EmailPreview lang={lang} name={name} question={question} message={message} />
+          <EmailPreview
+            lang={lang}
+            name={name}
+            question={question}
+            message={message}
+          />
         </div>
         <div className="px-5 py-3 border-t border-gray-100 flex justify-end shrink-0">
           <button
@@ -296,7 +440,14 @@ function EmailPreviewModal({ lang, name, question, message, onClose }) {
 // ─── Cannot Answer Modal ──────────────────────────────────────────────────────
 // ─── Cannot Answer Modal ──────────────────────────────────────────────────────
 
-function CannotAnswerModal({ question, lang, name, email, onClose, onDeclined }) {
+function CannotAnswerModal({
+  question,
+  lang,
+  name,
+  email,
+  onClose,
+  onDeclined,
+}) {
   const isAr = lang === "ar";
   const defaultMsg = isAr ? DEFAULT_MSG_AR : DEFAULT_MSG_EN;
 
@@ -324,7 +475,9 @@ function CannotAnswerModal({ question, lang, name, email, onClose, onDeclined })
   };
 
   useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape" && !showPreview) onClose(); };
+    const handler = (e) => {
+      if (e.key === "Escape" && !showPreview) onClose();
+    };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [onClose, showPreview]);
@@ -333,7 +486,9 @@ function CannotAnswerModal({ question, lang, name, email, onClose, onDeclined })
     <>
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6"
-        onClick={(e) => e.target === e.currentTarget && !showPreview && onClose()}
+        onClick={(e) =>
+          e.target === e.currentTarget && !showPreview && onClose()
+        }
       >
         <div
           className="bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden w-full"
@@ -348,8 +503,14 @@ function CannotAnswerModal({ question, lang, name, email, onClose, onDeclined })
                 Can't answer this question
               </h3>
               <p className="text-xs text-gray-400 mt-1">
-                Notification sent to <span className="font-medium text-gray-600">{email || "this user"}</span>{" "}
-                in <span className="font-medium text-gray-600">{isAr ? "Arabic" : "English"}</span>
+                Notification sent to{" "}
+                <span className="font-medium text-gray-600">
+                  {email || "this user"}
+                </span>{" "}
+                in{" "}
+                <span className="font-medium text-gray-600">
+                  {isAr ? "Arabic" : "English"}
+                </span>
               </p>
             </div>
             <button
@@ -394,7 +555,8 @@ function CannotAnswerModal({ question, lang, name, email, onClose, onDeclined })
                 </button>
               </div>
               <p className="text-xs text-gray-400 mb-2 leading-relaxed">
-                The body of the email. Greeting and sign-off are added automatically.
+                The body of the email. Greeting and sign-off are added
+                automatically.
               </p>
               <textarea
                 value={message}
@@ -404,14 +566,20 @@ function CannotAnswerModal({ question, lang, name, email, onClose, onDeclined })
                 rows={7}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 resize-none focus:outline-none focus:border-[#c3a421] focus:ring-2 focus:ring-[#c3a421]/10 leading-relaxed"
               />
-              <p className="text-right text-xs text-gray-400 mt-1">{message.length} / 1200</p>
+              <p className="text-right text-xs text-gray-400 mt-1">
+                {message.length} / 1200
+              </p>
             </div>
 
             <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-xs text-amber-800 leading-relaxed">
-              <p className="font-semibold text-amber-900 mb-0.5">Before sending</p>
+              <p className="font-semibold text-amber-900 mb-0.5">
+                Before sending
+              </p>
               <p className="text-amber-700">
-               This marks this question as declined and sends a one-time email to
-<strong>{email}</strong>. Once declined, the question is closed and cannot receive answers.
+                This marks this question as declined and sends a one-time email
+                to
+                <strong>{email}</strong>. Once declined, the question is closed
+                and cannot receive answers.
               </p>
             </div>
 
@@ -454,12 +622,22 @@ function CannotAnswerModal({ question, lang, name, email, onClose, onDeclined })
                   >
                     {sending ? (
                       <>
-                        <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <svg
+                          className="animate-spin"
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
                           <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
                         </svg>
                         Sending…
                       </>
-                    ) : "Send notification"}
+                    ) : (
+                      "Send notification"
+                    )}
                   </button>
                 </div>
               </>
@@ -509,8 +687,8 @@ function QuestionCard({ q, lang, onDelete, onDeclined, navigate }) {
           fullyDone
             ? "border-green-200 bg-white"
             : wasDeclined
-            ? "border-amber-200 bg-amber-50/30"
-            : "border-red-200 bg-red-50/40 shadow-sm"
+              ? "border-amber-200 bg-amber-50/30"
+              : "border-red-200 bg-red-50/40 shadow-sm"
         }`}
       >
         <div className="flex items-start justify-between gap-3 mb-3">
@@ -521,16 +699,22 @@ function QuestionCard({ q, lang, onDelete, onDeclined, navigate }) {
                   fullyDone
                     ? "bg-green-50 border-green-200 text-green-700"
                     : wasDeclined
-                    ? "bg-amber-50 border-amber-200 text-amber-700"
-                    : "bg-red-50 border-red-200 text-red-700"
+                      ? "bg-amber-50 border-amber-200 text-amber-700"
+                      : "bg-red-50 border-red-200 text-red-700"
                 }`}
               >
-                {fullyDone ? <CheckCircle size={12} /> : wasDeclined ? <Ban size={12} /> : <AlertCircle size={12} />}
-{fullyDone
-  ? "Completed"
-  : wasDeclined
-  ? "Declined"
-  : `Needs ${missing.join(" + ")}`}
+                {fullyDone ? (
+                  <CheckCircle size={12} />
+                ) : wasDeclined ? (
+                  <Ban size={12} />
+                ) : (
+                  <AlertCircle size={12} />
+                )}
+                {fullyDone
+                  ? "Completed"
+                  : wasDeclined
+                    ? "Declined"
+                    : `Needs ${missing.join(" + ")}`}
               </span>
 
               <span
@@ -544,7 +728,9 @@ function QuestionCard({ q, lang, onDelete, onDeclined, navigate }) {
               </span>
             </div>
 
-            <p className="text-sm font-semibold text-gray-800 m-0 leading-relaxed">{q.question}</p>
+            <p className="text-sm font-semibold text-gray-800 m-0 leading-relaxed">
+              {q.question}
+            </p>
 
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
               <span className="text-xs text-gray-500 flex items-center gap-1">
@@ -557,7 +743,9 @@ function QuestionCard({ q, lang, onDelete, onDeclined, navigate }) {
                 <span className="text-xs text-gray-400 flex items-center gap-1">
                   <Calendar size={12} />
                   {new Date(q.createdAt).toLocaleDateString("en-GB", {
-                    day: "2-digit", month: "short", year: "numeric",
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
                   })}
                 </span>
               )}
@@ -566,14 +754,14 @@ function QuestionCard({ q, lang, onDelete, onDeclined, navigate }) {
 
           <div className="flex flex-col gap-1 items-end shrink-0">
             <StatusBadge
-  status={wasDeclined ? "declined" : enStatus}
-  lang="en"
-/>
+              status={wasDeclined ? "declined" : enStatus}
+              lang="en"
+            />
 
-<StatusBadge
-  status={wasDeclined ? "declined" : arStatus}
-  lang="ar"
-/>
+            <StatusBadge
+              status={wasDeclined ? "declined" : arStatus}
+              lang="ar"
+            />
           </div>
         </div>
 
@@ -582,8 +770,8 @@ function QuestionCard({ q, lang, onDelete, onDeclined, navigate }) {
           <div className="flex items-start gap-2 px-3 py-2 mb-2 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800 leading-relaxed">
             <Ban size={12} className="shrink-0 mt-0.5" />
             <span>
-           User was notified that this question cannot be answered.
-This question has been closed and can no longer receive answers.
+              User was notified that this question cannot be answered. This
+              question has been closed and can no longer receive answers.
             </span>
           </div>
         )}
@@ -591,24 +779,25 @@ This question has been closed and can no longer receive answers.
         <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-gray-100">
           {/* Both answer buttons always active unless that language is answered */}
           {/* Only allow answering if the question has not been declined */}
-{!wasDeclined && (
-  <>
-    <AnswerButton
-      status={enStatus}
-      lang="en"
-      onClick={() => handleAddAnswer("en")}
-    />
+          {!wasDeclined && (
+            <>
+              <AnswerButton
+                status={enStatus}
+                lang="en"
+                onClick={() => handleAddAnswer("en")}
+              />
 
-    <AnswerButton
-      status={arStatus}
-      lang="ar"
-      onClick={() => handleAddAnswer("ar")}
-    />
-  </>
-)}
+              <AnswerButton
+                status={arStatus}
+                lang="ar"
+                onClick={() => handleAddAnswer("ar")}
+              />
+            </>
+          )}
 
           {/* Can't answer — only show if not yet declined and not fully answered */}
-          {!fullyDone && !wasDeclined && (
+          {/* {!fullyDone && !wasDeclined && ( */}
+          {!fullyDone && !wasDeclined && enStatus === "unanswered" && arStatus === "unanswered" && (
             <button
               onClick={() => setShowDeclineModal(true)}
               className="flex items-center gap-1 text-xs font-semibold px-3 py-[7px] rounded-lg border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
@@ -655,7 +844,11 @@ export default function UserQuestions() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const [deleteModal, setDeleteModal] = useState({ open: false, id: null, lang: null });
+  const [deleteModal, setDeleteModal] = useState({
+    open: false,
+    id: null,
+    lang: null,
+  });
   const [deleting, setDeleting] = useState(false);
 
   const fetchAllQuestions = async () => {
@@ -676,7 +869,9 @@ export default function UserQuestions() {
     }
   };
 
-  useEffect(() => { fetchAllQuestions(); }, []);
+  useEffect(() => {
+    fetchAllQuestions();
+  }, []);
 
   // Pending count = questions where at least one language is still unanswered
   const enPending = enQuestions.filter((q) => isPending(q)).length;
@@ -700,23 +895,20 @@ export default function UserQuestions() {
   //   else setEnQuestions(apply);
   // };
 
-
   const handleDeclined = (id, lang) => {
     const apply = (prev) =>
-        prev.map((x) =>
-            x._id === id
-                ? {
-                      ...x,
-                      wasDeclined: true,
-                  }
-                : x
-        );
+      prev.map((x) =>
+        x._id === id
+          ? {
+              ...x,
+              wasDeclined: true,
+            }
+          : x,
+      );
 
-    if (lang === "ar")
-        setArQuestions(apply);
-    else
-        setEnQuestions(apply);
-};
+    if (lang === "ar") setArQuestions(apply);
+    else setEnQuestions(apply);
+  };
 
   const filteredList = useMemo(() => {
     let base = [];
@@ -750,7 +942,7 @@ export default function UserQuestions() {
         (q) =>
           q.question?.toLowerCase().includes(s) ||
           q.name?.toLowerCase().includes(s) ||
-          q.email?.toLowerCase().includes(s)
+          q.email?.toLowerCase().includes(s),
       );
     }
 
@@ -758,7 +950,10 @@ export default function UserQuestions() {
   }, [enQuestions, arQuestions, langFilter, statusFilter, search]);
 
   const totalPages = Math.ceil(filteredList.length / PAGE_SIZE);
-  const paginated = filteredList.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const paginated = filteredList.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
   const resetPage = () => setPage(1);
 
   const handleDelete = async () => {
@@ -782,7 +977,10 @@ export default function UserQuestions() {
 
   const tabBtn = (value, label, count) => (
     <button
-      onClick={() => { setLangFilter(value); resetPage(); }}
+      onClick={() => {
+        setLangFilter(value);
+        resetPage();
+      }}
       className={`relative flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 ${
         langFilter === value
           ? "bg-[#c3a421] text-white shadow-sm"
@@ -791,7 +989,9 @@ export default function UserQuestions() {
     >
       {label}
       {count > 0 && (
-        <span className={`text-[10px] font-bold px-[6px] py-[1px] rounded-full ${langFilter === value ? "bg-white/30 text-white" : "bg-red-500 text-white"}`}>
+        <span
+          className={`text-[10px] font-bold px-[6px] py-[1px] rounded-full ${langFilter === value ? "bg-white/30 text-white" : "bg-red-500 text-white"}`}
+        >
           {count}
         </span>
       )}
@@ -810,7 +1010,9 @@ export default function UserQuestions() {
 
       <div className="max-w-[860px] mx-auto mt-8 px-4">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 m-0">User Questions</h1>
+          <h1 className="text-2xl font-bold text-gray-800 m-0">
+            User Questions
+          </h1>
           <p className="text-sm text-gray-500 mt-1">
             Each submitted question needs both an English and Arabic answer.
           </p>
@@ -824,12 +1026,18 @@ export default function UserQuestions() {
 
         <div className="flex gap-3 mb-5 flex-wrap">
           <div className="relative flex-1 min-w-[220px]">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
             <input
               type="text"
               placeholder="Search by question, name, or email..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); resetPage(); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                resetPage();
+              }}
               className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:border-[#c3a421]"
             />
           </div>
@@ -838,12 +1046,23 @@ export default function UserQuestions() {
             {["unanswered", "declined", "all", "answered"].map((v) => (
               <button
                 key={v}
-                onClick={() => { setStatusFilter(v); resetPage(); }}
+                onClick={() => {
+                  setStatusFilter(v);
+                  resetPage();
+                }}
                 className={`px-4 py-2 transition-colors capitalize whitespace-nowrap ${
-                  statusFilter === v ? "bg-[#c3a421] text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                  statusFilter === v
+                    ? "bg-[#c3a421] text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                {v === "unanswered" ? "Pending" : v === "answered" ? "Done" : v === "declined" ? "Declined" : "All"}
+                {v === "unanswered"
+                  ? "Pending"
+                  : v === "answered"
+                    ? "Done"
+                    : v === "declined"
+                      ? "Declined"
+                      : "All"}
               </button>
             ))}
           </div>
@@ -851,18 +1070,23 @@ export default function UserQuestions() {
 
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3, 4].map((i) => <QuestionCardSkeleton key={i} />)}
+            {[1, 2, 3, 4].map((i) => (
+              <QuestionCardSkeleton key={i} />
+            ))}
           </div>
         ) : error ? (
           <div className="text-center py-12 text-red-500 text-sm">{error}</div>
         ) : paginated.length === 0 ? (
           <div className="text-center py-12 text-gray-400 text-sm">
-            {search ? "No questions match your search." : "No questions in this view."}
+            {search
+              ? "No questions match your search."
+              : "No questions in this view."}
           </div>
         ) : (
           <>
             <p className="text-xs text-gray-400 mb-3">
-              {filteredList.length} question{filteredList.length !== 1 ? "s" : ""}
+              {filteredList.length} question
+              {filteredList.length !== 1 ? "s" : ""}
               {statusFilter === "unanswered" ? " needing attention" : ""}
               {statusFilter === "declined" ? " declined" : ""}
             </p>
@@ -873,7 +1097,9 @@ export default function UserQuestions() {
                 q={q}
                 lang={q._lang}
                 navigate={navigate}
-                onDelete={(id, lang) => setDeleteModal({ open: true, id, lang })}
+                onDelete={(id, lang) =>
+                  setDeleteModal({ open: true, id, lang })
+                }
                 onDeclined={handleDeclined}
               />
             ))}
@@ -887,7 +1113,9 @@ export default function UserQuestions() {
                 >
                   <ChevronLeft size={16} />
                 </button>
-                <span className="text-sm text-gray-600 font-medium">Page {page} of {totalPages}</span>
+                <span className="text-sm text-gray-600 font-medium">
+                  Page {page} of {totalPages}
+                </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
