@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Disallow: /supervised
+Disallow: /managesubscription
+Disallow: /success
+Disallow: /cancel
+Disallow: /search
+Disallow: /ar/search
+Disallow: /*?search=
+
+Sitemap: https://asksunnah.com/sitemap.xml
