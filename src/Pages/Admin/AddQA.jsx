@@ -333,13 +333,27 @@ function QuickCreateCategoryModal({ lang, categories, onCreated, onClose }) {
   const [msg, setMsg] = useState("");
 
   const flatCategories = flattenCategories(categories);
-
+  const normalizeCategoryName = (value = "") =>
+    value.trim().toLowerCase().replace(/\s+/g, " ");
   const handleCreate = async () => {
     if (!name.trim()) {
       setMsg("Please enter a category name.");
       return;
     }
+    const duplicateExists = flatCategories.some((cat) => {
+      const sameName =
+        normalizeCategoryName(cat.name) === normalizeCategoryName(name);
 
+      const sameParent =
+        String(cat.parent?._id || cat.parent || "") === String(parent || "");
+
+      return sameName && sameParent;
+    });
+
+    if (duplicateExists) {
+      setMsg("This category already exists under the selected parent.");
+      return;
+    }
     try {
       setSaving(true);
       setMsg("");
@@ -802,7 +816,7 @@ export default function AddQA() {
           onClose={() => setShowRelatedModal(false)}
         />
       )}
-      {showCreateCategoryModal && (
+      {!isEdit && showCreateCategoryModal && (
         <QuickCreateCategoryModal
           lang={form.language}
           categories={categoriesTree}
@@ -906,17 +920,21 @@ export default function AddQA() {
                 <div>
                   <label className={labelCls}>Categories:</label>
                   <p className="text-xs text-gray-400 mt-[-2px] mb-0">
-                    Select one or more categories for this Q&amp;A.
+                    {isEdit
+                      ? "Assign or reassign existing categories for this Q&A."
+                      : "Select one or more categories, or create a new category if needed."}
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setShowCreateCategoryModal(true)}
-                  className="text-xs px-3 py-1 rounded-full border border-[var(--bg-color-header)] text-[var(--bg-color-header)] hover:bg-[var(--bg-color-header)] hover:text-white transition-colors duration-150 font-semibold"
-                >
-                  + Create Category
-                </button>
+                {!isEdit && (
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateCategoryModal(true)}
+                    className="text-xs px-3 py-1 rounded-full border border-[var(--bg-color-header)] text-[var(--bg-color-header)] hover:bg-[var(--bg-color-header)] hover:text-white transition-colors duration-150 font-semibold"
+                  >
+                    + Create Category
+                  </button>
+                )}
               </div>
 
               <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-3">

@@ -76,3 +76,35 @@ export async function toggleQACategory(id) {
 
   return data.category;
 }
+export async function getQuestionsForCategory(categoryId) {
+  const res = await fetch(
+    `${API_BASE}/api/admin/qa-categories/${categoryId}/questions`,
+  );
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Could not load questions.");
+  }
+
+  return data;
+}
+
+export async function updateQuestionsForCategory(categoryId, questionIds) {
+  const res = await fetch(
+    `${API_BASE}/api/admin/qa-categories/${categoryId}/questions`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ questionIds }),
+    },
+  );
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Could not update category questions.");
+  }
+
+  return data;
+}

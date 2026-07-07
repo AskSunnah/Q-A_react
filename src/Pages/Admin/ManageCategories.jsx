@@ -5,6 +5,8 @@ import {
   createQACategory,
   updateQACategory,
   toggleQACategory,
+  getQuestionsForCategory,
+  updateQuestionsForCategory,
 } from "../../api/qaCategories";
 import {
   FolderTree,
@@ -14,6 +16,7 @@ import {
   Save,
   X,
   Languages,
+  ListChecks,
 } from "lucide-react";
 
 function flattenCategories(categories, level = 0) {
@@ -27,7 +30,7 @@ function flattenCategories(categories, level = 0) {
   ]);
 }
 
-function CategoryTreeItem({ cat, onEdit, onToggle }) {
+function CategoryTreeItem({ cat, onEdit, onToggle, onAssignQuestions }) {
   return (
     <div className="mb-2">
       <div
@@ -73,7 +76,14 @@ function CategoryTreeItem({ cat, onEdit, onToggle }) {
           >
             <Pencil size={16} />
           </button>
-
+          <button
+            type="button"
+            onClick={() => onAssignQuestions(cat)}
+            className="p-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100"
+            title="Assign questions"
+          >
+            <ListChecks size={16} />
+          </button>
           <button
             type="button"
             onClick={() => onToggle(cat._id)}
@@ -95,8 +105,191 @@ function CategoryTreeItem({ cat, onEdit, onToggle }) {
           cat={{ ...child, level: (cat.level || 0) + 1 }}
           onEdit={onEdit}
           onToggle={onToggle}
+          onAssignQuestions={onAssignQuestions}
         />
       ))}
+    </div>
+  );
+}
+function AssignQuestionsModal({ category, onClose, onSaved }) {
+  const [questions, setQuestions] = useState([]);
+  const [checked, setChecked] = useState(new Set());
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    setLoading(true);
+
+    getQuestionsForCategory(category._id)
+      .then((data) => {
+        setQuestions(data.questions || []);
+
+        setChecked(
+          new Set(
+            (data.questions || [])
+              .filter((q) => q.selected)
+              .map((q) => String(q._id)),
+          ),
+        );
+      })
+      .catch((err) => {
+        setMsg(err.message || "Could not load questions.");
+      })
+      .finally(() => setLoading(false));
+  }, [category._id]);
+
+  const toggleQuestion = (id) => {
+    setChecked((prev) => {
+      const next = new Set(prev);
+
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
+      return next;
+    });
+  };
+
+  const filteredQuestions = questions.filter((q) => {
+    const term = search.trim().toLowerCase();
+
+    if (!term) return true;
+
+    return (
+      q.heading?.toLowerCase().includes(term) ||
+      q.slug?.toLowerCase().includes(term)
+    );
+  });
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setMsg("");
+
+      await updateQuestionsForCategory(category._id, [...checked]);
+
+      onSaved?.();
+      onClose();
+    } catch (err) {
+      setMsg(err.message || "Could not save assigned questions.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[720px] max-w-[96vw] max-h-[88vh] flex flex-col">
+        <div className="px-6 pt-6 pb-4 border-b border-slate-100">
+          <h3 className="text-xl font-bold text-slate-800 m-0">
+            Assign Questions
+          </h3>
+
+          <p className="text-sm text-slate-500 mt-1 mb-0">
+            Category:{" "}
+            <span className="font-semibold text-[#c3a421]">
+              {category.name}
+            </span>
+          </p>
+
+          <p className="text-xs text-slate-400 mt-1 mb-4">
+            {category.lang === "ar" ? "Arabic" : "English"} questions only
+          </p>
+
+          {msg && (
+            <div className="mb-4 rounded-xl bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-sm">
+              {msg}
+            </div>
+          )}
+
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search questions by title or slug..."
+            className="w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421]"
+          />
+
+          <div className="flex justify-between items-center mt-3 text-xs text-slate-400">
+            <span>{checked.size} selected</span>
+            <span>{filteredQuestions.length} shown</span>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+          {loading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className="h-14 rounded-xl bg-slate-100 animate-pulse"
+                />
+              ))}
+            </div>
+          ) : filteredQuestions.length === 0 ? (
+            <div className="text-center py-12 text-slate-400">
+              No questions found.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredQuestions.map((q) => {
+                const id = String(q._id);
+                const selected = checked.has(id);
+
+                return (
+                  <label
+                    key={q._id}
+                    className={`flex items-start gap-3 rounded-xl border px-4 py-3 cursor-pointer transition ${
+                      selected
+                        ? "bg-[rgba(40,115,70,0.06)] border-[var(--bg-color-header)]"
+                        : "bg-white border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleQuestion(id)}
+                      className="mt-1 accent-[var(--bg-color-header)] w-4 h-4 shrink-0"
+                    />
+
+                    <div className="min-w-0">
+                      <p className="m-0 font-semibold text-slate-700 leading-snug">
+                        {q.heading}
+                      </p>
+                      <p className="m-0 mt-1 text-xs text-slate-400 break-all">
+                        {q.slug}
+                      </p>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="px-5 py-2 rounded-xl bg-[var(--bg-color-header)] text-white font-bold disabled:opacity-60"
+          >
+            {saving ? "Saving..." : `Save (${checked.size})`}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -107,7 +300,7 @@ export default function ManageQACategories() {
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
   const [editing, setEditing] = useState(null);
-
+  const [assignCategory, setAssignCategory] = useState(null);
   const [form, setForm] = useState({
     name: "",
     parent: "",
@@ -228,7 +421,13 @@ export default function ManageQACategories() {
             Create, edit, and organize nested categories for published answers.
           </p>
         </div>
-
+        {assignCategory && (
+          <AssignQuestionsModal
+            category={assignCategory}
+            onClose={() => setAssignCategory(null)}
+            onSaved={loadCategories}
+          />
+        )}
         {msg && (
           <div
             className={`mb-5 px-4 py-2.5 rounded-xl text-[0.9rem] font-medium ${
@@ -416,6 +615,7 @@ export default function ManageQACategories() {
                   cat={{ ...cat, level: 0 }}
                   onEdit={handleEdit}
                   onToggle={handleToggle}
+                  onAssignQuestions={setAssignCategory}
                 />
               ))}
             </div>
