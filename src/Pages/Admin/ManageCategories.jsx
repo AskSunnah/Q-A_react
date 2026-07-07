@@ -17,6 +17,8 @@ import {
   X,
   Languages,
   ListChecks,
+  ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 
 function flattenCategories(categories, level = 0) {
@@ -30,7 +32,19 @@ function flattenCategories(categories, level = 0) {
   ]);
 }
 
-function CategoryTreeItem({ cat, onEdit, onToggle, onAssignQuestions }) {
+// ── Category Tree Item ──────────────────────────────────────────────────────
+function CategoryTreeItem({
+  cat,
+  collapsedIds,
+  onToggleCollapse,
+  onEdit,
+  onRequestToggle,
+  onAssignQuestions,
+}) {
+  const hasChildren = (cat.children || []).length > 0;
+  const isCollapsed = collapsedIds.has(cat._id);
+  const questionCount = cat.questionCount || 0;
+
   return (
     <div className="mb-2">
       <div
@@ -41,30 +55,68 @@ function CategoryTreeItem({ cat, onEdit, onToggle, onAssignQuestions }) {
         }`}
         style={{ marginLeft: `${cat.level * 22}px` }}
       >
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="m-0 font-bold text-slate-800">{cat.name}</p>
+        <div className="min-w-0 flex items-start gap-2">
+          {hasChildren ? (
+            <button
+              type="button"
+              onClick={() => onToggleCollapse(cat._id)}
+              className="mt-0.5 p-0.5 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 shrink-0"
+              title={isCollapsed ? "Expand" : "Collapse"}
+            >
+              {isCollapsed ? (
+                <ChevronRight size={16} />
+              ) : (
+                <ChevronDown size={16} />
+              )}
+            </button>
+          ) : (
+            <span className="w-[22px] shrink-0" />
+          )}
 
-            {cat.parent && (
-              <span className="text-[0.7rem] bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5">
-                Sub Category
-              </span>
-            )}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="m-0 font-bold text-slate-800">{cat.name}</p>
 
-            {cat.isActive === false && (
-              <span className="text-[0.7rem] bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5">
-                Inactive
+              {cat.parent && (
+                <span className="text-[0.7rem] bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5">
+                  Sub Category
+                </span>
+              )}
+
+              {hasChildren && (
+                <span className="text-[0.7rem] bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5">
+                  {cat.children.length} sub{cat.children.length > 1 ? "s" : ""}
+                </span>
+              )}
+
+              <span
+                className={`text-[0.7rem] rounded-full px-2 py-0.5 border ${
+                  questionCount > 0
+                    ? "bg-[rgba(40,115,70,0.08)] text-[var(--bg-color-header)] border-[rgba(40,115,70,0.2)]"
+                    : "bg-slate-50 text-slate-400 border-slate-200"
+                }`}
+                title="Questions assigned to this category"
+              >
+                {questionCount} question{questionCount === 1 ? "" : "s"}
               </span>
+
+              {cat.isActive === false && (
+                <span className="text-[0.7rem] bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5">
+                  Inactive
+                </span>
+              )}
+            </div>
+
+            <p className="m-0 mt-1 text-xs text-slate-400 break-all">
+              {cat.path}
+            </p>
+
+            {cat.description && (
+              <p className="m-0 mt-1 text-sm text-slate-500">
+                {cat.description}
+              </p>
             )}
           </div>
-
-          <p className="m-0 mt-1 text-xs text-slate-400 break-all">
-            {cat.path}
-          </p>
-
-          {cat.description && (
-            <p className="m-0 mt-1 text-sm text-slate-500">{cat.description}</p>
-          )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -76,18 +128,21 @@ function CategoryTreeItem({ cat, onEdit, onToggle, onAssignQuestions }) {
           >
             <Pencil size={16} />
           </button>
+
           <button
             type="button"
             onClick={() => onAssignQuestions(cat)}
-            className="p-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-sm font-semibold whitespace-nowrap"
             title="Assign questions"
           >
             <ListChecks size={16} />
+            Assign
           </button>
+
           <button
             type="button"
-            onClick={() => onToggle(cat._id)}
-            className={`p-2 rounded-lg ${
+            onClick={() => onRequestToggle(cat)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap ${
               cat.isActive === false
                 ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                 : "bg-red-50 text-red-600 hover:bg-red-100"
@@ -95,22 +150,29 @@ function CategoryTreeItem({ cat, onEdit, onToggle, onAssignQuestions }) {
             title={cat.isActive === false ? "Activate" : "Deactivate"}
           >
             <Power size={16} />
+            {cat.isActive === false ? "Activate" : "Deactivate"}
           </button>
         </div>
       </div>
 
-      {(cat.children || []).map((child) => (
-        <CategoryTreeItem
-          key={child._id}
-          cat={{ ...child, level: (cat.level || 0) + 1 }}
-          onEdit={onEdit}
-          onToggle={onToggle}
-          onAssignQuestions={onAssignQuestions}
-        />
-      ))}
+      {hasChildren &&
+        !isCollapsed &&
+        cat.children.map((child) => (
+          <CategoryTreeItem
+            key={child._id}
+            cat={{ ...child, level: (cat.level || 0) + 1 }}
+            collapsedIds={collapsedIds}
+            onToggleCollapse={onToggleCollapse}
+            onEdit={onEdit}
+            onRequestToggle={onRequestToggle}
+            onAssignQuestions={onAssignQuestions}
+          />
+        ))}
     </div>
   );
 }
+
+// ── Assign Questions Modal ──────────────────────────────────────────────────
 function AssignQuestionsModal({ category, onClose, onSaved }) {
   const [questions, setQuestions] = useState([]);
   const [checked, setChecked] = useState(new Set());
@@ -294,13 +356,220 @@ function AssignQuestionsModal({ category, onClose, onSaved }) {
   );
 }
 
+// ── Edit Category Modal ─────────────────────────────────────────────────────
+function EditCategoryModal({ category, parentOptions, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    name: category.name || "",
+    parent: category.parent?._id || category.parent || "",
+    description: category.description || "",
+    order: category.order || 0,
+  });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setMsg("");
+
+    if (!form.name.trim()) {
+      setMsg("Please enter a category name.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      await updateQACategory(category._id, {
+        name: form.name,
+        parent: form.parent || null,
+        description: form.description,
+        order: form.order,
+        isActive: category.isActive !== false,
+      });
+      onSaved();
+      onClose();
+    } catch (err) {
+      setMsg(err.message || "Could not update category.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[520px] max-w-[95vw] p-7">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-xl font-bold text-slate-800 m-0 flex items-center gap-2">
+            <Pencil size={19} className="text-[#c3a421]" />
+            Edit Category
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {msg && (
+          <div className="mb-4 rounded-xl bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-sm">
+            {msg}
+          </div>
+        )}
+
+        <form onSubmit={handleSave}>
+          <label className="block text-sm font-bold text-slate-700 mb-1">
+            Category Name
+          </label>
+          <input
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+            dir={category.lang === "ar" ? "rtl" : "ltr"}
+            className={`w-full mb-4 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421] ${
+              category.lang === "ar" ? "text-right" : "text-left"
+            }`}
+          />
+
+          <label className="block text-sm font-bold text-slate-700 mb-1">
+            Parent Category
+          </label>
+          <select
+            value={form.parent}
+            onChange={(e) => setForm((p) => ({ ...p, parent: e.target.value }))}
+            className="w-full mb-4 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421] bg-white"
+          >
+            <option value="">No parent — top level</option>
+            {parentOptions
+              .filter((cat) => cat._id !== category._id)
+              .map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.displayName}
+                </option>
+              ))}
+          </select>
+
+          <div className="grid grid-cols-2 gap-4 mb-5">
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Order
+              </label>
+              <input
+                type="number"
+                value={form.order}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, order: e.target.value }))
+                }
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421]"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">
+                Description
+              </label>
+              <input
+                type="text"
+                value={form.description}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, description: e.target.value }))
+                }
+                placeholder="Optional"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421]"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[var(--bg-color-header)] text-white font-bold disabled:opacity-60"
+            >
+              <Save size={16} />
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Confirm Deactivate Modal ────────────────────────────────────────────────
+function ConfirmDeactivateModal({ category, onConfirm, onClose, confirming }) {
+  const hasChildren = (category.children || []).length > 0;
+  const questionCount = category.questionCount || 0;
+
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[440px] max-w-[95vw] p-7 text-center">
+        <div className="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+          <Power size={24} />
+        </div>
+
+        <h3 className="text-xl font-bold text-slate-800 mb-2">
+          Deactivate "{category.name}"?
+        </h3>
+
+        <p className="text-slate-600 text-[0.95rem] leading-relaxed mb-3">
+          It will be hidden from Add Q&amp;A and public category listings until
+          reactivated.
+        </p>
+
+        {questionCount > 0 && (
+          <p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-sm mb-2 text-left">
+            {questionCount} question{questionCount > 1 ? "s are" : " is"}{" "}
+            currently assigned to this category.
+          </p>
+        )}
+
+        {hasChildren && (
+          <p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-sm mb-2 text-left">
+            This category has {category.children.length} subcategor
+            {category.children.length > 1 ? "ies" : "y"} nested under it.
+          </p>
+        )}
+
+        <div className="flex gap-3 justify-center mt-5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={confirming}
+            className="px-5 py-2 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 disabled:opacity-60"
+          >
+            {confirming ? "Deactivating..." : "Deactivate"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ──────────────────────────────────────────────────────────
 export default function ManageQACategories() {
   const [lang, setLang] = useState("en");
   const [categoriesTree, setCategoriesTree] = useState([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
-  const [editing, setEditing] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
   const [assignCategory, setAssignCategory] = useState(null);
+  const [confirmToggleCat, setConfirmToggleCat] = useState(null);
+  const [confirming, setConfirming] = useState(false);
+  const [collapsedIds, setCollapsedIds] = useState(() => new Set());
   const [form, setForm] = useState({
     name: "",
     parent: "",
@@ -326,19 +595,12 @@ export default function ManageQACategories() {
   };
 
   useEffect(() => {
-    setEditing(null);
-    setForm({
-      name: "",
-      parent: "",
-      description: "",
-      order: 0,
-    });
+    resetForm();
     loadCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
   const resetForm = () => {
-    setEditing(null);
     setForm({
       name: "",
       parent: "",
@@ -347,15 +609,16 @@ export default function ManageQACategories() {
     });
   };
 
-  const handleEdit = (cat) => {
-    setEditing(cat);
-    setForm({
-      name: cat.name || "",
-      parent: cat.parent?._id || cat.parent || "",
-      description: cat.description || "",
-      order: cat.order || 0,
+  const toggleCollapse = (id) => {
+    setCollapsedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleEdit = (cat) => {
+    setEditingCategory(cat);
   };
 
   const handleSubmit = async (e) => {
@@ -368,26 +631,14 @@ export default function ManageQACategories() {
     }
 
     try {
-      if (editing) {
-        await updateQACategory(editing._id, {
-          name: form.name,
-          parent: form.parent || null,
-          description: form.description,
-          order: form.order,
-          isActive: editing.isActive !== false,
-        });
-        setMsg("Category updated successfully.");
-      } else {
-        await createQACategory({
-          name: form.name,
-          lang,
-          parent: form.parent || null,
-          description: form.description,
-          order: form.order,
-        });
-        setMsg("Category created successfully.");
-      }
-
+      await createQACategory({
+        name: form.name,
+        lang,
+        parent: form.parent || null,
+        description: form.description,
+        order: form.order,
+      });
+      setMsg("Category created successfully.");
       resetForm();
       await loadCategories();
     } catch (err) {
@@ -395,7 +646,7 @@ export default function ManageQACategories() {
     }
   };
 
-  const handleToggle = async (id) => {
+  const performToggle = async (id) => {
     try {
       await toggleQACategory(id);
       await loadCategories();
@@ -404,10 +655,24 @@ export default function ManageQACategories() {
     }
   };
 
-  const parentOptions = flatCategories.filter((cat) => {
-    if (!editing) return true;
-    return cat._id !== editing._id;
-  });
+  // Activating needs no confirmation; deactivating opens the confirm modal.
+  const requestToggle = (cat) => {
+    if (cat.isActive === false) {
+      performToggle(cat._id);
+    } else {
+      setConfirmToggleCat(cat);
+    }
+  };
+
+  const confirmDeactivate = async () => {
+    if (!confirmToggleCat) return;
+    setConfirming(true);
+    await performToggle(confirmToggleCat._id);
+    setConfirming(false);
+    setConfirmToggleCat(null);
+  };
+
+  const parentOptions = flatCategories;
 
   return (
     <AdminLayout>
@@ -421,6 +686,7 @@ export default function ManageQACategories() {
             Create, edit, and organize nested categories for published answers.
           </p>
         </div>
+
         {assignCategory && (
           <AssignQuestionsModal
             category={assignCategory}
@@ -428,6 +694,25 @@ export default function ManageQACategories() {
             onSaved={loadCategories}
           />
         )}
+
+        {editingCategory && (
+          <EditCategoryModal
+            category={editingCategory}
+            parentOptions={flatCategories}
+            onClose={() => setEditingCategory(null)}
+            onSaved={loadCategories}
+          />
+        )}
+
+        {confirmToggleCat && (
+          <ConfirmDeactivateModal
+            category={confirmToggleCat}
+            confirming={confirming}
+            onConfirm={confirmDeactivate}
+            onClose={() => setConfirmToggleCat(null)}
+          />
+        )}
+
         {msg && (
           <div
             className={`mb-5 px-4 py-2.5 rounded-xl text-[0.9rem] font-medium ${
@@ -475,29 +760,9 @@ export default function ManageQACategories() {
         >
           <div className="flex items-center justify-between gap-3 mb-5">
             <h2 className="m-0 text-xl font-bold text-slate-800 flex items-center gap-2">
-              {editing ? (
-                <>
-                  <Pencil size={20} className="text-[#c3a421]" />
-                  Edit Category
-                </>
-              ) : (
-                <>
-                  <Plus size={20} className="text-[#c3a421]" />
-                  Create Category
-                </>
-              )}
+              <Plus size={20} className="text-[#c3a421]" />
+              Create Category
             </h2>
-
-            {editing && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="flex items-center gap-1.5 text-sm px-3 py-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
-              >
-                <X size={15} />
-                Cancel Edit
-              </button>
-            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -580,7 +845,7 @@ export default function ManageQACategories() {
             className="mt-5 flex items-center justify-center gap-2 bg-[var(--bg-color-header)] text-white rounded-xl px-5 py-3 font-bold hover:opacity-90"
           >
             <Save size={17} />
-            {editing ? "Update Category" : "Create Category"}
+            Create Category
           </button>
         </form>
 
@@ -613,8 +878,10 @@ export default function ManageQACategories() {
                 <CategoryTreeItem
                   key={cat._id}
                   cat={{ ...cat, level: 0 }}
+                  collapsedIds={collapsedIds}
+                  onToggleCollapse={toggleCollapse}
                   onEdit={handleEdit}
-                  onToggle={handleToggle}
+                  onRequestToggle={requestToggle}
                   onAssignQuestions={setAssignCategory}
                 />
               ))}
