@@ -15,7 +15,9 @@ export async function submitQA(data, lang = "en") {
 
   const result = await res.json();
   if (!res.ok)
-    throw new Error(result.message || "Could not save this Q&A. Please try again.");
+    throw new Error(
+      result.message || "Could not save this Q&A. Please try again.",
+    );
   return result;
 }
 
@@ -29,7 +31,9 @@ export async function submitStandaloneQA(data) {
 
   const result = await res.json();
   if (!res.ok)
-    throw new Error(result.message || "Could not save this Q&A. Please try again.");
+    throw new Error(
+      result.message || "Could not save this Q&A. Please try again.",
+    );
   return result;
 }
 
@@ -48,7 +52,9 @@ export async function editQA(data, slug, lang = "en") {
 
   const result = await res.json();
   if (!res.ok)
-    throw new Error(result.message || "Could not update this Q&A. Please try again.");
+    throw new Error(
+      result.message || "Could not update this Q&A. Please try again.",
+    );
   return result;
 }
 
@@ -63,8 +69,7 @@ export async function getQA(slug, lang = "en") {
 
 // Get all published Q&As (for AllQA page + RelatedModal)
 export async function getAllQuestions(lang = "en") {
-  const url =
-    lang === "ar" ? `${API_BASE}/api/ar/all` : `${API_BASE}/api/all`;
+  const url = lang === "ar" ? `${API_BASE}/api/ar/all` : `${API_BASE}/api/all`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text());
   return res.json();

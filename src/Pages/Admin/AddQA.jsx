@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   submitQA,
@@ -7,6 +7,7 @@ import {
   getQA,
   getAllQuestions,
 } from "../../api/qa";
+import { getQACategories, createQACategory } from "../../api/qaCategories";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 import PreviewModal from "../../Components/Admin/PreviewModal";
 import { RxCross2 } from "react-icons/rx";
@@ -313,7 +314,130 @@ function RelatedModal({
     </div>
   );
 }
+function flattenCategories(categories, level = 0) {
+  return categories.flatMap((cat) => [
+    {
+      ...cat,
+      level,
+      displayName: `${"— ".repeat(level)}${cat.name}`,
+    },
+    ...flattenCategories(cat.children || [], level + 1),
+  ]);
+}
 
+function QuickCreateCategoryModal({ lang, categories, onCreated, onClose }) {
+  const [name, setName] = useState("");
+  const [parent, setParent] = useState("");
+  const [description, setDescription] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const flatCategories = flattenCategories(categories);
+
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      setMsg("Please enter a category name.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setMsg("");
+
+      const created = await createQACategory({
+        name,
+        lang,
+        parent: parent || null,
+        description,
+      });
+
+      onCreated(created);
+    } catch (err) {
+      setMsg(err.message || "Could not create category.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[460px] max-w-[95vw] p-7">
+        <h3 className="text-xl font-bold text-slate-800 mb-1">
+          Create Category
+        </h3>
+        <p className="text-sm text-slate-400 mt-0 mb-5">
+          This will create a category and select it for this Q&amp;A.
+        </p>
+
+        {msg && (
+          <div className="mb-4 rounded-xl bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-sm">
+            {msg}
+          </div>
+        )}
+
+        <label className="block text-sm font-bold text-slate-700 mb-1">
+          Name
+        </label>
+        <input
+          autoFocus
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          dir={lang === "ar" ? "rtl" : "ltr"}
+          className={`w-full mb-4 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421] ${
+            lang === "ar" ? "text-right" : "text-left"
+          }`}
+        />
+
+        <label className="block text-sm font-bold text-slate-700 mb-1">
+          Parent Category
+        </label>
+        <select
+          value={parent}
+          onChange={(e) => setParent(e.target.value)}
+          className="w-full mb-4 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421] bg-white"
+        >
+          <option value="">No parent — top level</option>
+          {flatCategories.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.displayName}
+            </option>
+          ))}
+        </select>
+
+        <label className="block text-sm font-bold text-slate-700 mb-1">
+          Description
+        </label>
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Optional"
+          className="w-full mb-5 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421]"
+        />
+
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={saving}
+            className="px-4 py-2 rounded-xl bg-[var(--bg-color-header)] text-white font-semibold disabled:opacity-60"
+          >
+            {saving ? "Creating..." : "Create & Select"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function AddQA() {
   const [searchParams] = useSearchParams();
@@ -331,6 +455,9 @@ export default function AddQA() {
   const [loading, setLoading] = useState(false);
   const [sections, setSections] = useState([]);
   const [relatedQuestions, setRelatedQuestions] = useState([]);
+  const [categoriesTree, setCategoriesTree] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
   const [showRefModal, setShowRefModal] = useState(false);
   const [showRelatedModal, setShowRelatedModal] = useState(false);
   const answerRef = useRef(null);
@@ -366,7 +493,25 @@ export default function AddQA() {
     });
     return [...new Set(slugs)];
   };
+  const flatCategories = useMemo(
+    () => flattenCategories(categoriesTree),
+    [categoriesTree],
+  );
+  useEffect(() => {
+    let alive = true;
 
+    getQACategories(form.language, false, true)
+      .then((data) => {
+        if (alive) setCategoriesTree(data);
+      })
+      .catch(() => {
+        if (alive) setCategoriesTree([]);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [form.language]);
   // Fetch for edit mode
   useEffect(() => {
     if (isEdit && editSlug && editLang) {
@@ -383,6 +528,11 @@ export default function AddQA() {
           });
           setSections(data.content || []);
           setRelatedQuestions(data.relatedQuestions || []);
+          setSelectedCategories(
+            (data.categories || []).map((cat) =>
+              typeof cat === "string" ? cat : cat._id,
+            ),
+          );
           setLoading(false);
         })
         .catch(() => {
@@ -569,6 +719,7 @@ export default function AddQA() {
       conclusion: form.conclusion,
       content: sections,
       relatedQuestions,
+      categories: selectedCategories,
       userQuestionId: selectedUserQuestionId,
       language: form.language,
     };
@@ -591,6 +742,7 @@ export default function AddQA() {
         });
         setSections([]);
         setRelatedQuestions([]);
+        setSelectedCategories([]);
       } else {
         // Linked to a user question — lang determines which status to flip
         await submitQA(qa, form.language);
@@ -650,7 +802,24 @@ export default function AddQA() {
           onClose={() => setShowRelatedModal(false)}
         />
       )}
+      {showCreateCategoryModal && (
+        <QuickCreateCategoryModal
+          lang={form.language}
+          categories={categoriesTree}
+          onClose={() => setShowCreateCategoryModal(false)}
+          onCreated={(created) => {
+            setShowCreateCategoryModal(false);
 
+            getQACategories(form.language, false, true)
+              .then(setCategoriesTree)
+              .catch(() => {});
+
+            setSelectedCategories((prev) =>
+              prev.includes(created._id) ? prev : [...prev, created._id],
+            );
+          }}
+        />
+      )}
       {showPreview && (
         <PreviewModal
           open={showPreview}
@@ -732,7 +901,71 @@ export default function AddQA() {
               Use only lowercase letters, numbers, and hyphens. No spaces or
               symbols.
             </p>
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <label className={labelCls}>Categories:</label>
+                  <p className="text-xs text-gray-400 mt-[-2px] mb-0">
+                    Select one or more categories for this Q&amp;A.
+                  </p>
+                </div>
 
+                <button
+                  type="button"
+                  onClick={() => setShowCreateCategoryModal(true)}
+                  className="text-xs px-3 py-1 rounded-full border border-[var(--bg-color-header)] text-[var(--bg-color-header)] hover:bg-[var(--bg-color-header)] hover:text-white transition-colors duration-150 font-semibold"
+                >
+                  + Create Category
+                </button>
+              </div>
+
+              <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-3">
+                {flatCategories.length === 0 ? (
+                  <p className="text-sm text-gray-400 m-0">
+                    No categories found for this language. Create one first.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {flatCategories.map((cat) => {
+                      const checked = selectedCategories.includes(cat._id);
+
+                      return (
+                        <label
+                          key={cat._id}
+                          title={cat.path}
+                          className={`cursor-pointer rounded-full px-3 py-1.5 text-sm border transition ${
+                            checked
+                              ? "bg-[var(--bg-color-header)] text-white border-[var(--bg-color-header)]"
+                              : "bg-white text-gray-600 border-gray-300 hover:border-[var(--bg-color-header)]"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {
+                              setSelectedCategories((prev) =>
+                                prev.includes(cat._id)
+                                  ? prev.filter((id) => id !== cat._id)
+                                  : [...prev, cat._id],
+                              );
+                            }}
+                            className="hidden"
+                          />
+                          {cat.displayName}
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {selectedCategories.length > 0 && (
+                <p className="text-xs text-gray-400 mt-2 mb-0">
+                  {selectedCategories.length} categor
+                  {selectedCategories.length === 1 ? "y" : "ies"} selected
+                </p>
+              )}
+            </div>
             <label className={labelCls}>Question:</label>
             <textarea
               name="question"

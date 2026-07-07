@@ -13,11 +13,14 @@ import {
   Flag,
   Pin,
   PenLine,
+  ChartBarStacked,
   Users,
 } from "lucide-react";
 
 const MENU_TOP = [
   { label: "Dashboard", icon: Home, route: "/supervised/dashboard" },
+];
+const QUESTION_MENU = [
   {
     label: "User Questions",
     icon: MessageSquare,
@@ -31,12 +34,16 @@ const MENU_TOP = [
     exact: true,
   },
   {
+    label: "Manage Categories",
+    icon: ChartBarStacked,
+    route: "/supervised/qa-categories",
+  },
+  {
     label: "Pinned section",
     icon: Pin,
     route: "/supervised/pinned-section",
   },
 ];
-
 const BOOK_MENU = [
   { label: "Add Book", icon: BookPlus, route: "/supervised/add-book" },
   {
@@ -161,7 +168,6 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
             )}
           </div>
         </div>
-
         <nav className="flex-1 overflow-y-auto mt-[10px] pb-[80px]">
           {MENU_TOP.map((item) => (
             <SidebarLink
@@ -171,7 +177,17 @@ export default function Sidebar({ navigate, mobileOpen, setMobileOpen }) {
               onClick={closeMobileMenu}
             />
           ))}
-
+          <div className="mt-4 mb-2 px-5 text-[0.72rem] uppercase tracking-[0.08em] font-bold text-[#8a7a3a]">
+            Question Management
+          </div>
+          {QUESTION_MENU.map((item) => (
+            <SidebarLink
+              key={item.label}
+              item={item}
+              pathname={pathname}
+              onClick={closeMobileMenu}
+            />
+          ))}
           <div className="mt-4 mb-2 px-5 text-[0.72rem] uppercase tracking-[0.08em] font-bold text-[#8a7a3a]">
             Book Management
           </div>
