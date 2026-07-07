@@ -45,15 +45,18 @@ function CategoryTreeItem({
   const isCollapsed = collapsedIds.has(cat._id);
   const questionCount = cat.questionCount || 0;
 
+  // Cap indent so deep nesting doesn't push content off-screen on mobile
+  const indent = Math.min(cat.level, 4) * 16;
+
   return (
     <div className="mb-2">
       <div
-        className={`flex items-center justify-between gap-3 rounded-xl border px-4 py-3 ${
+        className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border px-3 sm:px-4 py-3 ${
           cat.isActive === false
             ? "bg-slate-50 border-slate-200 opacity-60"
             : "bg-white border-slate-200"
         }`}
-        style={{ marginLeft: `${cat.level * 22}px` }}
+        style={{ marginLeft: `${indent}px` }}
       >
         <div className="min-w-0 flex items-start gap-2">
           {hasChildren ? (
@@ -75,22 +78,24 @@ function CategoryTreeItem({
 
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="m-0 font-bold text-slate-800">{cat.name}</p>
+              <p className="m-0 font-bold text-slate-800 break-words">
+                {cat.name}
+              </p>
 
               {cat.parent && (
-                <span className="text-[0.7rem] bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5">
+                <span className="text-[0.7rem] bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5 whitespace-nowrap">
                   Sub Category
                 </span>
               )}
 
               {hasChildren && (
-                <span className="text-[0.7rem] bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5">
+                <span className="text-[0.7rem] bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5 whitespace-nowrap">
                   {cat.children.length} sub{cat.children.length > 1 ? "s" : ""}
                 </span>
               )}
 
               <span
-                className={`text-[0.7rem] rounded-full px-2 py-0.5 border ${
+                className={`text-[0.7rem] rounded-full px-2 py-0.5 border whitespace-nowrap ${
                   questionCount > 0
                     ? "bg-[rgba(40,115,70,0.08)] text-[var(--bg-color-header)] border-[rgba(40,115,70,0.2)]"
                     : "bg-slate-50 text-slate-400 border-slate-200"
@@ -101,7 +106,7 @@ function CategoryTreeItem({
               </span>
 
               {cat.isActive === false && (
-                <span className="text-[0.7rem] bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5">
+                <span className="text-[0.7rem] bg-slate-100 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5 whitespace-nowrap">
                   Inactive
                 </span>
               )}
@@ -112,18 +117,18 @@ function CategoryTreeItem({
             </p>
 
             {cat.description && (
-              <p className="m-0 mt-1 text-sm text-slate-500">
+              <p className="m-0 mt-1 text-sm text-slate-500 break-words">
                 {cat.description}
               </p>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap sm:shrink-0">
           <button
             type="button"
             onClick={() => onEdit(cat)}
-            className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200"
+            className="p-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 shrink-0"
             title="Edit"
           >
             <Pencil size={16} />
@@ -132,24 +137,25 @@ function CategoryTreeItem({
           <button
             type="button"
             onClick={() => onAssignQuestions(cat)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-sm font-semibold whitespace-nowrap"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs sm:text-sm font-semibold whitespace-nowrap"
             title="Assign questions"
           >
-            <ListChecks size={16} />
-            Assign
+            <ListChecks size={16} className="shrink-0" />
+            <span className="hidden xs:inline sm:inline">Assign Questions</span>
+            <span className="inline xs:hidden sm:hidden">Assign</span>
           </button>
 
           <button
             type="button"
             onClick={() => onRequestToggle(cat)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold whitespace-nowrap ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap ${
               cat.isActive === false
                 ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                 : "bg-red-50 text-red-600 hover:bg-red-100"
             }`}
             title={cat.isActive === false ? "Activate" : "Deactivate"}
           >
-            <Power size={16} />
+            <Power size={16} className="shrink-0" />
             {cat.isActive === false ? "Activate" : "Deactivate"}
           </button>
         </div>

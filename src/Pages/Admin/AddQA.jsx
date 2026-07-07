@@ -452,6 +452,74 @@ function QuickCreateCategoryModal({ lang, categories, onCreated, onClose }) {
     </div>
   );
 }
+function CategorySkeleton() {
+  return (
+    <div className="space-y-2 p-1">
+      {[0, 18, 18, 0, 18].map((indent, i) => (
+        <div
+          key={i}
+          className="flex items-center gap-2 py-1"
+          style={{ marginLeft: `${indent}px` }}
+        >
+          <div className="w-4 h-4 rounded bg-slate-200 animate-pulse shrink-0" />
+          <div
+            className="h-3 rounded bg-slate-200 animate-pulse"
+            style={{ width: `${60 + (i % 3) * 25}px` }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+function CategoryCheckboxNode({ cat, level, selected, onToggle, isArabic }) {
+  const hasChildren = (cat.children || []).length > 0;
+  const checked = selected.includes(cat._id);
+  const indent = Math.min(level, 4) * 18;
+
+  return (
+    <div>
+      <label
+        title={cat.path}
+        className={`flex items-center gap-2 rounded-lg px-2 py-2 sm:py-1.5 cursor-pointer transition ${
+          checked ? "bg-white" : "hover:bg-white/60"
+        }`}
+        style={{ marginLeft: `${indent}px` }}
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={() => onToggle(cat._id)}
+          className="accent-[var(--bg-color-header)] w-4 h-4 shrink-0"
+        />
+        <span
+          className={`text-sm truncate ${
+            level === 0 ? "font-semibold text-gray-800" : "text-gray-600"
+          }`}
+          dir={isArabic ? "rtl" : "ltr"}
+        >
+          {cat.name}
+        </span>
+        {hasChildren && (
+          <span className="text-[0.65rem] text-gray-400 ml-auto pl-2 shrink-0">
+            {cat.children.length} sub{cat.children.length > 1 ? "s" : ""}
+          </span>
+        )}
+      </label>
+
+      {hasChildren &&
+        cat.children.map((child) => (
+          <CategoryCheckboxNode
+            key={child._id}
+            cat={child}
+            level={level + 1}
+            selected={selected}
+            onToggle={onToggle}
+            isArabic={isArabic}
+          />
+        ))}
+    </div>
+  );
+}
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function AddQA() {
   const [searchParams] = useSearchParams();
@@ -475,8 +543,9 @@ export default function AddQA() {
   const [showRefModal, setShowRefModal] = useState(false);
   const [showRelatedModal, setShowRelatedModal] = useState(false);
   const answerRef = useRef(null);
-
+  const [categorySearch, setCategorySearch] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const [form, setForm] = useState({
     language: urlLang || "en",
@@ -507,12 +576,35 @@ export default function AddQA() {
     });
     return [...new Set(slugs)];
   };
+  // Keeps a category if it matches the search term OR has a descendant that does,
+  // so parents stay visible as context even if only a child matches.
+  function filterCategoryTree(categories, term) {
+    if (!term.trim()) return categories;
+    const lower = term.trim().toLowerCase();
+
+    return categories
+      .map((cat) => {
+        const children = filterCategoryTree(cat.children || [], term);
+        const selfMatch = cat.name?.toLowerCase().includes(lower);
+
+        if (selfMatch || children.length > 0) {
+          return { ...cat, children };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
   const flatCategories = useMemo(
     () => flattenCategories(categoriesTree),
     [categoriesTree],
   );
+  const filteredCategoryTree = useMemo(
+    () => filterCategoryTree(categoriesTree, categorySearch),
+    [categoriesTree, categorySearch],
+  );
   useEffect(() => {
     let alive = true;
+    setCategoriesLoading(true);
 
     getQACategories(form.language, false, true)
       .then((data) => {
@@ -520,6 +612,9 @@ export default function AddQA() {
       })
       .catch(() => {
         if (alive) setCategoriesTree([]);
+      })
+      .finally(() => {
+        if (alive) setCategoriesLoading(false);
       });
 
     return () => {
@@ -916,7 +1011,7 @@ export default function AddQA() {
               symbols.
             </p>
             <div className="mb-5">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                 <div>
                   <label className={labelCls}>Categories:</label>
                   <p className="text-xs text-gray-400 mt-[-2px] mb-0">
@@ -930,52 +1025,59 @@ export default function AddQA() {
                   <button
                     type="button"
                     onClick={() => setShowCreateCategoryModal(true)}
-                    className="text-xs px-3 py-1 rounded-full border border-[var(--bg-color-header)] text-[var(--bg-color-header)] hover:bg-[var(--bg-color-header)] hover:text-white transition-colors duration-150 font-semibold"
+                    className="text-xs px-3 py-1 rounded-full border border-[var(--bg-color-header)] text-[var(--bg-color-header)] hover:bg-[var(--bg-color-header)] hover:text-white transition-colors duration-150 font-semibold shrink-0"
                   >
                     + Create Category
                   </button>
                 )}
               </div>
 
-              <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-3">
-                {flatCategories.length === 0 ? (
+              {categoriesLoading ? (
+                <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-3">
+                  <CategorySkeleton />
+                </div>
+              ) : flatCategories.length === 0 ? (
+                <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-3">
                   <p className="text-sm text-gray-400 m-0">
                     No categories found for this language. Create one first.
                   </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {flatCategories.map((cat) => {
-                      const checked = selectedCategories.includes(cat._id);
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={categorySearch}
+                    onChange={(e) => setCategorySearch(e.target.value)}
+                    placeholder="Search categories..."
+                    className="w-full mb-2 rounded-lg border border-[#b5d4c3] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--bg-color-header)]"
+                  />
 
-                      return (
-                        <label
+                  <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-2 max-h-64 overflow-y-auto">
+                    {filteredCategoryTree.length === 0 ? (
+                      <p className="text-sm text-gray-400 m-0 py-2 text-center">
+                        No categories match "{categorySearch}".
+                      </p>
+                    ) : (
+                      filteredCategoryTree.map((cat) => (
+                        <CategoryCheckboxNode
                           key={cat._id}
-                          title={cat.path}
-                          className={`cursor-pointer rounded-full px-3 py-1.5 text-sm border transition ${
-                            checked
-                              ? "bg-[var(--bg-color-header)] text-white border-[var(--bg-color-header)]"
-                              : "bg-white text-gray-600 border-gray-300 hover:border-[var(--bg-color-header)]"
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => {
-                              setSelectedCategories((prev) =>
-                                prev.includes(cat._id)
-                                  ? prev.filter((id) => id !== cat._id)
-                                  : [...prev, cat._id],
-                              );
-                            }}
-                            className="hidden"
-                          />
-                          {cat.displayName}
-                        </label>
-                      );
-                    })}
+                          cat={cat}
+                          level={0}
+                          selected={selectedCategories}
+                          isArabic={isArabic}
+                          onToggle={(id) => {
+                            setSelectedCategories((prev) =>
+                              prev.includes(id)
+                                ? prev.filter((cid) => cid !== id)
+                                : [...prev, id],
+                            );
+                          }}
+                        />
+                      ))
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
 
               {selectedCategories.length > 0 && (
                 <p className="text-xs text-gray-400 mt-2 mb-0">
