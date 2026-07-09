@@ -380,7 +380,6 @@ function EditCategoryModal({ category, parentOptions, onClose, onSaved }) {
     name: category.name || "",
     parent: category.parent?._id || category.parent || "",
     description: category.description || "",
-    order: category.order || 0,
   });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -400,7 +399,6 @@ function EditCategoryModal({ category, parentOptions, onClose, onSaved }) {
         name: form.name,
         parent: form.parent || null,
         description: form.description,
-        order: form.order,
         isActive: category.isActive !== false,
       });
       onSaved();
@@ -689,7 +687,6 @@ export default function ManageQACategories() {
       name: "",
       parent: "",
       description: "",
-      order: 0,
     });
   };
 
@@ -740,7 +737,6 @@ export default function ManageQACategories() {
         lang,
         parent: form.parent || null,
         description: form.description,
-        order: form.order,
       });
       setMsg("Category created successfully.");
       resetForm();
@@ -920,21 +916,6 @@ export default function ManageQACategories() {
                 Select a parent to create a nested category.
               </p>
             </div>
-
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">
-                Order
-              </label>
-              <input
-                type="number"
-                value={form.order}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, order: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421]"
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1">
                 Description
