@@ -108,3 +108,16 @@ export async function updateQuestionsForCategory(categoryId, questionIds) {
 
   return data;
 }
+export async function deleteQACategory(id) {
+  const res = await fetch(`${API_BASE}/api/admin/qa-categories/${id}/delete`, {
+    method: "DELETE",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Could not delete category.");
+  }
+
+  return data;
+}

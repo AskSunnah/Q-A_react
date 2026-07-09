@@ -7,6 +7,7 @@ import {
   toggleQACategory,
   getQuestionsForCategory,
   updateQuestionsForCategory,
+  deleteQACategory,
 } from "../../api/qaCategories";
 import {
   FolderTree,
@@ -19,6 +20,7 @@ import {
   ListChecks,
   ChevronRight,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 
 function flattenCategories(categories, level = 0) {
@@ -40,6 +42,7 @@ function CategoryTreeItem({
   onEdit,
   onRequestToggle,
   onAssignQuestions,
+  onDelete,
 }) {
   const hasChildren = (cat.children || []).length > 0;
   const isCollapsed = collapsedIds.has(cat._id);
@@ -144,7 +147,15 @@ function CategoryTreeItem({
             <span className="hidden xs:inline sm:inline">Assign Questions</span>
             <span className="inline xs:hidden sm:hidden">Assign</span>
           </button>
-
+          <button
+            type="button"
+            onClick={() => onDelete(cat)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 text-xs sm:text-sm font-semibold whitespace-nowrap"
+            title="Delete permanently"
+          >
+            <Trash2 size={16} />
+            Delete
+          </button>
           <button
             type="button"
             onClick={() => onRequestToggle(cat)}
@@ -172,6 +183,7 @@ function CategoryTreeItem({
             onEdit={onEdit}
             onRequestToggle={onRequestToggle}
             onAssignQuestions={onAssignQuestions}
+            onDelete={onDelete}
           />
         ))}
     </div>
@@ -507,7 +519,65 @@ function EditCategoryModal({ category, parentOptions, onClose, onSaved }) {
     </div>
   );
 }
+// ── Confirm Delete Modal ────────────────────────────────────────────────────
+function ConfirmDeleteModal({ category, onConfirm, onClose, deleting }) {
+  const hasChildren = (category.children || []).length > 0;
+  const questionCount = category.questionCount || 0;
 
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[440px] max-w-[95vw] p-7 text-center">
+        <div className="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+          <Trash2 size={24} />
+        </div>
+
+        <h3 className="text-xl font-bold text-slate-800 mb-2">
+          Delete "{category.name}" permanently?
+        </h3>
+
+        <p className="text-slate-600 text-[0.95rem] leading-relaxed mb-3">
+          This cannot be undone. The category will be removed from any questions
+          it's assigned to.
+        </p>
+
+        {hasChildren && (
+          <p className="text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-sm mb-2 text-left">
+            This category has {category.children.length} subcategor
+            {category.children.length > 1 ? "ies" : "y"} nested under it. Delete{" "}
+            {category.children.length > 1 ? "them" : "it"} first, or edit{" "}
+            {category.children.length > 1 ? "each one's" : "its"} parent to
+            reassign {category.children.length > 1 ? "them" : "it"} elsewhere.
+          </p>
+        )}
+
+        {!hasChildren && questionCount > 0 && (
+          <p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-sm mb-2 text-left">
+            {questionCount} question{questionCount > 1 ? "s are" : " is"}{" "}
+            currently assigned to this category and will lose this assignment.
+          </p>
+        )}
+
+        <div className="flex gap-3 justify-center mt-5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={deleting || hasChildren}
+            className="px-5 py-2 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 disabled:opacity-60"
+          >
+            {deleting ? "Deleting..." : "Delete Permanently"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 // ── Confirm Deactivate Modal ────────────────────────────────────────────────
 function ConfirmDeactivateModal({ category, onConfirm, onClose, confirming }) {
   const hasChildren = (category.children || []).length > 0;
@@ -575,6 +645,8 @@ export default function ManageQACategories() {
   const [assignCategory, setAssignCategory] = useState(null);
   const [confirmToggleCat, setConfirmToggleCat] = useState(null);
   const [confirming, setConfirming] = useState(false);
+  const [confirmDeleteCat, setConfirmDeleteCat] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [collapsedIds, setCollapsedIds] = useState(() => new Set());
   const [form, setForm] = useState({
     name: "",
@@ -605,7 +677,13 @@ export default function ManageQACategories() {
     loadCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
+  useEffect(() => {
+    if (!msg) return;
 
+    const timer = setTimeout(() => setMsg(""), 4000);
+
+    return () => clearTimeout(timer);
+  }, [msg]);
   const resetForm = () => {
     setForm({
       name: "",
@@ -626,7 +704,27 @@ export default function ManageQACategories() {
   const handleEdit = (cat) => {
     setEditingCategory(cat);
   };
+  const handleDelete = (cat) => {
+    setConfirmDeleteCat(cat);
+  };
 
+  const confirmDelete = async () => {
+    if (!confirmDeleteCat) return;
+
+    try {
+      setDeleting(true);
+      setMsg("");
+      await deleteQACategory(confirmDeleteCat._id);
+      setMsg("Category deleted successfully.");
+      setConfirmDeleteCat(null);
+      await loadCategories();
+    } catch (err) {
+      setMsg(err.message || "Could not delete category.");
+      setConfirmDeleteCat(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMsg("");
@@ -718,7 +816,14 @@ export default function ManageQACategories() {
             onClose={() => setConfirmToggleCat(null)}
           />
         )}
-
+        {confirmDeleteCat && (
+          <ConfirmDeleteModal
+            category={confirmDeleteCat}
+            deleting={deleting}
+            onConfirm={confirmDelete}
+            onClose={() => setConfirmDeleteCat(null)}
+          />
+        )}
         {msg && (
           <div
             className={`mb-5 px-4 py-2.5 rounded-xl text-[0.9rem] font-medium ${
@@ -889,6 +994,7 @@ export default function ManageQACategories() {
                   onEdit={handleEdit}
                   onRequestToggle={requestToggle}
                   onAssignQuestions={setAssignCategory}
+                  onDelete={handleDelete}
                 />
               ))}
             </div>
