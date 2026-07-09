@@ -28,7 +28,6 @@ export async function createQACategory(payload) {
       lang: payload.lang,
       parent: payload.parent || null,
       description: payload.description || "",
-      order: payload.order || 0,
     }),
   });
 
@@ -49,7 +48,6 @@ export async function updateQACategory(id, payload) {
       name: payload.name,
       parent: payload.parent || null,
       description: payload.description || "",
-      order: payload.order || 0,
       isActive: payload.isActive,
     }),
   });
