@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   submitQA,
@@ -7,6 +7,7 @@ import {
   getQA,
   getAllQuestions,
 } from "../../api/qa";
+import { getQACategories, createQACategory } from "../../api/qaCategories";
 import AdminLayout from "../../Components/Admin/AdminLayout";
 import PreviewModal from "../../Components/Admin/PreviewModal";
 import { RxCross2 } from "react-icons/rx";
@@ -313,7 +314,212 @@ function RelatedModal({
     </div>
   );
 }
+function flattenCategories(categories, level = 0) {
+  return categories.flatMap((cat) => [
+    {
+      ...cat,
+      level,
+      displayName: `${"— ".repeat(level)}${cat.name}`,
+    },
+    ...flattenCategories(cat.children || [], level + 1),
+  ]);
+}
 
+function QuickCreateCategoryModal({ lang, categories, onCreated, onClose }) {
+  const [name, setName] = useState("");
+  const [parent, setParent] = useState("");
+  const [description, setDescription] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const flatCategories = flattenCategories(categories);
+  const normalizeCategoryName = (value = "") =>
+    value.trim().toLowerCase().replace(/\s+/g, " ");
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      setMsg("Please enter a category name.");
+      return;
+    }
+    const duplicateExists = flatCategories.some((cat) => {
+      const sameName =
+        normalizeCategoryName(cat.name) === normalizeCategoryName(name);
+
+      const sameParent =
+        String(cat.parent?._id || cat.parent || "") === String(parent || "");
+
+      return sameName && sameParent;
+    });
+
+    if (duplicateExists) {
+      setMsg("This category already exists under the selected parent.");
+      return;
+    }
+    try {
+      setSaving(true);
+      setMsg("");
+
+      const created = await createQACategory({
+        name,
+        lang,
+        parent: parent || null,
+        description,
+      });
+
+      onCreated(created);
+    } catch (err) {
+      setMsg(err.message || "Could not create category.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-[460px] max-w-[95vw] p-7">
+        <h3 className="text-xl font-bold text-slate-800 mb-1">
+          Create Category
+        </h3>
+        <p className="text-sm text-slate-400 mt-0 mb-5">
+          This will create a category and select it for this Q&amp;A.
+        </p>
+
+        {msg && (
+          <div className="mb-4 rounded-xl bg-red-50 text-red-700 border border-red-200 px-3 py-2 text-sm">
+            {msg}
+          </div>
+        )}
+
+        <label className="block text-sm font-bold text-slate-700 mb-1">
+          Name
+        </label>
+        <input
+          autoFocus
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          dir={lang === "ar" ? "rtl" : "ltr"}
+          className={`w-full mb-4 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421] ${
+            lang === "ar" ? "text-right" : "text-left"
+          }`}
+        />
+
+        <label className="block text-sm font-bold text-slate-700 mb-1">
+          Parent Category
+        </label>
+        <select
+          value={parent}
+          onChange={(e) => setParent(e.target.value)}
+          className="w-full mb-4 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421] bg-white"
+        >
+          <option value="">No parent — top level</option>
+          {flatCategories.map((cat) => (
+            <option key={cat._id} value={cat._id}>
+              {cat.displayName}
+            </option>
+          ))}
+        </select>
+
+        <label className="block text-sm font-bold text-slate-700 mb-1">
+          Description
+        </label>
+        <input
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Optional"
+          className="w-full mb-5 rounded-xl border border-slate-200 px-3 py-2.5 outline-none focus:border-[#c3a421]"
+        />
+
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={saving}
+            className="px-4 py-2 rounded-xl bg-[var(--bg-color-header)] text-white font-semibold disabled:opacity-60"
+          >
+            {saving ? "Creating..." : "Create & Select"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+function CategorySkeleton() {
+  return (
+    <div className="space-y-2 p-1">
+      {[0, 18, 18, 0, 18].map((indent, i) => (
+        <div
+          key={i}
+          className="flex items-center gap-2 py-1"
+          style={{ marginLeft: `${indent}px` }}
+        >
+          <div className="w-4 h-4 rounded bg-slate-200 animate-pulse shrink-0" />
+          <div
+            className="h-3 rounded bg-slate-200 animate-pulse"
+            style={{ width: `${60 + (i % 3) * 25}px` }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+function CategoryCheckboxNode({ cat, level, selected, onToggle, isArabic }) {
+  const hasChildren = (cat.children || []).length > 0;
+  const checked = selected.includes(cat._id);
+  const indent = Math.min(level, 4) * 18;
+
+  return (
+    <div>
+      <label
+        title={cat.path}
+        className={`flex items-center gap-2 rounded-lg px-2 py-2 sm:py-1.5 cursor-pointer transition ${
+          checked ? "bg-white" : "hover:bg-white/60"
+        }`}
+        style={{ marginLeft: `${indent}px` }}
+      >
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={() => onToggle(cat._id)}
+          className="accent-[var(--bg-color-header)] w-4 h-4 shrink-0"
+        />
+        <span
+          className={`text-sm truncate ${
+            level === 0 ? "font-semibold text-gray-800" : "text-gray-600"
+          }`}
+          dir={isArabic ? "rtl" : "ltr"}
+        >
+          {cat.name}
+        </span>
+        {hasChildren && (
+          <span className="text-[0.65rem] text-gray-400 ml-auto pl-2 shrink-0">
+            {cat.children.length} sub{cat.children.length > 1 ? "s" : ""}
+          </span>
+        )}
+      </label>
+
+      {hasChildren &&
+        cat.children.map((child) => (
+          <CategoryCheckboxNode
+            key={child._id}
+            cat={child}
+            level={level + 1}
+            selected={selected}
+            onToggle={onToggle}
+            isArabic={isArabic}
+          />
+        ))}
+    </div>
+  );
+}
 // ── Main Component ─────────────────────────────────────────────────────────
 export default function AddQA() {
   const [searchParams] = useSearchParams();
@@ -331,11 +537,15 @@ export default function AddQA() {
   const [loading, setLoading] = useState(false);
   const [sections, setSections] = useState([]);
   const [relatedQuestions, setRelatedQuestions] = useState([]);
+  const [categoriesTree, setCategoriesTree] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false);
   const [showRefModal, setShowRefModal] = useState(false);
   const [showRelatedModal, setShowRelatedModal] = useState(false);
   const answerRef = useRef(null);
-
+  const [categorySearch, setCategorySearch] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const [form, setForm] = useState({
     language: urlLang || "en",
@@ -366,7 +576,51 @@ export default function AddQA() {
     });
     return [...new Set(slugs)];
   };
+  // Keeps a category if it matches the search term OR has a descendant that does,
+  // so parents stay visible as context even if only a child matches.
+  function filterCategoryTree(categories, term) {
+    if (!term.trim()) return categories;
+    const lower = term.trim().toLowerCase();
 
+    return categories
+      .map((cat) => {
+        const children = filterCategoryTree(cat.children || [], term);
+        const selfMatch = cat.name?.toLowerCase().includes(lower);
+
+        if (selfMatch || children.length > 0) {
+          return { ...cat, children };
+        }
+        return null;
+      })
+      .filter(Boolean);
+  }
+  const flatCategories = useMemo(
+    () => flattenCategories(categoriesTree),
+    [categoriesTree],
+  );
+  const filteredCategoryTree = useMemo(
+    () => filterCategoryTree(categoriesTree, categorySearch),
+    [categoriesTree, categorySearch],
+  );
+  useEffect(() => {
+    let alive = true;
+    setCategoriesLoading(true);
+
+    getQACategories(form.language, false, true)
+      .then((data) => {
+        if (alive) setCategoriesTree(data);
+      })
+      .catch(() => {
+        if (alive) setCategoriesTree([]);
+      })
+      .finally(() => {
+        if (alive) setCategoriesLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [form.language]);
   // Fetch for edit mode
   useEffect(() => {
     if (isEdit && editSlug && editLang) {
@@ -383,6 +637,11 @@ export default function AddQA() {
           });
           setSections(data.content || []);
           setRelatedQuestions(data.relatedQuestions || []);
+          setSelectedCategories(
+            (data.categories || []).map((cat) =>
+              typeof cat === "string" ? cat : cat._id,
+            ),
+          );
           setLoading(false);
         })
         .catch(() => {
@@ -569,6 +828,7 @@ export default function AddQA() {
       conclusion: form.conclusion,
       content: sections,
       relatedQuestions,
+      categories: selectedCategories,
       userQuestionId: selectedUserQuestionId,
       language: form.language,
     };
@@ -591,6 +851,7 @@ export default function AddQA() {
         });
         setSections([]);
         setRelatedQuestions([]);
+        setSelectedCategories([]);
       } else {
         // Linked to a user question — lang determines which status to flip
         await submitQA(qa, form.language);
@@ -650,7 +911,24 @@ export default function AddQA() {
           onClose={() => setShowRelatedModal(false)}
         />
       )}
+      {!isEdit && showCreateCategoryModal && (
+        <QuickCreateCategoryModal
+          lang={form.language}
+          categories={categoriesTree}
+          onClose={() => setShowCreateCategoryModal(false)}
+          onCreated={(created) => {
+            setShowCreateCategoryModal(false);
 
+            getQACategories(form.language, false, true)
+              .then(setCategoriesTree)
+              .catch(() => {});
+
+            setSelectedCategories((prev) =>
+              prev.includes(created._id) ? prev : [...prev, created._id],
+            );
+          }}
+        />
+      )}
       {showPreview && (
         <PreviewModal
           open={showPreview}
@@ -732,7 +1010,82 @@ export default function AddQA() {
               Use only lowercase letters, numbers, and hyphens. No spaces or
               symbols.
             </p>
+            <div className="mb-5">
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                <div>
+                  <label className={labelCls}>Categories:</label>
+                  <p className="text-xs text-gray-400 mt-[-2px] mb-0">
+                    {isEdit
+                      ? "Assign or reassign existing categories for this Q&A."
+                      : "Select one or more categories, or create a new category if needed."}
+                  </p>
+                </div>
 
+                {!isEdit && (
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateCategoryModal(true)}
+                    className="text-xs px-3 py-1 rounded-full border border-[var(--bg-color-header)] text-[var(--bg-color-header)] hover:bg-[var(--bg-color-header)] hover:text-white transition-colors duration-150 font-semibold shrink-0"
+                  >
+                    + Create Category
+                  </button>
+                )}
+              </div>
+
+              {categoriesLoading ? (
+                <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-3">
+                  <CategorySkeleton />
+                </div>
+              ) : flatCategories.length === 0 ? (
+                <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-3">
+                  <p className="text-sm text-gray-400 m-0">
+                    No categories found for this language. Create one first.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={categorySearch}
+                    onChange={(e) => setCategorySearch(e.target.value)}
+                    placeholder="Search categories..."
+                    className="w-full mb-2 rounded-lg border border-[#b5d4c3] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--bg-color-header)]"
+                  />
+
+                  <div className="rounded-lg border border-[#b5d4c3] bg-[#f6f7fa] p-2 max-h-64 overflow-y-auto">
+                    {filteredCategoryTree.length === 0 ? (
+                      <p className="text-sm text-gray-400 m-0 py-2 text-center">
+                        No categories match "{categorySearch}".
+                      </p>
+                    ) : (
+                      filteredCategoryTree.map((cat) => (
+                        <CategoryCheckboxNode
+                          key={cat._id}
+                          cat={cat}
+                          level={0}
+                          selected={selectedCategories}
+                          isArabic={isArabic}
+                          onToggle={(id) => {
+                            setSelectedCategories((prev) =>
+                              prev.includes(id)
+                                ? prev.filter((cid) => cid !== id)
+                                : [...prev, id],
+                            );
+                          }}
+                        />
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+
+              {selectedCategories.length > 0 && (
+                <p className="text-xs text-gray-400 mt-2 mb-0">
+                  {selectedCategories.length} categor
+                  {selectedCategories.length === 1 ? "y" : "ies"} selected
+                </p>
+              )}
+            </div>
             <label className={labelCls}>Question:</label>
             <textarea
               name="question"

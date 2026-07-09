@@ -249,6 +249,16 @@ export default function AdminDashboard() {
           />
           <QuickActionButton
             icon={FileText}
+            label="Manage Questions Guide"
+            onClick={() =>
+              window.open(
+                "https://drive.google.com/file/d/1h3hG0MoT6XXw--1wNXxDjQR0v86Ii-F5/view?usp=drive_link",
+                "_blank",
+              )
+            }
+          />
+          <QuickActionButton
+            icon={FileText}
             label="Manage Books Guide"
             onClick={() =>
               window.open(

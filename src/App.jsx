@@ -28,6 +28,7 @@ import Feedback from "./Pages/Admin/Feedback";
 import AdminReports from "./Pages/Admin/Reports";
 import ManageAuthors from "./Pages/Admin/ManageAuthors";
 import PinnedSectionPage from "./Pages/Admin/PinnedSectionPage";
+import ManageQACategories from "./Pages/Admin/ManageCategories";
 //payment imports
 import ManageSubscription from "./Pages/ManageSubscription";
 import Success from "./Pages/Success";
@@ -171,6 +172,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AllBooks lang="ar" />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/supervised/qa-categories"
+            element={
+              <ProtectedRoute>
+                <ManageQACategories />
               </ProtectedRoute>
             }
           />
